@@ -106,6 +106,7 @@ void Thread::ThreadLast(void)
 
 void Thread::Attach(void)
 {
+    AddRef();   // Keep a reference to ourselves, while we're runnable
     _next = NULL;
     _last = last;
     if (last)
@@ -113,7 +114,6 @@ void Thread::Attach(void)
     else
         first = this;
     last = this;
-    kprintf("first 0x%.8x, last 0x%.8x, cursor 0x%.8x\n", first, last, cursor);
 }
 
 void Thread::Detach(void)
@@ -129,7 +129,7 @@ void Thread::Detach(void)
     if (cursor == this)
         cursor = _next ?: first;
     _last = _next = NULL;
-    kprintf("first 0x%.8x, last 0x%.8x, cursor 0x%.8x\n", first, last, cursor);
+    Release();   // No longer runnable, so releasable
 }
 
 Thread *Thread::first = NULL;

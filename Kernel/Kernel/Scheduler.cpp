@@ -18,6 +18,7 @@ void Scheduler::BeginScheduling(void)
         } else {
             CPU_Interrupt_Enable();
             asm("hlt");
+            CPU_Interrupt_Disable();
         }
     }
 }
