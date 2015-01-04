@@ -1,0 +1,444 @@
+# 1 "debug.cpp"
+# 1 "/home/colin/Development/OSdevelopment/Kernel/Kernel/temp//"
+# 1 "<command-line>"
+# 1 "debug.cpp"
+# 1 "tools.h" 1
+
+
+
+
+
+
+
+# 1 "/usr/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/include/stdarg.h" 1 3 4
+# 40 "/usr/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/include/stdarg.h" 3 4
+typedef __builtin_va_list __gnuc_va_list;
+# 102 "/usr/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/include/stdarg.h" 3 4
+typedef __gnuc_va_list va_list;
+# 9 "tools.h" 2
+
+
+class CStringPrint
+{
+public:
+ CStringPrint();
+ virtual ~CStringPrint();
+
+ void Print(const char *format, ...);
+ void PrintList(const char *format, va_list &params);
+
+ static bool IsDigit(char c);
+ static int LengthOf(const char *s);
+
+protected:
+ virtual void PrintOut(const char *data, int length) = 0;
+
+private:
+ int ParseFormat(va_list &params, const char *format);
+};
+
+
+
+static __inline__ void outb(unsigned short port, unsigned char val)
+{
+   asm volatile("outb %0,%1"::"a"(val), "Nd" (port));
+}
+
+static __inline__ void outw(unsigned short port, unsigned short val)
+{
+   asm volatile("outw %0,%1"::"a"(val), "Nd" (port));
+}
+
+static __inline__ void outl(unsigned short port, unsigned int val)
+{
+   asm volatile("outl %0,%1"::"a"(val), "Nd" (port));
+}
+
+static __inline__ unsigned char inb(unsigned short port)
+{
+   unsigned char ret;
+   asm volatile ("inb %1,%0":"=a"(ret):"Nd"(port));
+   return ret;
+}
+
+static __inline__ unsigned short inw(unsigned short port)
+{
+   unsigned short ret;
+   asm volatile ("inw %1,%0":"=a"(ret):"Nd"(port));
+   return ret;
+}
+
+static __inline__ unsigned int inl(unsigned short port)
+{
+   unsigned int ret;
+   asm volatile ("inl %1,%0":"=a"(ret):"Nd"(port));
+   return ret;
+}
+# 75 "tools.h"
+static __inline__ void io_wait(void)
+{
+   asm volatile("outb %%al, $0x80" : : "a"(0));
+
+
+}
+# 2 "debug.cpp" 2
+# 1 "debug.h" 1
+
+
+
+
+
+void InitDebug(void);
+
+void kcls(void);
+void kprintf(const char *format, ...);
+void test(char c);
+# 3 "debug.cpp" 2
+# 1 "mem_logical.h" 1
+
+
+
+# 1 "mem_physical.h" 1
+
+
+
+# 1 "runtime.h" 1
+
+
+
+
+
+
+
+typedef unsigned int size_t;
+
+typedef unsigned char UInt8;
+typedef unsigned short UInt16;
+typedef unsigned int UInt32;
+# 5 "mem_physical.h" 2
+
+typedef void* PhysicalPointer;
+typedef unsigned long PhysicalLength;
+typedef unsigned long PageCount;
+
+class CPhysicalMemory
+{
+public:
+
+ static const PhysicalPointer Minimum;
+ static const PhysicalPointer Maximum;
+ static const PhysicalPointer Invalid;
+
+
+ static void Init(void);
+ static void AddChunk(PhysicalPointer address, PhysicalLength length);
+ static void AddReserved(PhysicalPointer address, PhysicalLength length);
+ static PageCount TotalPages(void);
+ static PageCount TotalUsed(void);
+ static PhysicalLength PageToMemory(PageCount count);
+
+
+ static PhysicalPointer AllocateContiguousPages(PageCount count = 1, PhysicalPointer min = Minimum, PhysicalPointer max = Maximum);
+ static void ReleasePages(PhysicalPointer address, PageCount count = 1);
+};
+# 5 "mem_logical.h" 2
+
+
+typedef enum {
+    pmApplication,
+    pmKernel,
+} MAP_TYPE;
+
+typedef enum {
+    fmWritable = 1,
+    fmUser = 2,
+    fmPageData = 4,
+} MAP_FLAGS;
+
+typedef struct {
+    union {
+        struct {
+            UInt32 Present : 1;
+            UInt32 Writable : 1;
+            UInt32 User : 1;
+            UInt32 WriteThrough : 1;
+            UInt32 CacheDisable : 1;
+            UInt32 Accessed : 1;
+            UInt32 Available : 1;
+            UInt32 PageSize : 1;
+            UInt32 Global : 1;
+            UInt32 UserData : 3;
+            UInt32 Frame : 20;
+        };
+        UInt32 RawValue;
+    };
+} SPageDirectory;
+
+typedef struct {
+    union {
+        struct {
+            UInt32 Present : 1;
+            UInt32 Writable : 1;
+            UInt32 User : 1;
+            UInt32 WriteThough : 1;
+            UInt32 CacheDisable : 1;
+            UInt32 Accessed : 1;
+            UInt32 Dirty : 1;
+            UInt32 PatIndex : 1;
+            UInt32 Global : 1;
+            UInt32 UserData : 3;
+            UInt32 Frame : 20;
+        };
+        UInt32 RawValue;
+    };
+} SPage;
+
+typedef struct {
+    SPage pages[1024];
+} SPageTable;
+
+class SPageDirectoryInfo {
+public:
+
+
+    SPageTable *tables[1024];
+    SPageDirectory *tablesPhysical;
+    PhysicalPointer directoryPhysical;
+
+    void InitKernel(void);
+
+    void Init(void);
+    void Release(void);
+    void Select(void);
+
+    void* Map( int permissions, MAP_TYPE location, PhysicalPointer physical, size_t count = 1);
+    void Map( int permissions, void *location, PhysicalPointer physical);
+    void Unmap(void *logical);
+    PhysicalPointer Address(void *logical);
+
+private:
+    void Unmap(void *logical, bool mapPage);
+    void CopyKernel(void);
+
+    int revision;
+};
+
+extern SPageDirectoryInfo rootAddressSpace;
+extern SPageDirectoryInfo *currentAddressSpace;
+# 4 "debug.cpp" 2
+
+
+
+extern long long virt, phys;
+const long long physicalAddress = 0xb8000;
+
+static char* s_framebuffer = 0;
+
+static inline char* Get_Framebuffer(void)
+{
+
+    if (s_framebuffer == ((void*)0))
+        s_framebuffer = (char*)(physicalAddress + (long long)&virt - (long long)&phys);
+    return s_framebuffer;
+}
+
+void InitDebug(void)
+{
+    kprintf("Framebuffer address: 0x%.8x\n", Get_Framebuffer());
+    s_framebuffer = (char*)rootAddressSpace.Map(fmWritable, pmKernel, (PhysicalPointer)physicalAddress, 1);
+    kprintf("Framebuffer address: 0x%.8x\n", Get_Framebuffer());
+}
+
+void test(char c)
+{
+ char *output = Get_Framebuffer() + (((80 * 24) + 79) * 2);
+ output[0] = c;
+ output[1] = 0x07;
+}
+
+class CathodeRayTube
+{
+private:
+ bool set;
+ int got;
+public:
+ CathodeRayTube()
+ {
+  set = false;
+ }
+ ~CathodeRayTube()
+ {
+ }
+
+
+ int Width(void)
+ {
+  return 80;
+ }
+ int Height(void)
+ {
+  return 25;
+ }
+
+
+ char* FrameBuffer(void)
+ {
+        return Get_Framebuffer();
+ }
+
+
+ int GetCursorOffset(void)
+ {
+  unsigned char low, high;
+
+  if (set)
+   return got;
+  outb(0x3d4, 14);
+  high = inb(0x3d5);
+  outb(0x3d4, 15);
+  low = inb(0x3d5);
+  got = (high << 8) | low;
+  set = true;
+  return got;
+ }
+
+
+ void SetCursorOffset(int offset)
+ {
+  got = offset;
+  set = true;
+  outb(0x3d4, 14);
+  outb(0x3d5, (offset & 0xFF00) >> 8);
+  outb(0x3d4, 15);
+  outb(0x3d5, offset & 0xFF);
+ }
+
+
+ void OffsetToXy(int offset, int *x, int *y)
+ {
+  *x = offset % Width();
+  *y = offset / Width();
+ }
+
+
+ int XyToOffset(int x, int y)
+ {
+  return x + (y * Width());
+ }
+
+
+ void Clear(void)
+ {
+  unsigned short *data;
+  int i;
+
+  data = (unsigned short*)FrameBuffer();
+  for (i = 0; i < (80 * 25); i++)
+   data[i] = ' ' | (0x07 << 8);
+ }
+};
+
+class ScreenPrinter : public CStringPrint
+{
+protected:
+ void PrintOut(const char *data, int length)
+ {
+  for (int i = 0; i < length; i++)
+  {
+   HandleChar(data[i]);
+
+   outb(0xe9, data[i]);
+  }
+ }
+private:
+ void HandleChar(char c)
+ {
+  switch (c)
+  {
+   case '\t':
+    for (int i = 0; i < 4; i++)
+     PrintChar(' ', 0x07);
+    break;
+   case '\r':
+    {
+     CathodeRayTube tube;
+     int cursor = tube.GetCursorOffset();
+     cursor -= cursor % tube.Width();
+     PrintChar(0, cursor);
+    }
+    break;
+   case '\f':
+    {
+     CathodeRayTube tube;
+     int cursor = tube.GetCursorOffset();
+     cursor += tube.Width();
+     PrintChar(0, cursor);
+    }
+    break;
+   case '\n':
+    {
+     CathodeRayTube tube;
+     int cursor = tube.GetCursorOffset();
+     cursor += tube.Width();
+     cursor -= cursor % tube.Width();
+     PrintChar(0, cursor);
+    }
+    break;
+   default:
+    PrintChar(c, 0x07);
+    break;
+  }
+ }
+ void PrintChar(char c, int f)
+ {
+  CathodeRayTube tube;
+  char *data;
+  int cursor;
+
+  data = tube.FrameBuffer();
+  if (c != 0x00)
+  {
+   cursor = tube.GetCursorOffset();
+   data[(cursor * 2) + 0] = c;
+   data[(cursor * 2) + 1] = f;
+   cursor++;
+  }
+  else
+  {
+   cursor = f;
+  }
+  while (cursor >= (tube.Width() * tube.Height()))
+  {
+   int i, len;
+
+   cursor -= tube.Width();
+   len = tube.Width() * (tube.Height() - 1) * 2;
+   for (i = 0; i < len; i++)
+    data[i] = data[i + (tube.Width() * 2)];
+   len += tube.Width() * 2;
+   for (; i < len;)
+   {
+    data[i++] = ' ';
+    data[i++] = 0x07;
+   }
+  }
+  tube.SetCursorOffset(cursor);
+ }
+};
+
+void kcls(void)
+{
+ CathodeRayTube crt;
+
+ crt.Clear();
+}
+
+void kprintf(const char *format, ...)
+{
+ ScreenPrinter printer;
+ va_list vl;
+
+ __builtin_va_start(vl,format);
+ printer.PrintList(format, vl);
+ __builtin_va_end(vl);
+}
