@@ -29,17 +29,6 @@ static int entered = -1;
 int x = 0, y = 0;
 static bool MultitaskHandler(void *context, void *state)
 {
-//    CPU_Interrupt_Disable();
-//    if (entered > 0) {
-//        x++;
-//        kprintf("Reentry? %i (%i/%i)\n", entered, x, y);
-//        return true;
-//    } else y++;
-//    entered++;
-//    Thread *old = ThreadAt(threadCount);
-//    threadCount = (threadCount + 1) % 2;
-//    ThreadAt(threadCount)->_context->SwitchFrom(&old->_context);
-//    entered--;
     Scheduler::EnterFromInterrupt();
     return true;
 }
@@ -86,19 +75,6 @@ private:
     int _x, _y;
     char *_msg;
 };
-class FirstThread : public TestThread
-{
-public:
-    FirstThread(int x, int y, char *msg)
-    :TestThread(x, y, msg)
-    {}
-protected:
-    void ThreadMain(void)
-    {
-//        CPU_PIC_Enable(0, true);
-        TestThread::ThreadMain();
-    }
-};
 
 static inline void* FixAddress(void *address)
 {
@@ -127,8 +103,6 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     
     // Parse memory from boot description
 	mbd = (multiboot_info_t*)FixAddress(mbd);
-//	kcls();
-//	kprintf("Multiboot: %iKb low mem, %iKb high mem:\n", mbd->mem_lower, mbd->mem_upper);
 	for (
 		map = (memory_map_t*)FixAddress((void*)mbd->mmap_addr);
 		map < (memory_map_t*)(((char*)FixAddress((void*)mbd->mmap_addr)) + mbd->mmap_length);
@@ -137,15 +111,10 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
 		if (map->type == 0x01)
 		{
 			// Usable RAM
-//			kprintf("\t0x%.8x: %i bytes\n", map->base_addr_low, map->length_low);
 			CPhysicalMemory::AddChunk((PhysicalPointer)map->base_addr_low, map->length_low);
 		}
 	}
-//	CPhysicalMemory::AddReserved((void*)(((UInt32)&phys) & 0xFFC00000), ((char*)&kern_end) - ((char*)&kern_start));
 	CPhysicalMemory::AddReserved((void*)(((UInt32)&phys) & 0xFFC00000), 0x00400000);
-//    kprintf("Stack at 0x%.8x\n", &stack);
-
-//    InitDebug();
     
     StandardPC *rootDevice = new StandardPC();
     rootDevice->Start(NULL);
@@ -160,7 +129,7 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     Thread::ConfigureService(rootDevice->Test());
     
     // Thread test
-    one = new FirstThread(51, 20, "Ahoy");
+    one = new TestThread(51, 20, "Ahoy");
     two = new TestThread(50, 20, "Hello");
         // Set up timer
     int divisor = 1193180 / 1000/*Hz*/;
@@ -168,9 +137,9 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     outb(0x40, divisor & 0xFF);
     outb(0x40, divisor >> 8);
     rootDevice->Test()->RegisterHandler(0x20, MultitaskHandler, NULL);
-    CPU_PIC_Enable(0, true);
     
     CPU_Interrupt_Disable();
+    CPU_PIC_Enable(0, true);
     Scheduler::BeginScheduling();
 //    one->_context->SwitchFrom(&rootDevice->GetCPU(0)->scheduler);
     kprintf("What happen\n");

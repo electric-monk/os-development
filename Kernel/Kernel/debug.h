@@ -3,8 +3,6 @@
 
 #define DEBUG
 
-//void InitDebug(void);
-
 void kcls(void);
 void kprintf(const char *format, ...);
 void test(char c);

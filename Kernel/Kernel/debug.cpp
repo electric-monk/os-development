@@ -7,23 +7,11 @@
 extern long long virt, phys;
 const long long physicalAddress = 0xb8000;
 
-//static char* s_framebuffer = 0;
-
 static inline char* Get_Framebuffer(void)
 {
     // WARNING: Currently this relies on the fact that we'll be mapped into memory starting at 0x0000000
-//    if (s_framebuffer == NULL)
-//        s_framebuffer = (char*)(physicalAddress + (long long)&virt - (long long)&phys);
-//    return s_framebuffer;
     return (char*)(physicalAddress + (long long)&virt - (long long)&phys);
 }
-
-//void InitDebug(void)
-//{
-//    kprintf("Framebuffer address: 0x%.8x\n", Get_Framebuffer());
-//    s_framebuffer = (char*)rootAddressSpace.Map(fmWritable, pmKernel, (PhysicalPointer)physicalAddress, 1);
-//    kprintf("Framebuffer address: 0x%.8x\n", Get_Framebuffer());
-//}
 
 void test(char c)
 {
