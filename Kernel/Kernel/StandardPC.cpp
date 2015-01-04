@@ -186,7 +186,7 @@ void StandardPC::Start(Driver *parent)
     // Main CPU Segments
     s_CPUs[0].InitSegments();
     // PIC
-    CPU_PIC_Init(0x20);
+    CPU_PIC_Init(PIC_IRQ_OFFSET);
     // IOAPIC
     // Begin Main CPU
     CPUMain();

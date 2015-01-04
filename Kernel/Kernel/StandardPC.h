@@ -5,6 +5,8 @@
 
 class CPU;
 
+#define PIC_IRQ_OFFSET      0x20
+
 // System interrupts
 typedef enum {  /* 0x00 to 0x1F */
     peDivisionByZero    = 0x00,
