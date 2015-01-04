@@ -1,0 +1,152 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		3B2DFD1C1A53565700C19756 /* Kernel.ld */ = {isa = PBXFileReference; lastKnownFileType = text; name = Kernel.ld; path = Kernel/Kernel.ld; sourceTree = "<group>"; };
+		3B2DFD1D1A54D15700C19756 /* CPU_context.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = CPU_context.asm; path = Kernel/CPU_context.asm; sourceTree = "<group>"; };
+		3B2DFD1E1A54D9D400C19756 /* Thread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Thread.cpp; path = Kernel/Thread.cpp; sourceTree = "<group>"; };
+		3B2DFD1F1A54D9D400C19756 /* Thread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Thread.h; path = Kernel/Thread.h; sourceTree = "<group>"; };
+		3B2DFD451A56459500C19756 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; name = Makefile; path = Kernel/Makefile; sourceTree = "<group>"; };
+		3B2DFD461A567A0200C19756 /* Thread_init.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = Thread_init.asm; path = Kernel/Thread_init.asm; sourceTree = "<group>"; };
+		3B2DFD471A58718800C19756 /* Scheduler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Scheduler.cpp; path = Kernel/Scheduler.cpp; sourceTree = "<group>"; };
+		3B2DFD481A58718800C19756 /* Scheduler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Scheduler.h; path = Kernel/Scheduler.h; sourceTree = "<group>"; };
+		3BE43F5919B1B95A009B16F3 /* BasicHeap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicHeap.cpp; path = Kernel/BasicHeap.cpp; sourceTree = "<group>"; };
+		3BE43F5A19B1B95A009B16F3 /* BasicHeap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BasicHeap.h; path = Kernel/BasicHeap.h; sourceTree = "<group>"; };
+		3BE43F5B19B1B95A009B16F3 /* debug.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = debug.cpp; path = Kernel/debug.cpp; sourceTree = "<group>"; };
+		3BE43F5C19B1B95A009B16F3 /* debug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = debug.h; path = Kernel/debug.h; sourceTree = "<group>"; };
+		3BE43F5D19B1B95A009B16F3 /* descript_cpu.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = descript_cpu.asm; path = Kernel/descript_cpu.asm; sourceTree = "<group>"; };
+		3BE43F5E19B1B95A009B16F3 /* descript.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = descript.cpp; path = Kernel/descript.cpp; sourceTree = "<group>"; };
+		3BE43F5F19B1B95A009B16F3 /* descript.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = descript.h; path = Kernel/descript.h; sourceTree = "<group>"; };
+		3BE43F6019B1B95A009B16F3 /* Driver.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Driver.cpp; path = Kernel/Driver.cpp; sourceTree = "<group>"; };
+		3BE43F6119B1B95A009B16F3 /* Driver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Driver.h; path = Kernel/Driver.h; sourceTree = "<group>"; };
+		3BE43F6219B1B95A009B16F3 /* entry.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = entry.asm; path = Kernel/entry.asm; sourceTree = "<group>"; };
+		3BE43F6319B1B95A009B16F3 /* Interrupts.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interrupts.h; path = Kernel/Interrupts.h; sourceTree = "<group>"; };
+		3BE43F6419B1B95A009B16F3 /* KernelObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KernelObject.h; path = Kernel/KernelObject.h; sourceTree = "<group>"; };
+		3BE43F6519B1B95A009B16F3 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = Kernel/main.cpp; sourceTree = "<group>"; };
+		3BE43F6619B1B95A009B16F3 /* mem_logical.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = mem_logical.cpp; path = Kernel/mem_logical.cpp; sourceTree = "<group>"; };
+		3BE43F6719B1B95A009B16F3 /* mem_logical.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mem_logical.h; path = Kernel/mem_logical.h; sourceTree = "<group>"; };
+		3BE43F6819B1B95A009B16F3 /* mem_physical.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = mem_physical.cpp; path = Kernel/mem_physical.cpp; sourceTree = "<group>"; };
+		3BE43F6919B1B95A009B16F3 /* mem_physical.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mem_physical.h; path = Kernel/mem_physical.h; sourceTree = "<group>"; };
+		3BE43F6A19B1B95A009B16F3 /* multiboot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = multiboot.h; path = Kernel/multiboot.h; sourceTree = "<group>"; };
+		3BE43F6B19B1B95A009B16F3 /* runtime.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = runtime.cpp; path = Kernel/runtime.cpp; sourceTree = "<group>"; };
+		3BE43F6C19B1B95A009B16F3 /* runtime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = runtime.h; path = Kernel/runtime.h; sourceTree = "<group>"; };
+		3BE43F6D19B1B95A009B16F3 /* StandardPC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = StandardPC.cpp; path = Kernel/StandardPC.cpp; sourceTree = "<group>"; };
+		3BE43F6E19B1B95A009B16F3 /* StandardPC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StandardPC.h; path = Kernel/StandardPC.h; sourceTree = "<group>"; };
+		3BE43F6F19B1B95A009B16F3 /* tools.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = tools.cpp; path = Kernel/tools.cpp; sourceTree = "<group>"; };
+		3BE43F7019B1B95A009B16F3 /* tools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = tools.h; path = Kernel/tools.h; sourceTree = "<group>"; };
+		3BE43F7319B1CF8B009B16F3 /* StandardPC_traps.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = StandardPC_traps.asm; path = Kernel/StandardPC_traps.asm; sourceTree = "<group>"; };
+		3BE43F7419B1D16B009B16F3 /* StandardPC_traps.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StandardPC_traps.h; path = Kernel/StandardPC_traps.h; sourceTree = "<group>"; };
+		3BE43F7519B6E615009B16F3 /* StandardPC_traps_shared.inc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.pascal; name = StandardPC_traps_shared.inc; path = Kernel/StandardPC_traps_shared.inc; sourceTree = "<group>"; };
+		3BE43F7619B6F7B6009B16F3 /* CPU.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU.cpp; path = Kernel/CPU.cpp; sourceTree = "<group>"; };
+		3BE43F7719B6F7B6009B16F3 /* CPU.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CPU.h; path = Kernel/CPU.h; sourceTree = "<group>"; };
+		3BE43F7819B6FB1B009B16F3 /* CPU_intr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CPU_intr.h; path = Kernel/CPU_intr.h; sourceTree = "<group>"; };
+		3BE43F7919B6FB1B009B16F3 /* CPU_IOAPIC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU_IOAPIC.cpp; path = Kernel/CPU_IOAPIC.cpp; sourceTree = "<group>"; };
+		3BE43F7A19B6FB1B009B16F3 /* CPU_LAPIC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU_LAPIC.cpp; path = Kernel/CPU_LAPIC.cpp; sourceTree = "<group>"; };
+		3BE43F7B19B6FB1B009B16F3 /* CPU_PICIRQ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU_PICIRQ.cpp; path = Kernel/CPU_PICIRQ.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		3BE43F5219B1B915009B16F3 = {
+			isa = PBXGroup;
+			children = (
+				3B2DFD471A58718800C19756 /* Scheduler.cpp */,
+				3B2DFD481A58718800C19756 /* Scheduler.h */,
+				3B2DFD461A567A0200C19756 /* Thread_init.asm */,
+				3B2DFD451A56459500C19756 /* Makefile */,
+				3B2DFD1E1A54D9D400C19756 /* Thread.cpp */,
+				3B2DFD1F1A54D9D400C19756 /* Thread.h */,
+				3B2DFD1C1A53565700C19756 /* Kernel.ld */,
+				3BE43F5919B1B95A009B16F3 /* BasicHeap.cpp */,
+				3BE43F5A19B1B95A009B16F3 /* BasicHeap.h */,
+				3BE43F5B19B1B95A009B16F3 /* debug.cpp */,
+				3BE43F5C19B1B95A009B16F3 /* debug.h */,
+				3BE43F5D19B1B95A009B16F3 /* descript_cpu.asm */,
+				3BE43F5E19B1B95A009B16F3 /* descript.cpp */,
+				3BE43F5F19B1B95A009B16F3 /* descript.h */,
+				3BE43F6019B1B95A009B16F3 /* Driver.cpp */,
+				3BE43F6119B1B95A009B16F3 /* Driver.h */,
+				3BE43F6219B1B95A009B16F3 /* entry.asm */,
+				3BE43F6319B1B95A009B16F3 /* Interrupts.h */,
+				3BE43F6419B1B95A009B16F3 /* KernelObject.h */,
+				3BE43F6519B1B95A009B16F3 /* main.cpp */,
+				3BE43F6619B1B95A009B16F3 /* mem_logical.cpp */,
+				3BE43F6719B1B95A009B16F3 /* mem_logical.h */,
+				3BE43F6819B1B95A009B16F3 /* mem_physical.cpp */,
+				3BE43F6919B1B95A009B16F3 /* mem_physical.h */,
+				3BE43F6A19B1B95A009B16F3 /* multiboot.h */,
+				3BE43F6B19B1B95A009B16F3 /* runtime.cpp */,
+				3BE43F6C19B1B95A009B16F3 /* runtime.h */,
+				3BE43F7519B6E615009B16F3 /* StandardPC_traps_shared.inc */,
+				3BE43F7319B1CF8B009B16F3 /* StandardPC_traps.asm */,
+				3BE43F7419B1D16B009B16F3 /* StandardPC_traps.h */,
+				3BE43F6D19B1B95A009B16F3 /* StandardPC.cpp */,
+				3BE43F6E19B1B95A009B16F3 /* StandardPC.h */,
+				3BE43F6F19B1B95A009B16F3 /* tools.cpp */,
+				3BE43F7019B1B95A009B16F3 /* tools.h */,
+				3BE43F7619B6F7B6009B16F3 /* CPU.cpp */,
+				3BE43F7719B6F7B6009B16F3 /* CPU.h */,
+				3BE43F7919B6FB1B009B16F3 /* CPU_IOAPIC.cpp */,
+				3BE43F7A19B6FB1B009B16F3 /* CPU_LAPIC.cpp */,
+				3BE43F7B19B6FB1B009B16F3 /* CPU_PICIRQ.cpp */,
+				3BE43F7819B6FB1B009B16F3 /* CPU_intr.h */,
+				3B2DFD1D1A54D15700C19756 /* CPU_context.asm */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		3BE43F5319B1B915009B16F3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+			};
+			buildConfigurationList = 3BE43F5619B1B915009B16F3 /* Build configuration list for PBXProject "OSdev" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 3BE43F5219B1B915009B16F3;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		3BE43F5719B1B915009B16F3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		3BE43F5819B1B915009B16F3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3BE43F5619B1B915009B16F3 /* Build configuration list for PBXProject "OSdev" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3BE43F5719B1B915009B16F3 /* Debug */,
+				3BE43F5819B1B915009B16F3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3BE43F5319B1B915009B16F3 /* Project object */;
+}

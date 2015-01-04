@@ -5,3 +5,7 @@ kernel.elf
 kernel.map
 .depend
 
+# Ignore Xcode nonsense
+*.xcbkptlist
+*.xcuserstate
+.*
