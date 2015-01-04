@@ -1,0 +1,2 @@
+VirtualBox --startvm "Home OS" --debug
+

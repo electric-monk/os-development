@@ -1,0 +1,2 @@
+qemu-system-i386 -s -fda grub_disk.img
+
