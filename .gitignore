@@ -2,4 +2,6 @@
 kernel.elf
 *.so
 *.o
+kernel.map
+.depend
 
