@@ -77,6 +77,22 @@ typedef struct {
         granularity = 1;
         baseHigh = UInt32(base) >> 24;
     }
+    void Set16(UInt8 type, void *base, UInt32 limit, UInt8 dpl)
+    {
+        limitLow = limit & 0xFFFF;
+        baseLow = UInt32(base) & 0xFFFF;
+        baseMiddle = (UInt32(base) >> 16) & 0xFF;
+        this->type = type;
+        system = 1;
+        this->dpl = dpl;
+        present = 1;
+        limitHigh = limit >> 16;
+        custom = 0;
+        reserved1 = 0;
+        mode = 1;
+        granularity = 0;
+        baseHigh = UInt32(base) >> 24;
+    }
 } __attribute__((packed)) GDT_SEGMENT;
 
 void gdt_flush(cpu_ptr *address);
@@ -84,6 +100,31 @@ void gdt_flush(cpu_ptr *address);
 /**** Local Descriptor Table ****/
 
 /**** Task State Segment ****/
+
+typedef struct {
+    UInt32 Link;    // Old TS selector
+    // Stack pointer and segment selector after increase in privilege level
+    UInt32 ESP0;
+    UInt16 SS0, padding0;
+    // Etc.
+    UInt32 *ESP1;
+    UInt16 SS1, padding1;
+    UInt32 *ESP2;
+    UInt16 SS2, padding2;
+    void *CR3;  // Page directory base
+    UInt32 *EIP;    // Saved state from last task switch
+    UInt32 EFlags, EAX, ECX, EDX, EBX;
+    UInt32 *ESP, *EBP;
+    UInt32 ESI, EDI;
+    UInt16 ES, padding3;
+    UInt16 CS, padding4;
+    UInt16 SS, padding5;
+    UInt16 DS, padding6;
+    UInt16 FS, padding7;
+    UInt16 GS, padding8;
+    UInt16 LDT, padding9;
+    UInt16 Trap, IOMapBase;
+} __attribute__((packed)) TSS_BLOCK;
 
 /**** Interrupt Descriptor Table ****/
 

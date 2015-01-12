@@ -32,10 +32,12 @@ private:
     } CPU_LOCAL;
     
     CPU_LOCAL localStorage;
+    TSS_BLOCK cpuTSS;
     
 public:
     // These methods must be called only by the CPU corresponding to the CPU object instance
     void InitSegments(void);
+    void InitTSS(void *kernelStack, UInt32 kernelStackSize);
 };
 
 #endif // __CPU_H__

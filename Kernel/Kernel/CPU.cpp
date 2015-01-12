@@ -36,3 +36,12 @@ void CPU::InitSegments(void)
     CPU::Active = this;
     Thread::Active = NULL;
 }
+
+void CPU::InitTSS(void *kernelStack, UInt32 kernelStackSize)
+{
+    gdt[SEG_TSS].Set16(STS_T32A, &cpuTSS, sizeof(cpuTSS) - 1, 0);
+    gdt[SEG_TSS].system = 0;
+    cpuTSS.SS0 = SEG_KDATA << 3;
+    cpuTSS.ESP0 = UInt32(kernelStack) + kernelStackSize;
+    asm volatile("ltr %%ax" : : "a" (SEG_TSS << 3));
+}
