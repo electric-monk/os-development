@@ -14,6 +14,9 @@ extern UInt32 phys;                  // "int" at base address of the kernel
 
 int availableMappingPages;
 
+//#define PAGE_DEBUG(...) kprintf(__VA_ARGS__)
+#define PAGE_DEBUG(...)
+
 static inline void InvalidateTLB(void *m)
 {
     asm volatile("invlpg %0"
@@ -25,7 +28,7 @@ static inline void InvalidateTLB(void *m)
 
 void SPageDirectoryInfo::InitKernel(void)
 {
-//    kprintf("Kernel logical 0x%.8x, physical 0x%.8x\n", (int)&phys, (int)&virt);
+    PAGE_DEBUG("Kernel logical 0x%.8x, physical 0x%.8x\n", (int)&phys, (int)&virt);
     
     currentAddressSpace = this;
     tablesPhysical = &BootPageDirectory;
@@ -80,9 +83,12 @@ void SPageDirectoryInfo::InitKernel(void)
 
 void SPageDirectoryInfo::Init(void)
 {
+    PAGE_DEBUG("SPageDirectoryInfo(%.8x)::Init\n", this);
     // Create a new directory
     directoryPhysical = CPhysicalMemory::AllocateContiguousPages();
+    tablesPhysical = NULL;  // Set this to NULL - Map will try to use it otherwise.
     tablesPhysical = (SPageDirectory*)Map(fmWritable, pmKernel, directoryPhysical);
+    CopyKernel();
     
     // Empty structure
     for (int i = 0; i < 1024; i++)
@@ -97,6 +103,7 @@ void SPageDirectoryInfo::Init(void)
 
 void SPageDirectoryInfo::Release(void)
 {
+    PAGE_DEBUG("SPageDirectoryInfo(%.8x)::Release\n", this);
     // Release any mapped pages
     for (int i = 0; i < (((UInt32)&phys) >> 22); i++)
     {
@@ -124,20 +131,15 @@ void SPageDirectoryInfo::Release(void)
 
 void SPageDirectoryInfo::Select(void)
 {
-    if (&rootAddressSpace != this)
-    {
-        if (revision != rootAddressSpace.revision)
-        {
-            CopyKernel();
-        }
-    }
+    if ((&rootAddressSpace != this) && (revision != rootAddressSpace.revision))
+        CopyKernel();
     asm volatile("mov %0, %%cr3"::"r" (directoryPhysical));
     currentAddressSpace = this; // WARN: Will this be picked up by thread switching?
 }
 
 void* SPageDirectoryInfo::Map(int permissions, MAP_TYPE location, PhysicalPointer physical, size_t count)
 {
-//    kprintf("SPageDirectoryInfo::Map(%.4x, %.2x, 0x%.8x, %i)\n", permissions, location, (int)physical, (int)count);
+    PAGE_DEBUG("SPageDirectoryInfo(%.8x)::Map(%.4x, %.2x, 0x%.8x, %i)\n", this, permissions, location, (int)physical, (int)count);
 
     UInt32 min, max;
     bool searchReverse;
@@ -145,33 +147,35 @@ void* SPageDirectoryInfo::Map(int permissions, MAP_TYPE location, PhysicalPointe
     void *newLocation, *currentLocation;
     size_t foundLength;
     
-//    test('a');
     if ((location == pmKernel) && (this != &rootAddressSpace))
     {
-//        test('b');
+        PAGE_DEBUG("Passing request to kernel address space\n");
         newLocation = rootAddressSpace.Map(permissions, location, physical, count);
-        CopyKernel();
+        if (tablesPhysical != NULL)
+            CopyKernel();
+        PAGE_DEBUG("Returning 0x%.8x (via kernel)\n", newLocation);
         return newLocation;
     }
     
-//    test('c');
     // Validate input
     searchReverse = false;
     switch (location)
     {
         case pmApplication:
-//            test('d');
-            if (permissions & fmPageData)
+            if (permissions & fmPageData) {
+                PAGE_DEBUG("Return NULL - application asking for page table (kernel only)\n");
                 return NULL;
+            }
             min = 0x00001000;
             max = ((UInt32)&virt) - 0x1000;
             break;
         case pmKernel:
-//            test('e');
             if (permissions & fmPageData)
             {
-                if (count != 1)
+                if (count != 1) {
+                    PAGE_DEBUG("Returning NULL - asked for something other than a single page table\n");
                     return NULL;
+                }
                 searchReverse = true;
                 // TODO: Search only present page tables
             }
@@ -179,22 +183,24 @@ void* SPageDirectoryInfo::Map(int permissions, MAP_TYPE location, PhysicalPointe
             max = 0xFFFFF000;
             break;
         default:
+            PAGE_DEBUG("Returning NULL - unknown location type\n");
             return NULL;
     }
     
     // Do the search
     // TODO: Search properly, using page directory and tables
-//    kprintf("Searching %s between 0x%.8x and 0x%.8x (kernel base 0x%.8x)\n",
-//            searchReverse ? "down" : "up",
-//            (void*)min, (void*)max, (void*)&virt);
+    PAGE_DEBUG("Searching %s between 0x%.8x and 0x%.8x (kernel base 0x%.8x)\n",
+               searchReverse ? "down" : "up",
+               (void*)min, (void*)max, (void*)&virt);
     newLocation = NULL;
     currentLocation = (void*)(searchReverse ? max : min);
     foundLength = 0;
-//    test('f');
     while (foundLength < count)
     {
-        if ((currentLocation < (void*)min) || (currentLocation > (void*)max))
+        if ((currentLocation < (void*)min) || (currentLocation > (void*)max)) {
+            PAGE_DEBUG("Returning NULL - couldn't find empty page within range\n");
             return NULL;
+        }
         
         PhysicalPointer ptr = Address(currentLocation);
         if (Address(currentLocation) == CPhysicalMemory::Invalid)
@@ -213,13 +219,16 @@ void* SPageDirectoryInfo::Map(int permissions, MAP_TYPE location, PhysicalPointe
         else
             currentLocation = (void*)(((UInt32)currentLocation) + 0x1000);
     }
-    if (newLocation == NULL)
+    if (newLocation == NULL) {
+        PAGE_DEBUG("Returning NULL - couldn't find contiguous pages as requested\n");
         return NULL;
+    }
     
     if ((permissions & fmPageData) && (availableMappingPages == 1))
     {
-//        test('g');
         int pageDirEntry;
+        
+        PAGE_DEBUG("Only one page table left - preparing to map a new set of blank page tables into it\n");
         
         // Find empty directory for it
         for (pageDirEntry = 1023; pageDirEntry >= 0; pageDirEntry--)
@@ -227,21 +236,20 @@ void* SPageDirectoryInfo::Map(int permissions, MAP_TYPE location, PhysicalPointe
             if (!tablesPhysical[pageDirEntry].Present)
                 break;
         }
-        if (pageDirEntry < 0)
+        if (pageDirEntry < 0) {
+            PAGE_DEBUG("Returning NULL - failed to find empty directory for blank page table\n");
             return NULL;
+        }
         
-//        test('h');
         // We need to map a new page into this one, then get a new entry from the new page for our result
         PhysicalPointer newPage = CPhysicalMemory::AllocateContiguousPages();
         Map(fmWritable, newLocation, newPage);  // Should succeed, as we're using a 'mapping' entry that shouldn't need a new page
         SPageTable *newTable = (SPageTable*)newLocation;
         
-//        test('i');
         // Scrub table
         for (int i = 0; i < 1024; i++)
             newTable->pages[i].RawValue = 0x00000000;
         
-//        test('j');
         // Stuff page into page directory
         tablesPhysical[pageDirEntry].Frame = ((unsigned int)newPage & 0xFFFFF000) >> 12;
         tablesPhysical[pageDirEntry].Writable = 1;
@@ -256,14 +264,12 @@ void* SPageDirectoryInfo::Map(int permissions, MAP_TYPE location, PhysicalPointe
         newLocation = (void*)((pageDirEntry << 22) | (0xFFF << 12));
     }
     
-//    test('k');
     // We found a big enough gap, so fill it in
     for (foundLength = 0, currentLocation = newLocation;
          foundLength < count;
          foundLength++, currentLocation = ((unsigned char*)currentLocation) + 0x1000, physical = ((unsigned char*)physical) + 0x1000)
         Map(permissions, currentLocation, physical);
     
-//    test('l');
     // Increment 'kernel address space' counter so other processes know to update themselves
     if (this == &rootAddressSpace)
     {
@@ -272,16 +278,14 @@ void* SPageDirectoryInfo::Map(int permissions, MAP_TYPE location, PhysicalPointe
             revision = 1;
     }
     
-//    test('m');
     // Done
-//    kprintf("Generated new mapping at 0x%.8x\n", newLocation);
+    PAGE_DEBUG("Returning 0x%.8x\n", newLocation);
     return newLocation;
 }
 
 void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer physical)
 {
-//    kprintf("SPageDirectoryInfo::Map(%.4x, 0x%.8x, 0x%.8x)\n", permissions, (int)location, (int)physical);
-//    test('0');
+    PAGE_DEBUG("SPageDirectoryInfo(%.8x)::Map(%.4x, 0x%.8x, 0x%.8x)\n", this, permissions, (int)location, (int)physical);
     // Get the indices out of the pointer
     unsigned int dirEntry = (((unsigned int)location) >> 22) & 0x3FF;
     unsigned int pagEntry = (((unsigned int)location) >> 12) & 0x3FF;
@@ -290,25 +294,21 @@ void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer ph
     // Get the table directory and check the page is present
     if (!tablesPhysical[dirEntry].Present)
     {
-//        test('1');
         PhysicalPointer newPage = CPhysicalMemory::AllocateContiguousPages();
-//        test('2');
         tables[dirEntry] = (SPageTable*)Map(fmPageData | fmWritable, pmKernel, newPage);
         
-//        test('3');
         // Scrub the new table
         for (int i = 0; i < 1024; i++) {
             tables[dirEntry]->pages[i].RawValue = 0x00000000;
         }
         
-//        test('4');
         // Set up the new entry
         SPageDirectory newDirectoryEntry;
         newDirectoryEntry.RawValue = 0x00000000;
         newDirectoryEntry.Frame = ((unsigned int)(((UInt32)newPage) & 0xFFFFF000)) >> 12;
         newDirectoryEntry.Present = 1;
         newDirectoryEntry.Writable = 1;
-        newDirectoryEntry.User = 0;
+        newDirectoryEntry.User = 1;
         newDirectoryEntry.WriteThrough = 0;
         newDirectoryEntry.CacheDisable = 0;
         newDirectoryEntry.Accessed = 0;
@@ -318,7 +318,6 @@ void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer ph
         tablesPhysical[dirEntry] = newDirectoryEntry;
     }
     
-//    test('5');
     SPage newPageInfo;
     newPageInfo.RawValue = 0x00000000;
     newPageInfo.Present = 1;
@@ -329,11 +328,9 @@ void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer ph
     newPageInfo.Frame = ((unsigned int)(((UInt32)physical) & 0xFFFFF000)) >> 12;
 
     // Activate the mapping
-//    test('6');
     tables[dirEntry]->pages[pagEntry] = newPageInfo;
-//    test('7');
     InvalidateTLB(location);
-//    kprintf("0x%.8x mapped\n", location);
+    PAGE_DEBUG("Mapped 0x%.8x\n", location);
 }
 
 void SPageDirectoryInfo::Unmap(void *logical)
@@ -407,6 +404,7 @@ PhysicalPointer SPageDirectoryInfo::Address(void *logical)
 
 void SPageDirectoryInfo::CopyKernel(void)
 {
+    PAGE_DEBUG("SPageDirectoryInfo(%.8x)::CopyKernel\n", this);
     for (int i = (((UInt32)&virt) >> 22); i < 1024; i++)
     {
         tables[i] = rootAddressSpace.tables[i];
