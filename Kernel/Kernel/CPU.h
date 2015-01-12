@@ -4,6 +4,7 @@
 #include "descript.h"
 #include "StandardPC_traps.h"
 
+class Process;
 class Thread;
 
 class CPU
@@ -27,7 +28,7 @@ private:
     
     typedef struct {
         CPU *current;
-        void *_placeholder_process;
+        Process *process;
         Thread *thread;
     } CPU_LOCAL;
     

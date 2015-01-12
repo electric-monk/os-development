@@ -9,6 +9,7 @@
 /* Begin PBXFileReference section */
 		3B26F8981A59CB41003BE1B6 /* Process.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Process.cpp; path = Kernel/Process.cpp; sourceTree = "<group>"; };
 		3B26F8991A59CB41003BE1B6 /* Process.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Process.h; path = Kernel/Process.h; sourceTree = "<group>"; };
+		3B26F89A1A5A14EC003BE1B6 /* process_test.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = process_test.asm; path = Kernel/process_test.asm; sourceTree = "<group>"; };
 		3B2DFD1C1A53565700C19756 /* Kernel.ld */ = {isa = PBXFileReference; lastKnownFileType = text; name = Kernel.ld; path = Kernel/Kernel.ld; sourceTree = "<group>"; };
 		3B2DFD1D1A54D15700C19756 /* CPU_context.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = CPU_context.asm; path = Kernel/CPU_context.asm; sourceTree = "<group>"; };
 		3B2DFD1E1A54D9D400C19756 /* Thread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Thread.cpp; path = Kernel/Thread.cpp; sourceTree = "<group>"; };
@@ -56,6 +57,7 @@
 		3BE43F5219B1B915009B16F3 = {
 			isa = PBXGroup;
 			children = (
+				3B26F89A1A5A14EC003BE1B6 /* process_test.asm */,
 				3B26F8981A59CB41003BE1B6 /* Process.cpp */,
 				3B26F8991A59CB41003BE1B6 /* Process.h */,
 				3B2DFD471A58718800C19756 /* Scheduler.cpp */,

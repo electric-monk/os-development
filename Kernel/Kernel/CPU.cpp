@@ -4,6 +4,7 @@
 #include "mem_logical.h"
 #include "debug.h"
 #include "Thread.h"
+#include "Process.h"
 
 extern "C" void SwitchContexts(CPU::Context**, CPU::Context*);
 
@@ -34,6 +35,7 @@ void CPU::InitSegments(void)
     
     // Set up TLS
     CPU::Active = this;
+    Process::Active = NULL;
     Thread::Active = NULL;
 }
 

@@ -2,20 +2,25 @@
 #include "Thread.h"
 #include "CPU.h"
 #include "CPU_intr.h"
+#include "Process.h"
+#include "debug.h"
 
 void Scheduler::BeginScheduling(void)
 {
+    test('*');
     while (true) {
         // Select a thread
-        Thread *newThread = Thread::ThreadCursor();
         Thread::ThreadNext();
+        Thread *newThread = Thread::ThreadCursor();
         
         // Jump into thread
         if (newThread != NULL) {
-            Thread::Active = newThread;
-            newThread->_context->SwitchFrom(&CPU::Active->scheduler);
-            Thread::Active = NULL;
+            test('.');
+            newThread->Select(&CPU::Active->scheduler);
         } else {
+            test('&');
+            rootAddressSpace.Select();
+            Process::Active = NULL;
             CPU_Interrupt_Enable();
             asm("hlt");
             CPU_Interrupt_Disable();
@@ -25,6 +30,7 @@ void Scheduler::BeginScheduling(void)
 
 void Scheduler::EnterFromInterrupt(void)
 {
+    test('!');
     // Here, xv6 switched ot the kernel page map, e.g. its own kernel process. For efficiency, let's leave that for now
     if (Thread::Active != NULL)
         CPU::Active->scheduler->SwitchFrom(&Thread::Active->_context);

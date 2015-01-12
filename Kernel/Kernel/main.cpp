@@ -46,10 +46,10 @@ static bool KeyboardTestHandler(void *context, void *state)
 }
 
 static const char *testchars = "0123456789ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-class TestThread : public Thread
+class TestThread : public KernelThread
 {
 public:
-    TestThread(int x, int y, char *msg)
+    TestThread(int x, int y, const char *msg)
     {
         _x = x;
         _y = y;
@@ -73,8 +73,28 @@ protected:
     }
 private:
     int _x, _y;
-    char *_msg;
+    const char *_msg;
 };
+
+#include "Process.h"
+static bool TestHandler(void *context, void *state)
+{
+    TrapFrame *tf = (TrapFrame*)state;
+    test('>');
+    test(tf->EBX, tf->ECX, tf->EAX);
+    return true;
+}
+extern "C" void ProcessTestThreadOne(void*);
+extern "C" void ProcessTestThreadTwo(void*);
+static void ConfigureProcessTest(void (*test)(void*), const char *name)
+{
+    Process *testProcess = new Process(name);
+    PhysicalPointer page = CPhysicalMemory::AllocateContiguousPages();
+    void *linearPage = testProcess->pageDirectory.Map(fmWritable | fmUser, pmApplication, page);
+    testProcess->pageDirectory.Select();
+    CopyMemory(linearPage, (void*)test, 4096);
+    new Thread(testProcess, (void(*)(void*))linearPage, NULL);
+}
 
 static inline void* FixAddress(void *address)
 {
@@ -90,7 +110,7 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     mainHeap.AddBlock(s_coreMemory, sizeof(s_coreMemory));
 
 	test('A');
-	kprintf("Munro Systems\nCosmOS 1.0\nCopyright (C) 2008-2014 Colin Munro\n\n");
+	kprintf("Munro Systems\nCosmOS 1.0\nCopyright (C) 2008-2015 Colin Munro\n\n");
 	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
 	{
 		kprintf("Multiboot: magic number incorrect\n");
@@ -137,6 +157,12 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     outb(0x40, divisor & 0xFF);
     outb(0x40, divisor >> 8);
     rootDevice->Test()->RegisterHandler(0x20, MultitaskHandler, NULL);
+    
+    // Process test
+    ConfigureProcessTest(ProcessTestThreadOne, "Three");
+    ConfigureProcessTest(ProcessTestThreadTwo, "Four");
+    rootDevice->Test()->RegisterHandler(0x99, TestHandler, NULL);
+    rootDevice->Test()->ConfigureSyscall(0x99);
     
     CPU_Interrupt_Disable();
     CPU_PIC_Enable(0, true);
