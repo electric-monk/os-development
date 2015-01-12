@@ -86,17 +86,4 @@ private:
 extern SPageDirectoryInfo rootAddressSpace; // Process '0', the OS
 extern SPageDirectoryInfo *currentAddressSpace; // Set on a switch
 
-/*
-class CPagedMemory
-{
-public:
-	static void* MapPage(MAP_TYPE type, PhysicalPointer physical, size_t count = 1);
-	static void MapPage(MAP_TYPE type, void *logical, PhysicalPointer physical, size_t count = 1);
-	static PhysicalPointer PageAddress(void *logical);
-	static void UnmapPage(void *logical);
-    
-    static void CreateProcessPageTable(void *logical);
-};
- */
-
 #endif // __MEM_LOGICAL_H__
