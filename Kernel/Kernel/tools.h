@@ -85,4 +85,15 @@ extern "C" {
     bool AtomicDecrement(UInt32 *value);    // Returns true if result is non-zero
 };
 
+void ClearMemory(void *pointer, UInt32 length);
+void CopyMemory(void *output, const void *input, UInt32 length);
+
+typedef enum {
+    ctStackOverflow,
+    ctNullPointer,
+    ctInvalidOpcode,
+} CRASH_TYPE;
+
+void CrashTest(CRASH_TYPE crash);
+
 #endif // __TOOLS_H__

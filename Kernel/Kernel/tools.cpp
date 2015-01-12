@@ -157,3 +157,46 @@ int CStringPrint::LengthOf(const char *s)
 	for (i = 0; s[i] != '\0'; i++);
 	return i;
 }
+
+void ClearMemory(void *pointer, UInt32 length)
+{
+    char *buf = (char*)pointer;
+    while (length) {
+        buf[0] = 0;
+        buf++;
+        length--;
+    }
+}
+
+void CopyMemory(void *output, const void *input, UInt32 length)
+{
+    const char *inBuf = (const char*)input;
+    char *outBuf = (char*)output;
+    while (length) {
+        outBuf[0] = inBuf[0];
+        inBuf++;
+        outBuf++;
+        length--;
+    }
+}
+
+void CrashTest(CRASH_TYPE crash)
+{
+    switch (crash) {
+        case ctStackOverflow:
+            CrashTest(crash);
+            break;
+        case ctNullPointer:
+        {
+            char *bob = NULL;
+            bob[0] = ((char*)CrashTest)[0];
+        }
+            break;
+        case ctInvalidOpcode:
+            asm("ud2");
+            break;
+        default:
+            // what?
+            break;
+    }
+}
