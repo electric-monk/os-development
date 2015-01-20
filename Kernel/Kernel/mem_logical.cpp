@@ -202,7 +202,6 @@ void* SPageDirectoryInfo::Map(int permissions, MAP_TYPE location, PhysicalPointe
             return NULL;
         }
         
-        PhysicalPointer ptr = Address(currentLocation);
         if (Address(currentLocation) == CPhysicalMemory::Invalid)
         {
             if (foundLength == 0)
@@ -267,8 +266,11 @@ void* SPageDirectoryInfo::Map(int permissions, MAP_TYPE location, PhysicalPointe
     // We found a big enough gap, so fill it in
     for (foundLength = 0, currentLocation = newLocation;
          foundLength < count;
-         foundLength++, currentLocation = ((unsigned char*)currentLocation) + 0x1000, physical = ((unsigned char*)physical) + 0x1000)
+         foundLength++, currentLocation = ((unsigned char*)currentLocation) + 0x1000) {
         Map(permissions, currentLocation, physical);
+        if (!(permissions & fmNotPresent))
+            physical = ((unsigned char*)physical) + 0x1000;
+    }
     
     // Increment 'kernel address space' counter so other processes know to update themselves
     if (this == &rootAddressSpace)
@@ -298,9 +300,8 @@ void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer ph
         tables[dirEntry] = (SPageTable*)Map(fmPageData | fmWritable, pmKernel, newPage);
         
         // Scrub the new table
-        for (int i = 0; i < 1024; i++) {
+        for (int i = 0; i < 1024; i++)
             tables[dirEntry]->pages[i].RawValue = 0x00000000;
-        }
         
         // Set up the new entry
         SPageDirectory newDirectoryEntry;
@@ -308,7 +309,7 @@ void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer ph
         newDirectoryEntry.Frame = ((unsigned int)(((UInt32)newPage) & 0xFFFFF000)) >> 12;
         newDirectoryEntry.Present = 1;
         newDirectoryEntry.Writable = 1;
-        newDirectoryEntry.User = 1;
+        newDirectoryEntry.User = 1; // In case this directory contains user pages
         newDirectoryEntry.WriteThrough = 0;
         newDirectoryEntry.CacheDisable = 0;
         newDirectoryEntry.Accessed = 0;
@@ -319,13 +320,18 @@ void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer ph
     }
     
     SPage newPageInfo;
-    newPageInfo.RawValue = 0x00000000;
-    newPageInfo.Present = 1;
-    if (permissions & fmWritable)
-        newPageInfo.Writable = 1;
-    if (permissions & fmUser)
-        newPageInfo.User = 1;
-    newPageInfo.Frame = ((unsigned int)(((UInt32)physical) & 0xFFFFF000)) >> 12;
+    if (permissions & fmNotPresent) {
+        newPageInfo.RawValue = (UInt32)physical;
+        newPageInfo.Present = 0;
+    } else {
+        newPageInfo.RawValue = 0x00000000;
+        newPageInfo.Present = 1;
+        if (permissions & fmWritable)
+            newPageInfo.Writable = 1;
+        if (permissions & fmUser)
+            newPageInfo.User = 1;
+        newPageInfo.Frame = ((unsigned int)(((UInt32)physical) & 0xFFFFF000)) >> 12;
+    }
 
     // Activate the mapping
     tables[dirEntry]->pages[pagEntry] = newPageInfo;
@@ -333,9 +339,13 @@ void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer ph
     PAGE_DEBUG("Mapped 0x%.8x\n", location);
 }
 
-void SPageDirectoryInfo::Unmap(void *logical)
+void SPageDirectoryInfo::Unmap(void *logical, size_t count)
 {
-    Unmap(logical, false);
+    while (count != 0) {
+        Unmap(logical, false);
+        logical = ((char*)logical) + 0x1000;
+        count--;
+    }
 }
 
 void SPageDirectoryInfo::Unmap(void *logical, bool mapPage)
@@ -354,11 +364,11 @@ void SPageDirectoryInfo::Unmap(void *logical, bool mapPage)
         return;
     if (tables[dirEntry] == (void*)0xFFFFFFFF)
         return;
-    if (!tables[dirEntry]->pages[pagEntry].Present)
+    if (tables[dirEntry]->pages[pagEntry].RawValue == 0x00000000)
         return;
     
     // Remove it
-    tables[dirEntry]->pages[pagEntry].Present = 0;
+    tables[dirEntry]->pages[pagEntry].RawValue = 0x00000000;
     InvalidateTLB(logical);
     if (mapPage)
         availableMappingPages++;
@@ -396,8 +406,12 @@ PhysicalPointer SPageDirectoryInfo::Address(void *logical)
     
     SPageTable *table = tables[directoryIndex];
     unsigned int tableIndex = (((unsigned int)logical) & 0x003FF000) >> 12;
-    if (!table->pages[tableIndex].Present)
+    if (!table->pages[tableIndex].Present) {
+        // Check for "used" but not present pages
+        if (table->pages[tableIndex].RawValue != 0)
+            return CPhysicalMemory::Minimum;
         return CPhysicalMemory::Invalid;
+    }
     
     return (PhysicalPointer)((table->pages[tableIndex].Frame << 12) | (((unsigned int)logical) & 0x00000FFF));
 }

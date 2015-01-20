@@ -13,6 +13,7 @@ typedef enum {
     fmWritable = 1, // Else read only
     fmUser = 2,     // Else supervisor
     fmPageData = 4, // Memory for the page tables
+    fmNotPresent = 8,   // Memory that should be filled in later by a page fault (physical is intepreted as arbitrary data to be passed by the exception. Note that bit 0 is always reset)
 } MAP_FLAGS;
 
 typedef struct {
@@ -73,7 +74,7 @@ public:
     
     void* Map(/*MAP_FLAGS*/int permissions, MAP_TYPE location, PhysicalPointer physical, size_t count = 1);
     void Map(/*MAP_FLAGS*/int permissions, void *location, PhysicalPointer physical);
-    void Unmap(void *logical);
+    void Unmap(void *logical, size_t count =  1);
     PhysicalPointer Address(void *logical);
     
 private:
