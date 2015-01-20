@@ -4,6 +4,7 @@
 #include "mem_logical.h"
 #include "Interrupts.h"
 #include "Process.h"
+#include "StandardPC_traps.h"
 
 static UInt32 _identifierCounter = 0;
 static KernelDictionary *s_identifierMap;
@@ -69,7 +70,7 @@ GrowableStack::GrowableStack(Process *process, UInt32 maximumPages)
 
 GrowableStack::~GrowableStack()
 {
-    char *base = (char*)LinearAddress();
+    char *base = (char*)LinearBase();
     for (UInt32 page = 0; page < LinearLength(); page += 4096, base += 4096) {
         PhysicalPointer pointer = PageDirectory()->Address(base);
         // pointer should not be CPhysicalMemory::Invalid
@@ -80,7 +81,7 @@ GrowableStack::~GrowableStack()
 
 void GrowableStack::HandlePageFault(void *linearAddress)
 {
-    if (linearAddress == LinearAddress()) {
+    if (linearAddress == LinearBase()) {
         // Thread is experiencing a stack overflow!
     } else {
         PhysicalPointer newPage = CPhysicalMemory::AllocateContiguousPages();

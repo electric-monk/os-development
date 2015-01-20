@@ -7,6 +7,7 @@
 
 class Process;
 class Interrupts;
+class SPageDirectoryInfo;
 
 class VirtualMemory : public KernelObject
 {

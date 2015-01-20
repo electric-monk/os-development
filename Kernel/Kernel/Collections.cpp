@@ -12,12 +12,12 @@ public:
         _start = start;
         _end = end;
         _next = NULL;
-        _previous = _end;
+        _previous = *_end;
         if (_previous == NULL)
             *_start = this;
         else
             _previous->_next = this;
-        _end = this;
+        *_end = this;
         this->item = item;
         this->item->AddRef();
     }
