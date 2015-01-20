@@ -12,6 +12,8 @@
 		3B26F89A1A5A14EC003BE1B6 /* process_test.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = process_test.asm; path = Kernel/process_test.asm; sourceTree = "<group>"; };
 		3B26F89B1A698012003BE1B6 /* mem_virtual.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = mem_virtual.cpp; path = Kernel/mem_virtual.cpp; sourceTree = "<group>"; };
 		3B26F89C1A698013003BE1B6 /* mem_virtual.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mem_virtual.h; path = Kernel/mem_virtual.h; sourceTree = "<group>"; };
+		3B26F89D1A6B311C003BE1B6 /* Collections.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Collections.cpp; path = Kernel/Collections.cpp; sourceTree = "<group>"; };
+		3B26F89E1A6B311C003BE1B6 /* Collections.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Collections.h; path = Kernel/Collections.h; sourceTree = "<group>"; };
 		3B2DFD1C1A53565700C19756 /* Kernel.ld */ = {isa = PBXFileReference; lastKnownFileType = text; name = Kernel.ld; path = Kernel/Kernel.ld; sourceTree = "<group>"; };
 		3B2DFD1D1A54D15700C19756 /* CPU_context.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = CPU_context.asm; path = Kernel/CPU_context.asm; sourceTree = "<group>"; };
 		3B2DFD1E1A54D9D400C19756 /* Thread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Thread.cpp; path = Kernel/Thread.cpp; sourceTree = "<group>"; };
@@ -20,6 +22,7 @@
 		3B2DFD461A567A0200C19756 /* Thread_init.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = Thread_init.asm; path = Kernel/Thread_init.asm; sourceTree = "<group>"; };
 		3B2DFD471A58718800C19756 /* Scheduler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Scheduler.cpp; path = Kernel/Scheduler.cpp; sourceTree = "<group>"; };
 		3B2DFD481A58718800C19756 /* Scheduler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Scheduler.h; path = Kernel/Scheduler.h; sourceTree = "<group>"; };
+		3B7713361A6C353500556361 /* KernelObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = KernelObject.cpp; path = Kernel/KernelObject.cpp; sourceTree = "<group>"; };
 		3BE43F5919B1B95A009B16F3 /* BasicHeap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicHeap.cpp; path = Kernel/BasicHeap.cpp; sourceTree = "<group>"; };
 		3BE43F5A19B1B95A009B16F3 /* BasicHeap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BasicHeap.h; path = Kernel/BasicHeap.h; sourceTree = "<group>"; };
 		3BE43F5B19B1B95A009B16F3 /* debug.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = debug.cpp; path = Kernel/debug.cpp; sourceTree = "<group>"; };
@@ -59,6 +62,8 @@
 		3BE43F5219B1B915009B16F3 = {
 			isa = PBXGroup;
 			children = (
+				3B26F89D1A6B311C003BE1B6 /* Collections.cpp */,
+				3B26F89E1A6B311C003BE1B6 /* Collections.h */,
 				3B26F89B1A698012003BE1B6 /* mem_virtual.cpp */,
 				3B26F89C1A698013003BE1B6 /* mem_virtual.h */,
 				3B26F89A1A5A14EC003BE1B6 /* process_test.asm */,
@@ -82,6 +87,7 @@
 				3BE43F6119B1B95A009B16F3 /* Driver.h */,
 				3BE43F6219B1B95A009B16F3 /* entry.asm */,
 				3BE43F6319B1B95A009B16F3 /* Interrupts.h */,
+				3B7713361A6C353500556361 /* KernelObject.cpp */,
 				3BE43F6419B1B95A009B16F3 /* KernelObject.h */,
 				3BE43F6519B1B95A009B16F3 /* main.cpp */,
 				3BE43F6619B1B95A009B16F3 /* mem_logical.cpp */,

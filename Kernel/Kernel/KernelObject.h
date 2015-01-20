@@ -22,6 +22,18 @@ public:
             delete this;
     }
     
+    void Autorelease(void);
+    
+    virtual UInt32 Hash(void)
+    {
+        return UInt32(this);
+    }
+    
+    virtual bool IsEqualTo(KernelObject *other)
+    {
+        return this == other;
+    }
+    
 protected:
     virtual ~KernelObject()
     {
@@ -30,6 +42,22 @@ protected:
     
 private:
     UInt32 _count;
+};
+
+class KernelArray;
+
+class AutoreleasePool
+{
+public:
+    AutoreleasePool();
+    
+    void AddObject(KernelObject *object);
+protected:
+    ~AutoreleasePool();
+    
+private:
+    KernelArray *_objects;
+    AutoreleasePool *_previous;
 };
 
 #endif // __KERNELOBJECT_H__
