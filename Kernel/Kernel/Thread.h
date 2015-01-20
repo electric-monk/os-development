@@ -8,6 +8,7 @@
 
 class Interrupts;
 class Process;
+class KernelDictionary;
 
 #define SERVICE_THREAD          0x70            // interrupt
 // EAX parameters
@@ -36,6 +37,8 @@ public:
     
     void Select(CPU::Context **scheduler);
     
+    KernelDictionary* KernelThreadLocalStorage(void) { return _kernelStorage; }
+    
     // Thread list control
     static Thread* ThreadCursor(void);
     static void ThreadNext(void);
@@ -53,6 +56,8 @@ private:
     
     TrapFrame *_trapFrame;
     UInt32 _stackSize;
+    
+    KernelDictionary *_kernelStorage;
     
     // Thread list
     void Attach(void);

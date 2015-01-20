@@ -6,6 +6,7 @@
 #include "Process.h"
 #include "mem_logical.h"
 #include "mem_physical.h"
+#include "Collections.h"
 
 #define CURRENT_PAGE_SIZE           4096
 
@@ -19,6 +20,7 @@ extern "C" UInt32  TestGetEflag(void);
 
 Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt32 stackSize)
 {
+    _kernelStorage = new KernelDictionary();
     _kernelStack = new char[1024];
     
     // Make a note of the current process (if any - NULL is kernel thread)
@@ -83,6 +85,7 @@ Thread::~Thread()
         CPhysicalMemory::ReleasePages(_processStack);
     }
     delete[] _kernelStack;
+    _kernelStorage->Release();
 }
 
 void Thread::Kill(void)
@@ -125,6 +128,7 @@ static bool ThreadInterruptHandler(void *context, void *state)
 void Thread::ConfigureService(Interrupts *interruptSource)
 {
     interruptSource->RegisterHandler(SERVICE_THREAD, ThreadInterruptHandler, NULL);
+    interruptSource->ConfigureSyscall(SERVICE_THREAD);
 }
 
 // Thread list
