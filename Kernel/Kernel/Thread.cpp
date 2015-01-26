@@ -19,6 +19,8 @@ extern "C" void KernelThreadEntryPoint(void);
 
 Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt32 stackSize)
 {
+    _state = tsRunnable;
+    
     _kernelStorage = new KernelDictionary();
     _kernelStack = new char[1024];
     

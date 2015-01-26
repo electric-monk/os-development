@@ -12,11 +12,16 @@ void Scheduler::BeginScheduling(void)
         // Select a thread
         Thread::ThreadNext();
         Thread *newThread = Thread::ThreadCursor();
+        if (newThread->_state != tsRunnable)
+            continue;
         
         // Jump into thread
         if (newThread != NULL) {
             test('.');
+            newThread->_state = tsRunning;
             newThread->Select(&CPU::Active->scheduler);
+            if (newThread->_state == tsRunning)
+                newThread->_state = tsRunnable;
         } else {
             test('&');
             rootAddressSpace.Select();

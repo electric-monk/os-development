@@ -17,8 +17,10 @@ class KernelDictionary;
 typedef void (*ThreadCallback)(void *context);
 
 typedef enum {
+    tsBlocked,
     tsRunnable,
-    tsCompleted
+    tsRunning,
+    tsCompleted,
 } THREADSTATE;
 
 class Thread : public KernelObject
@@ -30,6 +32,7 @@ public:
     
     Process *_process;
     CPU::Context *_context;
+    THREADSTATE _state;
 
     static Thread *Active asm("%gs:8");
     
