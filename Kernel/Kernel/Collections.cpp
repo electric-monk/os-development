@@ -247,10 +247,6 @@ UInt32 KernelDictionary::Hash(void)
 
 const UInt32 KernelArray::InvalidIndex = (UInt32)-1;
 
-KernelObject **_index;
-UInt32 _max;
-UInt32 _count;
-
 KernelArray::KernelArray()
 {
     _max = ARRAY_GRANULARITY;
