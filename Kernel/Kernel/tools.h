@@ -84,9 +84,21 @@ extern "C" {
     bool AtomicIncrement(UInt32 *value);    // Returns true if result is non-zero
     bool AtomicDecrement(UInt32 *value);    // Returns true if result is non-zero
 };
+static inline UInt32 xchg(volatile UInt32 *addr, UInt32 newval)
+{
+    UInt32 result;
+    
+    // The + in "+m" denotes a read-modify-write operand.
+    asm volatile("lock; xchgl %0, %1" :
+                 "+m" (*addr), "=a" (result) :
+                 "1" (newval) :
+                 "cc");
+    return result;
+}
 
 void ClearMemory(void *pointer, UInt32 length);
 void CopyMemory(void *output, const void *input, UInt32 length);
+UInt32 StringLength(const char *input);
 
 typedef enum {
     ctStackOverflow,

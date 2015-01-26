@@ -180,6 +180,16 @@ void CopyMemory(void *output, const void *input, UInt32 length)
     }
 }
 
+UInt32 StringLength(const char *input)
+{
+    UInt32 count = 0;
+    while (*input) {
+        count++;
+        input++;
+    }
+    return count;
+}
+
 void CrashTest(CRASH_TYPE crash)
 {
     switch (crash) {
