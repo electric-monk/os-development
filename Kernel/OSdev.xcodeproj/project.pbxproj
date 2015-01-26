@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		3B25C4941A74E6E4004D39F6 /* Blocking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Blocking.h; path = Kernel/Blocking.h; sourceTree = "<group>"; };
+		3B25C4951A757B3B004D39F6 /* Blocking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Blocking.cpp; path = Kernel/Blocking.cpp; sourceTree = "<group>"; };
+		3B25C4961A75C126004D39F6 /* Locking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Locking.cpp; path = Kernel/Locking.cpp; sourceTree = "<group>"; };
+		3B25C4971A75C126004D39F6 /* Locking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Locking.h; path = Kernel/Locking.h; sourceTree = "<group>"; };
 		3B26F8981A59CB41003BE1B6 /* Process.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Process.cpp; path = Kernel/Process.cpp; sourceTree = "<group>"; };
 		3B26F8991A59CB41003BE1B6 /* Process.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Process.h; path = Kernel/Process.h; sourceTree = "<group>"; };
 		3B26F89A1A5A14EC003BE1B6 /* process_test.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = process_test.asm; path = Kernel/process_test.asm; sourceTree = "<group>"; };
@@ -62,6 +66,10 @@
 		3BE43F5219B1B915009B16F3 = {
 			isa = PBXGroup;
 			children = (
+				3B25C4961A75C126004D39F6 /* Locking.cpp */,
+				3B25C4971A75C126004D39F6 /* Locking.h */,
+				3B25C4951A757B3B004D39F6 /* Blocking.cpp */,
+				3B25C4941A74E6E4004D39F6 /* Blocking.h */,
 				3B26F89D1A6B311C003BE1B6 /* Collections.cpp */,
 				3B26F89E1A6B311C003BE1B6 /* Collections.h */,
 				3B26F89B1A698012003BE1B6 /* mem_virtual.cpp */,

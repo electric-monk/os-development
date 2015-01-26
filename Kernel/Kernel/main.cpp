@@ -29,6 +29,7 @@ static int entered = -1;
 int x = 0, y = 0;
 static bool MultitaskHandler(void *context, void *state)
 {
+    Timer::TimerTick(MILLISECONDS(1));
     Scheduler::EnterFromInterrupt();
     return true;
 }
@@ -45,15 +46,16 @@ static bool KeyboardTestHandler(void *context, void *state)
     return true;
 }
 
-static const char *testchars = "0123456789ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+static const char *testchars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 class TestThread : public KernelThread
 {
 public:
-    TestThread(int x, int y, const char *msg)
+    TestThread(int x, int y, const char *msg, int sleep = 0)
     {
         _x = x;
         _y = y;
         _msg = msg;
+        _sleep = sleep;
     }
 protected:
     void ThreadMain(void)
@@ -69,11 +71,17 @@ protected:
                 kprintf("Lose all marks in exam\n");
                 break;
             }
+            if (_sleep) {
+                test(12, 0, '?');
+                Thread::Active->Sleep(MILLISECONDS(_sleep));
+                test(12, 0, '!');
+            }
         }
     }
 private:
     int _x, _y;
     const char *_msg;
+    int _sleep;
 };
 
 #include "Process.h"
@@ -150,7 +158,7 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     
     // Thread test
     one = new TestThread(51, 20, "Ahoy");
-    two = new TestThread(50, 20, "Hello");
+    two = new TestThread(50, 20, "Hello", 250);
         // Set up timer
     int divisor = 1193180 / 1000/*Hz*/;
     outb(0x43, 0x36);

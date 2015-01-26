@@ -7,6 +7,7 @@
 #include "mem_logical.h"
 #include "mem_physical.h"
 #include "Collections.h"
+#include "CPU_intr.h"
 
 #define CURRENT_PAGE_SIZE           4096
 
@@ -20,6 +21,7 @@ extern "C" void KernelThreadEntryPoint(void);
 Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt32 stackSize)
 {
     _state = tsRunnable;
+    _blockingObject = NULL;
     
     _kernelStorage = new KernelDictionary();
     _kernelStack = new char[1024];
@@ -96,6 +98,50 @@ void Thread::Kill(void)
     // TODO: Multiprocessor aware
     if (Thread::Active == this)
         Scheduler::EnterFromInterrupt();
+}
+
+void Thread::BlockOn(BlockableObject *source)
+{
+    // Release any previous object
+    if (_blockingObject) {
+        _blockingObject->UnregisterObserver(this);
+        _blockingObject->Release();
+        _blockingObject = NULL;
+        _state = tsRunnable;
+    }
+    // If the new object is signalled, don't do anything
+    if (source->Signalled())
+        return;
+    // Start blocking
+    _blockingObject = source;
+    _blockingObject->AddRef();
+    _blockingObject->RegisterObserver(this);
+    _state = tsBlocked;
+    // TODO: Multiprocessor?
+    if (Thread::Active == this) {
+        // TODO: Disable interrupt earlier?
+        CPU_Interrupt_Disable();
+        Scheduler::EnterFromInterrupt();
+        CPU_Interrupt_Enable();
+    }
+}
+
+void Thread::SignalChanged(BlockableObject *signal)
+{
+    if (signal && (signal == _blockingObject)) {
+        _blockingObject->UnregisterObserver(this);
+        _blockingObject->Release();
+        _blockingObject = NULL;
+        _state = tsRunnable;
+    }
+}
+
+void Thread::Sleep(UInt32 microseconds)
+{
+    Timer *timer = new Timer();
+    timer->Reset(microseconds, false);
+    BlockOn(timer);
+    timer->Release();
 }
 
 void Thread::Select(CPU::Context **scheduler)

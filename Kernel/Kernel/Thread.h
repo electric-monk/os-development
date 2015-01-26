@@ -5,6 +5,7 @@
 #include "CPU.h"
 #include "StandardPC_traps.h"
 #include "mem_physical.h"
+#include "Blocking.h"
 
 class Interrupts;
 class Process;
@@ -23,7 +24,7 @@ typedef enum {
     tsCompleted,
 } THREADSTATE;
 
-class Thread : public KernelObject
+class Thread : public SignalWatcher // TODO: Implement SignalWatcher mechanisms
 {
 public:
     static void ConfigureService(Interrupts *interruptSource);
@@ -37,6 +38,8 @@ public:
     static Thread *Active asm("%gs:8");
     
     void Kill(void);
+    void BlockOn(BlockableObject *source);
+    void Sleep(UInt32 microseconds);
     
     void Select(CPU::Context **scheduler);
     
@@ -50,7 +53,11 @@ public:
 protected:
     ~Thread();
     
+    void SignalChanged(BlockableObject *source);
+    
 private:
+    BlockableObject *_blockingObject;
+    
     // The stack used in the kernel
     char *_kernelStack;
     // The stack used in userspace
