@@ -5,6 +5,7 @@
 #include "debug.h"
 #include "Thread.h"
 #include "Process.h"
+#include "CPU_intr.h"
 
 extern "C" void SwitchContexts(CPU::Context**, CPU::Context*);
 
@@ -15,6 +16,8 @@ void CPU::Context::SwitchFrom(Context **oldContext)
 
 void CPU::InitSegments(void)
 {
+    _interruptPushCount = 0;
+    
     // System segments
     gdt[SEG_KCODE].Set(STA_X | STA_R, 0, 0xFFFFFFFF, 0);
     gdt[SEG_KDATA].Set(STA_W, 0, 0xFFFFFFFF, 0);
@@ -46,4 +49,19 @@ void CPU::InitTSS(void *kernelStack, UInt32 kernelStackSize)
     cpuTSS.SS0 = SEG_KDATA << 3;
     cpuTSS.ESP0 = UInt32(kernelStack) + kernelStackSize;
     asm volatile("ltr %%ax" : : "a" (SEG_TSS << 3));
+}
+
+void CPU::PushInterruptFlag(void)
+{
+    UInt32 flag = GetEflag();
+    CPU_Interrupt_Disable();
+    if ((_interruptPushCount++) == 0)
+        _interruptWasEnabled = flag & FL_IF;
+}
+
+void CPU::PopInterruptFlag(void)
+{
+    if ((--_interruptPushCount) == 0)
+        if (_interruptWasEnabled)
+            CPU_Interrupt_Enable();
 }

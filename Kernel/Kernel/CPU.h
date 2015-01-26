@@ -22,6 +22,9 @@ public:
     Context *scheduler;
 
     static CPU *Active asm("%gs:0");
+    
+    void PushInterruptFlag(void);
+    void PopInterruptFlag(void);
 
 private:
     GDT_SEGMENT gdt[SEGMENT_COUNT];
@@ -34,6 +37,9 @@ private:
     
     CPU_LOCAL localStorage;
     TSS_BLOCK cpuTSS;
+    
+    UInt32 _interruptPushCount;
+    bool _interruptWasEnabled;
     
 public:
     // These methods must be called only by the CPU corresponding to the CPU object instance
