@@ -5,11 +5,11 @@
 [GLOBAL AtomicIncrement]
 [GLOBAL AtomicDecrement]
 
-[GLOBAL TestGetEflag]
+[GLOBAL GetEflag]
 
 [SECTION .text]
 
-TestGetEflag:
+GetEflag:
     pushfd
     pop eax
     ret

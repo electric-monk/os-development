@@ -126,6 +126,8 @@ typedef struct {
     UInt16 Trap, IOMapBase;
 } __attribute__((packed)) TSS_BLOCK;
 
+extern "C" UInt32 GetEflag(void);
+
 /**** Interrupt Descriptor Table ****/
 
 #define IDT_TYPE_TASK32 0x05

@@ -16,7 +16,6 @@ extern "C" void trapret(void);
 // This pointer points to an assembler routine to configure the callback
 extern "C" void ThreadEntryPoint(void);
 extern "C" void KernelThreadEntryPoint(void);
-extern "C" UInt32  TestGetEflag(void);
 
 Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt32 stackSize)
 {
@@ -56,7 +55,7 @@ Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt3
     _trapFrame->CS = _process ? ((SEG_UCODE << 3) | DPL_USER) : (SEG_KCODE << 3);
     _trapFrame->DS = _process ? ((SEG_UDATA << 3) | DPL_USER) : (SEG_KDATA << 3);
     _trapFrame->ES = _trapFrame->DS;
-    _trapFrame->EFlags = _process ? FL_IF : TestGetEflag();
+    _trapFrame->EFlags = _process ? FL_IF : GetEflag();
     // These two are only used in userspace processes. KernelThreadEntryPoint will strip them out accordingly.
     _trapFrame->ESP = UInt32(_stackInProcess) + CURRENT_PAGE_SIZE - usedStack;
     _trapFrame->SS = _trapFrame->DS;
