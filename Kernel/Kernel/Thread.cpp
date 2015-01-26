@@ -58,6 +58,7 @@ Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt3
     _trapFrame->DS = _process ? ((SEG_UDATA << 3) | DPL_USER) : (SEG_KDATA << 3);
     _trapFrame->ES = _trapFrame->DS;
     _trapFrame->EFlags = _process ? FL_IF : GetEflag();
+    _trapFrame->GS = _process ? 0 : (SEG_KCPU << 3);    // Set up the TLS
     // These two are only used in userspace processes. KernelThreadEntryPoint will strip them out accordingly.
     _trapFrame->ESP = UInt32(_stackInProcess) + CURRENT_PAGE_SIZE - usedStack;
     _trapFrame->SS = _trapFrame->DS;
