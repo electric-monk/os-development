@@ -12,9 +12,11 @@ class BlockableObject : public KernelObject
 public:
     BlockableObject();
     
+    // Register/unregister state
     virtual void RegisterObserver(SignalWatcher *watcher);
     virtual void UnregisterObserver(SignalWatcher *watcher);
     
+    // Current state
     virtual BlockableObject* Signalled(void);
     
 protected:
