@@ -8,10 +8,8 @@ static AutoreleasePool *kernelPool = NULL;
 
 static KernelString* KernelPoolName(void)
 {
-    if (kernelPoolName == NULL) {
-        kernelPoolName = KernelString::Create("_AutoreleasePool");
-        kernelPoolName->AddRef();
-    }
+    if (kernelPoolName == NULL)
+        kernelPoolName = new KernelString("_AutoreleasePool");
     return kernelPoolName;
 }
 
