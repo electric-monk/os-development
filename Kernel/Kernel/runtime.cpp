@@ -83,4 +83,51 @@ void __cxa_finalize(void *f)
     }
 }
 
+// From libgcc
+    // TODO: Check license
+
+UInt64 __udivmoddi4(UInt64 num, UInt64 den, UInt64 *rem_p)
+{
+    UInt64 quot = 0, qbit = 1;
+    
+    if ( den == 0 ) {
+        return 1/((unsigned)den); /* Intentional divide by zero, without
+                                   triggering a compiler warning which
+                                   would abort the build */
+    }
+    
+    /* Left-justify denominator and count shift */
+    while ( (UInt64)den >= 0 ) {
+        den <<= 1;
+        qbit <<= 1;
+    }
+    
+    while ( qbit ) {
+        if ( den <= num ) {
+            num -= den;
+            quot += qbit;
+        }
+        den >>= 1;
+        qbit >>= 1;
+    }
+    
+    if ( rem_p )
+        *rem_p = num;
+    
+    return quot;
+}
+
+UInt64 __udivdi3(UInt64 num, UInt64 den)
+{
+    return __udivmoddi4(num, den, NULL);
+}
+
+UInt64 __umoddi3(UInt64 num, UInt64 den)
+{
+    UInt64 v;
+    
+    (void) __udivmoddi4(num, den, &v);
+    return v;
+}
+
 }
