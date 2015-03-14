@@ -27,6 +27,7 @@ protected:
     // These two methods allow a virtual memory manager to add/remove a single page, be it in response to a page fault or just because they felt like it
     void Map(/*MAP_FLAGS*/int permissions, void *linearAddress, PhysicalPointer physicalAddress);
     void Unmap(void *linearAddress);
+    bool IsMapped(void *linearAddress);
     
     SPageDirectoryInfo* PageDirectory(void);
     

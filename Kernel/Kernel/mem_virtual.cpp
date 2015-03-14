@@ -62,6 +62,11 @@ void VirtualMemory::Unmap(void *linearAddress)
     Map(fmNotPresent, linearAddress, (PhysicalPointer)(_identifier << 1));
 }
 
+bool VirtualMemory::IsMapped(void *linearAddress)
+{
+    return PageDirectory()->Address(linearAddress) != CPhysicalMemory::Minimum;
+}
+
 GrowableStack::GrowableStack(Process *process, UInt32 maximumPages)
 :VirtualMemory(process, (maximumPages + 1) * 4096)
 {
