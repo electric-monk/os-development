@@ -78,6 +78,7 @@ class KernelString : public KernelObject
 {
 public:
     static KernelString* Create(const char *input);
+    static KernelString* Format(const char *input, ...);
     KernelString(const char *input);
     
     const char *CString(void);
@@ -86,6 +87,7 @@ public:
     UInt32 Hash(void);
     
 protected:
+    KernelString(char *input, UInt32 length);
     ~KernelString();
     
 private:

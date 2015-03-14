@@ -331,6 +331,86 @@ KernelString* KernelString::Create(const char *input)
     return result;
 }
 
+class KernelStringGenerator : public CStringPrint
+{
+public:
+    KernelStringGenerator(UInt32 chunkSize = 32)
+    {
+        _chunk = chunkSize;
+        Reset();
+    }
+    ~KernelStringGenerator()
+    {
+        if (_data != NULL)
+            delete[] _data;
+    }
+    
+    char* FinaliseString(UInt32 *outputLength)
+    {
+        if (_data == NULL) {
+            *outputLength = 1;
+            return (char*)"";
+        }
+        Check(_length + 1);
+        _data[_length] = '\0';
+        char *result = _data;
+        *outputLength = _length;
+        Reset();
+        return _data;
+    }
+    
+protected:
+    void PrintOut(const char *data, int length)
+    {
+        Check(_length + length);
+        for (int i = 0; i < length; i++)
+            _data[_length + i] = data[i];
+        _length += length;
+    }
+    
+private:
+    char *_data;
+    UInt32 _total, _chunk;
+    UInt32 _length;
+    
+    void Reset(void)
+    {
+        _data = NULL;
+        _total = 0;
+        _length = 0;
+    }
+    void Check(UInt32 required)
+    {
+        if (_total >= required)
+            return;
+        UInt32 desired = (required + (_chunk - 1)) / _chunk;
+        UInt32 newTotal = desired * _chunk;
+        char *newData = new char[newTotal];
+        if (_data != NULL) {
+            CopyMemory(newData, _data, _length);
+            delete[] _data;
+        }
+        _data = newData;
+        _total = newTotal;
+    }
+};
+
+KernelString* KernelString::Format(const char *input, ...)
+{
+    KernelStringGenerator generator;
+	va_list vl;
+    
+	va_start(vl, input);
+	generator.PrintList(input, vl);
+	va_end(vl);
+    
+    UInt32 length;
+    char *output = generator.FinaliseString(&length);
+    KernelString *result = new KernelString(output, length);
+    result->Autorelease();
+    return result;
+}
+
 static UInt32 tempstrlen(const char *input)
 {
     const char *end = input;
@@ -344,6 +424,12 @@ KernelString::KernelString(const char *input)
     _length = tempstrlen(input);
     _data = new char[_length + 1];
     CopyMemory(_data, input, _length + 1);
+}
+
+KernelString::KernelString(char *input, UInt32 length)
+{
+    _data = input;
+    _length = length;
 }
 
 KernelString::~KernelString()
