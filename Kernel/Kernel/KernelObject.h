@@ -50,10 +50,9 @@ class AutoreleasePool
 {
 public:
     AutoreleasePool();
+    ~AutoreleasePool();
     
     void AddObject(KernelObject *object);
-protected:
-    ~AutoreleasePool();
     
 private:
     KernelArray *_objects;
