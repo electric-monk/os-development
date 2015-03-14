@@ -20,4 +20,25 @@ void CPU_PIC_Enable(int irq, bool enable);
 static inline void CPU_Interrupt_Enable(void) { asm("sti"); }
 static inline void CPU_Interrupt_Disable(void) { asm("cli"); }
 
+#include "descript.h"
+#include "StandardPC_traps.h"
+
+class InterruptDisabler
+{
+public:
+    InterruptDisabler()
+    {
+        UInt32 flag = GetEflag();
+        CPU_Interrupt_Disable();
+        _was = flag & FL_IF;
+    }
+    ~InterruptDisabler()
+    {
+        if (_was)
+            CPU_Interrupt_Enable();
+    }
+private:
+    bool _was;
+};
+
 #endif // __CPU_INTR_H__
