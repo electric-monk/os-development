@@ -83,6 +83,7 @@ Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt3
 Thread::~Thread()
 {
     Detach();   // May already be detached, but shouldn't hurt
+    BlockOn(NULL);
     if (_process) {
         _process->pageDirectory.Unmap(_stackInProcess);
         _process->Release();
@@ -96,11 +97,13 @@ void Thread::Kill(void)
 {
     Detach();
     // TODO: Multiprocessor aware
-    if (Thread::Active == this)
+    if (Thread::Active == this) {
+        InterruptDisabler disabler;
         Scheduler::EnterFromInterrupt();
+    }
 }
 
-void Thread::BlockOn(BlockableObject *source)
+BlockableObject* Thread::BlockOn(BlockableObject *source)
 {
     // Release any previous object
     if (_blockingObject) {
@@ -109,9 +112,16 @@ void Thread::BlockOn(BlockableObject *source)
         _blockingObject = NULL;
         _state = tsRunnable;
     }
+    if (_blockingResult) {
+        _blockingResult->Release();
+        _blockingResult = NULL;
+    }
     // If the new object is signalled, don't do anything
-    if (source->Signalled())
-        return;
+    if (!source)
+        return NULL;
+    BlockableObject *signalled = source->Signalled();
+    if (signalled)
+        return signalled;
     // Start blocking
     _blockingObject = source;
     _blockingObject->AddRef();
@@ -120,24 +130,38 @@ void Thread::BlockOn(BlockableObject *source)
     // TODO: Multiprocessor?
     if (Thread::Active == this) {
         // TODO: Disable interrupt earlier?
-        CPU_Interrupt_Disable();
-        Scheduler::EnterFromInterrupt();
-        CPU_Interrupt_Enable();
+        {
+            InterruptDisabler disabler;
+            Scheduler::EnterFromInterrupt();
+        }
+        BlockableObject *result = _blockingResult;
+        if (result) {
+            _blockingResult = NULL;
+            result->Autorelease();
+        }
+        return result;
     }
+    return NULL;
 }
 
 void Thread::SignalChanged(BlockableObject *signal)
 {
-    if (signal && (signal == _blockingObject)) {
+    if (signal) {
+        // Make a note of who set us off again
+        signal->AddRef();
+        _blockingResult = signal;
+        // Stop blocking
         _blockingObject->UnregisterObserver(this);
         _blockingObject->Release();
         _blockingObject = NULL;
+        // Resume running
         _state = tsRunnable;
     }
 }
 
 void Thread::Sleep(UInt32 microseconds)
 {
+    AutoreleasePool pool;
     Timer *timer = new Timer();
     timer->Reset(microseconds, false);
     BlockOn(timer);
