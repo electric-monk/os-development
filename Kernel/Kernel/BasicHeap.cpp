@@ -85,10 +85,10 @@ void BasicHeap::AddBlock(void *offset, BasicHeap::h_size length)
     BasicHeap_Heap *heap = (BasicHeap_Heap*)offset;
     heap->size = length;
     h_size *data = (h_size*)(heap + 1);
-    h_size blobs = ROUNDUP(length, _granularity) / (sizeof(h_size) * 8);
-    for (h_size count = blobs; count != 0; count--, data++)
+    h_size bitFields = ROUNDUP(ROUNDUP(length, _granularity), sizeof(h_size) * 8);
+    for (h_size count = bitFields; count != 0; count--, data++)
         *data = 0;
-    SetChunk(heap, 0, ROUNDUP(sizeof(BasicHeap_Heap) + (sizeof(h_size) * blobs), _granularity), true);
+    SetChunk(heap, 0, ROUNDUP(sizeof(BasicHeap_Heap) + (sizeof(h_size) * bitFields), _granularity), true);
     heap->next = (BasicHeap_Heap*)_root;
     _root = heap;
 }
