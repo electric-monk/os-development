@@ -153,13 +153,42 @@ static void AlternateCPU(void)
     CPUMain();
 }
 
+#include "Process.h"
+#include "Thread.h"
+
+static void PrintStack(void **stackBottom)
+{
+    kprintf("Stack:");
+    for (int i = 0; i < 24; i++, stackBottom++)
+        kprintf(" %.8x", *stackBottom);
+    kprintf("\n");
+}
+
 static bool GenericExceptionHandler(void *context, void *state)
 {
     CPU_Interrupt_Disable();
     TrapFrame *tf = (TrapFrame*)state;
     kprintf("\nPANIC! CPU exception %.2x: %s\n", tf->TrapNumber, StandardPC::NameForTrap(tf->TrapNumber));
     kprintf("Error %.8x; address %.4x:%.8x\n", tf->ERR, tf->CS, tf->EIP);
+    PrintStack((void**)tf->ESP);
+    kprintf("CPU %.8x Process %.8x Thread %.8x\n", CPU::Active, Process::Active, Thread::Active);
     while(1) asm("hlt");
+    return true;
+}
+
+static bool PageFaultExceptionHandler(void *context, void *state)
+{
+    CPU_Interrupt_Disable();
+    TrapFrame *tf = (TrapFrame*)state;
+    UInt32 faulting_address;
+    asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
+    kprintf("\nPANIC! CPU exception %.2x: %s\n", tf->TrapNumber, StandardPC::NameForTrap(tf->TrapNumber));
+    kprintf("Error %.8x; address %.4x:%.8x\n", tf->ERR, tf->CS, tf->EIP);
+    PrintStack((void**)tf->ESP);
+    kprintf("Attempting to access %.8x\n", faulting_address);
+    kprintf("CPU %.8x Process %.8x Thread %.8x\n", CPU::Active, Process::Active, Thread::Active);
+    while(1) asm("hlt");
+    return true;
 }
 
 StandardPC::StandardPC()
@@ -168,6 +197,7 @@ StandardPC::StandardPC()
     // TODO: Make these separate drivers
     for (int i = 0; i < 0x20; i++)
         InterruptSource()->RegisterHandler(i, GenericExceptionHandler, NULL);
+    InterruptSource()->RegisterHandler(0x0E, PageFaultExceptionHandler, NULL);
 }
 
 StandardPC::~StandardPC()
