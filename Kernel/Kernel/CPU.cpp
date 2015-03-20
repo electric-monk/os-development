@@ -55,13 +55,15 @@ void CPU::PushInterruptFlag(void)
 {
     UInt32 flag = GetEflag();
     CPU_Interrupt_Disable();
-    if ((_interruptPushCount++) == 0)
+    if (_interruptPushCount == 0)
         _interruptWasEnabled = flag & FL_IF;
+    _interruptPushCount++;
 }
 
 void CPU::PopInterruptFlag(void)
 {
-    if ((--_interruptPushCount) == 0)
+    _interruptPushCount--;
+    if (_interruptPushCount == 0)
         if (_interruptWasEnabled)
             CPU_Interrupt_Enable();
 }
