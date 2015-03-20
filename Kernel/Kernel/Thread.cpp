@@ -8,8 +8,11 @@
 #include "mem_physical.h"
 #include "Collections.h"
 #include "CPU_intr.h"
+#include "mem_virtual.h"
 
 #define CURRENT_PAGE_SIZE           4096
+
+#define KERNEL_STACK_PAGES          10
 
 // This pointer points into the guts of the interrupt handler - the part that returns from an interrupt
 extern "C" void trapret(void);
@@ -22,30 +25,37 @@ Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt3
 {
     _state = tsRunnable;
     _blockingObject = NULL;
+    _blockingResult = NULL;
     
     _kernelStorage = new KernelDictionary();
-    _kernelStack = new char[1024];
+    int kernelStackSize = KERNEL_STACK_PAGES;
+    int userStackSize = stackSize / CURRENT_PAGE_SIZE;
+    if (process == NULL)
+        kernelStackSize += userStackSize;
+    _kernelStack = new GrowableStack(NULL, kernelStackSize);
     
     // Make a note of the current process (if any - NULL is kernel thread)
     _process = process;
     if (_process) {
         _process->AddRef();
         // Process stack needs to exist in process space
-        _processStack = CPhysicalMemory::AllocateContiguousPages();
-        _stackInProcess = (char*)_process->pageDirectory.Map(fmUser | fmWritable, pmApplication, _processStack);
+        _stackInProcess = new GrowableStack(_process, userStackSize);
+    } else {
+        _stackInProcess = NULL;
     }
     
     // Configure initial stack
-    char *stackPointer = _kernelStack + 1024;
+    char *stackPointer = (char*)_kernelStack->StackTop();
     int usedStack = 0;
     
     // For ThreadEntryPoint - first context, second function
     if (_process) {
-        char *userStackPointer = (char*)rootAddressSpace.Map(fmWritable, pmKernel, _processStack) + CURRENT_PAGE_SIZE;
-        userStackPointer -= 4;
-        *((void**)userStackPointer) = (void*)context;
+        AutoreleasePool pool;
+        VirtualMemory *userStack = _stackInProcess->MapIntoKernel();
+        char *userStackTop = (char*)userStack->LinearBase() + userStack->LinearLength();
+        userStackTop -= 4;
+        *((void**)userStackTop) = (void*)context;
         usedStack += 4;
-        rootAddressSpace.Unmap(userStackPointer);
     } else {
         stackPointer -= 4;
         *((void**)stackPointer) = (void*)context;
@@ -62,7 +72,7 @@ Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt3
     _trapFrame->EFlags = _process ? FL_IF : GetEflag();
     _trapFrame->GS = _process ? 0 : (SEG_KCPU << 3);    // Set up the TLS
     // These two are only used in userspace processes. KernelThreadEntryPoint will strip them out accordingly.
-    _trapFrame->ESP = UInt32(_stackInProcess) + CURRENT_PAGE_SIZE - usedStack;
+    _trapFrame->ESP = UInt32(_process ? _stackInProcess->StackTop() : 0) - usedStack;
     _trapFrame->SS = _trapFrame->DS;
     // Set up entrypoint
     _trapFrame->EIP = _process ? UInt32(entryPoint) : UInt32(KernelThreadEntryPoint);   // Upon exiting the (pretend) trap, start the thread
@@ -85,11 +95,10 @@ Thread::~Thread()
     Detach();   // May already be detached, but shouldn't hurt
     BlockOn(NULL);
     if (_process) {
-        _process->pageDirectory.Unmap(_stackInProcess);
+        _stackInProcess->Release();
         _process->Release();
-        CPhysicalMemory::ReleasePages(_processStack);
     }
-    delete[] _kernelStack;
+    _kernelStack->Release();
     _kernelStorage->Release();
 }
 
@@ -105,6 +114,7 @@ void Thread::Kill(void)
 
 BlockableObject* Thread::BlockOn(BlockableObject *source)
 {
+//    kprintf("Thread %.8x blocking on %.8x\n", this, source);
     // Release any previous object
     if (_blockingObject) {
         _blockingObject->UnregisterObserver(this);
@@ -146,6 +156,7 @@ BlockableObject* Thread::BlockOn(BlockableObject *source)
 
 void Thread::SignalChanged(BlockableObject *signal)
 {
+//    kprintf("Thread %.8x got signal %.8x\n", this, signal);
     if (signal) {
         // Make a note of who set us off again
         signal->AddRef();
@@ -172,7 +183,7 @@ void Thread::Select(CPU::Context **scheduler)
 {
     if (Process::Active != _process) {
         if (_process) {
-            CPU::Active->InitTSS(_kernelStack, 4096);
+            CPU::Active->InitTSS(_kernelStack->LinearBase(), _kernelStack->LinearLength());
             _process->pageDirectory.Select();
             Process::Active = _process;
         }

@@ -10,6 +10,7 @@
 class Interrupts;
 class Process;
 class KernelDictionary;
+class GrowableStack;
 
 #define SERVICE_THREAD          0x70            // interrupt
 // EAX parameters
@@ -59,10 +60,9 @@ private:
     BlockableObject *_blockingObject, *_blockingResult;
     
     // The stack used in the kernel
-    char *_kernelStack;
+    GrowableStack *_kernelStack;
     // The stack used in userspace
-    char *_stackInProcess;
-    PhysicalPointer _processStack;
+    GrowableStack *_stackInProcess;
     
     TrapFrame *_trapFrame;
     UInt32 _stackSize;
