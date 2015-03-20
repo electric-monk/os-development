@@ -9,6 +9,10 @@
 #ifndef __MemoryAllocTest__BasicHeap__
 #define __MemoryAllocTest__BasicHeap__
 
+#ifndef TESTING
+#include "Locking.h"
+#endif
+
 class BasicHeap
 {
 public:
@@ -31,8 +35,12 @@ public:
     h_size FreeMemory(void);
     h_size AllocationCount(void);
     void Test(void);
+    void Check(void*);
     
 private:
+#ifndef TESTING
+    InterruptableSpinLock _lock;
+#endif
     void *_root;
     h_size _total, _allocated, _count, _granularity;
 };
