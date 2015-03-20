@@ -52,6 +52,8 @@ public:
     AutoreleasePool();
     ~AutoreleasePool();
     
+    void Flush(void);
+    
     void AddObject(KernelObject *object);
     
 private:

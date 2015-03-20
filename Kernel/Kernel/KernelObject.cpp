@@ -77,6 +77,12 @@ AutoreleasePool::~AutoreleasePool()
     _objects->Release();
 }
 
+void AutoreleasePool::Flush(void)
+{
+    _objects->Release();
+    _objects = new KernelArray();
+}
+
 void AutoreleasePool::AddObject(KernelObject *object)
 {
     _objects->Add(object);
