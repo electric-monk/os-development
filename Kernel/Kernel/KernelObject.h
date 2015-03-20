@@ -31,7 +31,7 @@ public:
     
     virtual bool IsEqualTo(KernelObject *other)
     {
-        return this == other;
+        return Hash() == other->Hash();
     }
     
 protected:
