@@ -348,7 +348,7 @@ public:
     char* FinaliseString(UInt32 *outputLength)
     {
         if (_data == NULL) {
-            *outputLength = 1;
+            *outputLength = 0;
             return (char*)"";
         }
         Check(_length + 1);
@@ -387,7 +387,8 @@ private:
         UInt32 newTotal = desired * _chunk;
         char *newData = new char[newTotal];
         if (_data != NULL) {
-            CopyMemory(newData, _data, _length);
+            if (_length != 0)
+                CopyMemory(newData, _data, _length);
             delete[] _data;
         }
         _data = newData;

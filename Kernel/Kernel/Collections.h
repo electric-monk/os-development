@@ -106,6 +106,8 @@ public:
     
     UInt32 Hash(void) { return _value; }
     
+    void Reset(UInt32 newValue) { _value = newValue; }
+    
 private:
     UInt32 _value;
 };
