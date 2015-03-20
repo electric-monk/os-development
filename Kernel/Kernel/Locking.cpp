@@ -74,6 +74,7 @@ void HardcoreSpinLock::Unlock(void)
         /* panic */;
     if (_depth != 0) {
         _depth--;
+        CPU::Active->PopInterruptFlag();
         return;
     }
     GenericLock::Unlock();
