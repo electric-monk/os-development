@@ -7,6 +7,7 @@
 #include "StandardPC.h"
 #include "CPU_intr.h"
 #include "Scheduler.h"
+#include "mem_virtual.h"
 
 extern UInt32 kern_start, kern_end;
 
@@ -33,6 +34,29 @@ static bool MultitaskHandler(void *context, void *state)
     Scheduler::EnterFromInterrupt();
     return true;
 }
+
+#include "Queue.h"
+DispatchQueue *testQueue;
+class TestTask : public DispatchQueue::Task
+{
+public:
+    TestTask(char c, int x = 50, int y = 22)
+    {
+        _x = x;
+        _y = y;
+        _c = c;
+    }
+    
+protected:
+    void Execute(void)
+    {
+        test(_x, _y, _c);
+    }
+    
+private:
+    int _x, _y;
+    char _c;
+};
 
 #include "Interrupts.h"
 int taunt = 0;
@@ -75,6 +99,19 @@ protected:
                 test(12, 0, '?');
                 Thread::Active->Sleep(MILLISECONDS(_sleep));
                 test(12, 0, '!');
+                
+                TestTask *testTask = new TestTask('W');
+                testQueue->AddTask(testTask);
+                testTask->Release();
+            } else {
+                _count++;
+                if (_count > 100000) {
+                    _count = 0;
+                    TestTask *testTask = new TestTask('N');
+                    testQueue->AddTask(testTask);
+                    testTask->Release();
+                    
+                }
             }
         }
     }
@@ -82,6 +119,7 @@ private:
     int _x, _y;
     const char *_msg;
     int _sleep;
+    int _count;
 };
 
 #include "Process.h"
@@ -150,6 +188,8 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     rootDevice->Test()->RegisterHandler(0x21, KeyboardTestHandler, NULL);
     CPU_PIC_Enable(1, true);
     
+    VirtualMemory::ConfigureService(rootDevice->Test());
+    
     // Do something else
 	kprintf("\nStarting!\n");
 	test('Z');
@@ -171,6 +211,12 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     ConfigureProcessTest(ProcessTestThreadTwo, "Four");
     rootDevice->Test()->RegisterHandler(0x99, TestHandler, NULL);
     rootDevice->Test()->ConfigureSyscall(0x99);
+    
+    // Queue test
+    testQueue = new DispatchQueue();
+    TestTask *testTask = new TestTask('?');
+    testQueue->AddTask(testTask);
+    testTask->Release();
     
     CPU_Interrupt_Disable();
     CPU_PIC_Enable(0, true);
