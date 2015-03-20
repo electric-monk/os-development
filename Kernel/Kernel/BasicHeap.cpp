@@ -7,14 +7,41 @@
 //
 
 #include "BasicHeap.h"
+#ifndef TESTING
 #include "runtime.h"
 #include "debug.h"
+#include "tools.h"
+#endif
 
 #define NOTFOUND    0xFFFFFFFF
 
-#define ROUNDUP(val, div)           (((val) + ((div) - 1)) / (div))
-#define OFS2PTR(heap, gran, base)   (((unsigned char*)(heap)) + ((gran) * (base)))
-#define PTR2OFS(heap, gran, ptr)    ((((unsigned char*)(ptr)) - ((unsigned char*)(heap))) / (gran))
+#define CHECK_UNDERRUN
+#define CHECK_OVERRUN
+
+#define CLEAR_ALLOC
+#define CLEAR_FREE
+
+#define TEST_BEFORE 0xDEADBEEF
+#define TEST_AFTER  0xDEADF00D
+#define TEST_END    0xA110DEAD
+
+// This method takes an amount and a granularity, and returns the minimum number of granules to hold the amount
+static inline BasicHeap::h_size ROUNDUP(BasicHeap::h_size amount, BasicHeap::h_size granularity)
+{
+    return (amount + (granularity - 1)) / granularity;
+}
+
+// This method takes a pointer to a base, a granularity and a number of granules, and returns a pointer to the actual address
+static inline void* OFS2PTR(void *heap, BasicHeap::h_size granularity, BasicHeap::h_size offset)
+{
+    return (void*)(BasicHeap::h_size(heap) + (granularity * offset));
+}
+
+// This method takes a pointer to a base, a granularity and a pointer into the chunk, and returns the offset granules
+static inline BasicHeap::h_size PTR2OFS(void *heap, BasicHeap::h_size granularity, void *pointer)
+{
+    return (BasicHeap::h_size(pointer) - BasicHeap::h_size(heap)) / granularity;
+}
 
 typedef struct BasicHeap_Heap {
     BasicHeap::h_size size; // Including header/etc.
@@ -22,8 +49,14 @@ typedef struct BasicHeap_Heap {
 } BasicHeap_Heap;
 
 typedef struct {
+#ifdef CHECK_UNDERRUN
+    BasicHeap::h_size _before;
+#endif
     BasicHeap_Heap *base;
     BasicHeap::h_size size;
+#ifdef CHECK_UNDERRUN
+    BasicHeap::h_size _after;
+#endif
 } BasicHeap_Block;
 
 static BasicHeap::h_size FindChunk(BasicHeap_Heap *heap, BasicHeap::h_size granularity, BasicHeap::h_size count)
@@ -81,6 +114,9 @@ BasicHeap::~BasicHeap()
 
 void BasicHeap::AddBlock(void *offset, BasicHeap::h_size length)
 {
+#ifndef TESTING
+    InterruptableSpinLock::Autolock lock(&_lock);
+#endif
     _total += length;
     BasicHeap_Heap *heap = (BasicHeap_Heap*)offset;
     heap->size = length;
@@ -95,9 +131,15 @@ void BasicHeap::AddBlock(void *offset, BasicHeap::h_size length)
 
 void* BasicHeap::Alloc(BasicHeap::h_size amount)
 {
+#ifndef TESTING
+    InterruptableSpinLock::Autolock lock(&_lock);
+#endif
 //    kprintf("Allocating %i\n", amount);
 //    Test();
     h_size required = amount + sizeof(BasicHeap_Block);
+#ifdef CHECK_OVERRUN
+    required += sizeof(BasicHeap::h_size);
+#endif
     h_size count = ROUNDUP(required, _granularity);
     for (BasicHeap_Heap *heap = (BasicHeap_Heap*)_root; heap != NULL; heap = heap->next) {
         h_size offset = FindChunk(heap, _granularity, count);
@@ -109,6 +151,20 @@ void* BasicHeap::Alloc(BasicHeap::h_size amount)
             _count++;
             _allocated += count * _granularity;
 //            kprintf("=> %.8x\n", block + 1);
+#ifdef CHECK_UNDERRUN
+            block->_before = TEST_BEFORE;
+            block->_after = TEST_AFTER;
+#endif
+#ifdef CLEAR_ALLOC
+            char *blockStart = (char*)(block + 1);
+            for (h_size length = (count * _granularity) - sizeof(BasicHeap_Block); length != 0; length--, blockStart++)
+                *blockStart = length % 0xFF;
+#endif
+#ifdef CHECK_OVERRUN
+            char *temp = (char*)(block + 1);
+            temp += amount;
+            ((BasicHeap::h_size*)temp)[0] = TEST_END;
+#endif
             return block + 1;
         }
     }
@@ -116,14 +172,44 @@ void* BasicHeap::Alloc(BasicHeap::h_size amount)
     return NULL;
 }
 
+static void HeapDebug(const char *error)
+{
+    kprintf(error);
+#ifdef TESTING
+    throw "Heap integrity failure";
+#endif
+}
+
 void BasicHeap::Release(void *buffer)
 {
+#ifndef TESTING
+    InterruptableSpinLock::Autolock lock(&_lock);
+#endif
     BasicHeap_Block *block = ((BasicHeap_Block*)buffer) - 1;
-    h_size count = ROUNDUP((block->size + sizeof(BasicHeap_Block)), _granularity);
+#ifdef CHECK_UNDERRUN
+    if (block->_before != TEST_BEFORE)
+        HeapDebug("HEAP: _before invalid\n");
+    if (block->_after != TEST_AFTER)
+        HeapDebug("HEAP: _after invalid\n");
+#endif
+    h_size required = block->size + sizeof(BasicHeap_Block);
+#ifdef CHECK_OVERRUN
+    char *temp = (char*)(block + 1);
+    temp += block->size;
+    if (((BasicHeap::h_size*)temp)[0] != TEST_END)
+        HeapDebug("HEAP: overrun invalid\n");
+    required += sizeof(BasicHeap::h_size);
+#endif
+    h_size count = ROUNDUP(required, _granularity);
     h_size offset = PTR2OFS(block->base, _granularity, block);
     SetChunk(block->base, offset, count, false);
     _count--;
     _allocated -= count * _granularity;
+#ifdef CLEAR_FREE
+    char *blockStart = (char*)block;
+    for (h_size amount = count * _granularity; amount != 0; amount--, blockStart++)
+        *blockStart = amount & 1 ? 0xFF : 0x55;
+#endif
 }
 
 BasicHeap::h_size BasicHeap::TotalMemory(void)
@@ -174,10 +260,29 @@ void BasicHeap::Test(void)
             longestRun = run;
         int freeBytes = total * _granularity;
         int freeLongest = longestRun * _granularity;
-        int amount = (max - total * 10000) / (max * 100);
-        kprintf("\t%i: %i total, %i bytes free, %i longest contiguous bytes free, %i/10000 utilisation\n", heapNo, (int)heap->size, freeBytes, freeLongest, amount);
+        int amount = (10000*(max - total)) / max;
+        int major = amount / 100;
+        int minor = amount % 100;
+        kprintf("\t%i: %i total, %i bytes free, %i longest contiguous bytes free, %i.%.2i%% utilisation\n", heapNo, (int)heap->size, freeBytes, freeLongest, major, minor);
         heapNo++;
         totalSize += total;
     }
     kprintf("\tTotal in heaps: %i bytes\n", totalSize * _granularity);
+}
+
+void BasicHeap::Check(void *pointer)
+{
+    BasicHeap_Block *block = ((BasicHeap_Block*)pointer) - 1;
+#ifdef CHECK_UNDERRUN
+    if (block->_before != TEST_BEFORE)
+        HeapDebug("HEAP: _before invalid\n");
+    if (block->_after != TEST_AFTER)
+        HeapDebug("HEAP: _after invalid\n");
+#endif
+#ifdef CHECK_OVERRUN
+    char *temp = (char*)(block + 1);
+    temp += block->size;
+    if (((BasicHeap::h_size*)temp)[0] != TEST_END)
+        HeapDebug("HEAP: overrun invalid\n");
+#endif
 }
