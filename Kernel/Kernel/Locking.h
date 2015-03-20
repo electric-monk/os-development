@@ -1,11 +1,10 @@
 #ifndef __LOCKING_H__
 #define __LOCKING_H__
 
-#include "KernelObject.h"
-
 #define DEBUG_STACK_SIZE        10
 
 class CPU;
+typedef unsigned long LockInt32;
 
 // Generic lock interface, provides some debugging and utilities but doesn't do any locking itself
 class GenericLock
@@ -38,7 +37,7 @@ protected:
     // Debug info
     char *_name;
     CPU *_cpu;
-    UInt32 _lockStack[DEBUG_STACK_SIZE];
+    LockInt32 _lockStack[DEBUG_STACK_SIZE];
 };
 
 // This lock disables interrupts and spins for the item, so use sparingly
@@ -52,8 +51,35 @@ public:
     bool Holding(void);
     
 private:
-    UInt32 _locked;
-    UInt32 _depth;
+    LockInt32 _locked;
+    LockInt32 _depth;
+};
+
+class InterruptableSpinLock
+{
+private:
+    LockInt32 _locked;
+    
+public:
+    InterruptableSpinLock();
+    void Lock(void);
+    void Unlock(void);
+    
+    class Autolock
+    {
+    private:
+        InterruptableSpinLock *_lock;
+    public:
+        Autolock(InterruptableSpinLock *lock)
+        {
+            _lock = lock;
+            _lock->Lock();
+        }
+        ~Autolock()
+        {
+            _lock->Unlock();
+        }
+    };
 };
 
 #endif // __LOCKING_H__

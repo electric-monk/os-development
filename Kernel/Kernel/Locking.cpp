@@ -2,21 +2,23 @@
 #include "tools.h"
 #include "CPU.h"
 #include "CPU_intr.h"
+#include "debug.h"
+#include "Scheduler.h"
 
-extern UInt32 virt;
+extern LockInt32 virt;
 
 // Weird method from xv6 source
-static void GetCallerChain(void *v, UInt32 *output, UInt32 count)
+static void GetCallerChain(void *v, LockInt32 *output, LockInt32 count)
 {
-    UInt32 *ebp;
-    UInt32 i;
+    LockInt32 *ebp;
+    LockInt32 i;
     
-    ebp = (UInt32*)v - 2;
+    ebp = (LockInt32*)v - 2;
     for (i = 0; i < count; i++) {
         if ((ebp == NULL) || (ebp < &virt) || (ebp == (void*)0xFFFFFFFF))
             break;
         output[i] = ebp[1];
-        ebp = (UInt32*)ebp[0];
+        ebp = (LockInt32*)ebp[0];
     }
     for (; i < count; i++)
         output[i] = 0;
@@ -64,7 +66,7 @@ void HardcoreSpinLock::Lock(void)
         _depth++;
         return;
     }
-    while (xchg(&_locked, 1) != 0);
+    while (xchg((UInt32*)&_locked, 1) != 0);
     GenericLock::Lock();
 }
 
@@ -78,11 +80,28 @@ void HardcoreSpinLock::Unlock(void)
         return;
     }
     GenericLock::Unlock();
-    xchg(&_locked, 0);
+    xchg((UInt32*)&_locked, 0);
     CPU::Active->PopInterruptFlag();
 }
 
 bool HardcoreSpinLock::Holding(void)
 {
     return _locked && (_cpu == CPU::Active);
+}
+
+InterruptableSpinLock::InterruptableSpinLock()
+{
+    _locked = 0;
+}
+
+void InterruptableSpinLock::Lock(void)
+{
+    while (xchg((UInt32*)&_locked, 1) != 0) {
+        InterruptDisabler disabler;
+        Scheduler::EnterFromInterrupt();
+    }
+}
+void InterruptableSpinLock::Unlock(void)
+{
+    xchg((UInt32*)&_locked, 0);
 }
