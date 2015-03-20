@@ -5,19 +5,33 @@
 #include "Interrupts.h"
 #include "Process.h"
 #include "StandardPC_traps.h"
+#include "debug.h"
 
 static UInt32 _identifierCounter = 0;
 static KernelDictionary *s_identifierMap;
+static KernelNumber *s_utilityNumber = NULL;
 
-static bool PageFaultHandler(void *context, void *state)
+// TODO: not a kerneldictionary, something faster
+
+bool VirtualMemory::PageFaultHandler(void *context, void *state)
 {
-    TrapFrame *tf = (TrapFrame*)state;
-    
+    UInt32 faulting_address;
+    asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
+    UInt32 data = currentAddressSpace->AddressRaw((void*)faulting_address);
+    int identifier = data >> 1;
+    s_utilityNumber->Reset(identifier);
+    VirtualMemory *handler = (VirtualMemory*)s_identifierMap->ObjectFor(s_utilityNumber);
+    if (handler != NULL) {
+        handler->HandlePageFault((void*)faulting_address);
+        return true;
+    }
+    return false;
 }
 
 void VirtualMemory::ConfigureService(Interrupts *interruptSource)
 {
     s_identifierMap = new KernelDictionary();
+    s_utilityNumber = new KernelNumber(0);
     interruptSource->RegisterHandler(pePageFault, PageFaultHandler, NULL);
 }
 
@@ -28,6 +42,8 @@ static UInt32 FlagForProcess(Process *process, UInt32 flags)
 
 VirtualMemory::VirtualMemory(Process *process, UInt32 length)
 {
+    if (_identifierCounter == 0)
+        _identifierCounter++;
     _identifier = _identifierCounter++;
     _process = process;
     _length = length;
@@ -35,10 +51,12 @@ VirtualMemory::VirtualMemory(Process *process, UInt32 length)
     KernelNumber *number = new KernelNumber(_identifier);
     s_identifierMap->Set(number, this);
     number->Release();
+//    kprintf("VirtualMemory 0x%.8x: process 0x%.8x from 0x%.8x to 0x%.8x\n", this, _process, _linear, _linear + _length);
 }
 
 VirtualMemory::~VirtualMemory()
 {
+//    kprintf("VirtualMemory 0x%.8x end\n", this);
     KernelNumber *number = new KernelNumber(_identifier);
     s_identifierMap->Set(number, NULL);
     number->Release();
@@ -84,12 +102,66 @@ GrowableStack::~GrowableStack()
     }
 }
 
+static void StackOverflow(Process *process)
+{
+    kprintf("Stack overflow!\n");
+}
+
 void GrowableStack::HandlePageFault(void *linearAddress)
 {
     if (linearAddress == LinearBase()) {
         // Thread is experiencing a stack overflow!
+        StackOverflow(GetProcess());
     } else {
         PhysicalPointer newPage = CPhysicalMemory::AllocateContiguousPages();
         Map(fmWritable, linearAddress, newPage);
     }
+}
+
+class GrowableStackMapping : public VirtualMemory
+{
+public:
+    GrowableStackMapping(GrowableStack *stack)
+    :VirtualMemory(NULL, stack->LinearLength())
+    {
+        _stack = stack;
+        _stack->AddRef();
+    }
+    
+protected:
+    ~GrowableStackMapping()
+    {
+        _stack->Release();
+    }
+
+    void HandlePageFault(void *linearAddress)
+    {
+        PhysicalPointer pointer = _stack->GetAddress(((char*)LinearBase()) - ((char*)linearAddress));
+        if (pointer == CPhysicalMemory::Minimum)
+            /* Stack overflow */;
+        Map(fmWritable, linearAddress, pointer);
+    }
+
+private:
+    GrowableStack *_stack;
+};
+
+PhysicalPointer GrowableStack::GetAddress(UInt32 offset)
+{
+    void *actualAddress = (char*)LinearBase() + offset;
+    PhysicalPointer pointer = PageDirectory()->Address(actualAddress);
+    if (pointer == CPhysicalMemory::Minimum) {
+        HandlePageFault(actualAddress);
+        pointer = PageDirectory()->Address(actualAddress);
+    }
+    return pointer;
+}
+
+VirtualMemory* GrowableStack::MapIntoKernel(void)
+{
+    if (GetProcess() == NULL)
+        return this;
+    GrowableStackMapping *mapping = new GrowableStackMapping(this);
+    mapping->Autorelease();
+    return mapping;
 }

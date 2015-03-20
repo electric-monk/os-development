@@ -8,6 +8,7 @@
 class Process;
 class Interrupts;
 class SPageDirectoryInfo;
+class GrowableStackMapping;
 
 class VirtualMemory : public KernelObject
 {
@@ -18,6 +19,8 @@ public:
     
     void* LinearBase(void) { return _linear; }
     UInt32 LinearLength(void) { return _length; }
+    
+    Process* GetProcess(void) { return _process; }
     
 protected:
     ~VirtualMemory();
@@ -36,6 +39,8 @@ private:
     UInt32 _identifier;
     void *_linear;
     UInt32 _length;
+    
+    static bool PageFaultHandler(void *context, void *state);
 };
 
 class GrowableStack : public VirtualMemory
@@ -45,10 +50,16 @@ public:
     
     void* StackTop(void) { return ((char*)LinearBase()) + LinearLength(); }
     
+    VirtualMemory* MapIntoKernel(void);
+    
 protected:
     ~GrowableStack();
     
     void HandlePageFault(void *linearAddress);
+    
+private:
+    friend GrowableStackMapping;
+    PhysicalPointer GetAddress(UInt32 offset);
 };
 
 #endif // __MEM_VIRTUAL_H__
