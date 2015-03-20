@@ -76,6 +76,7 @@ public:
     void Map(/*MAP_FLAGS*/int permissions, void *location, PhysicalPointer physical);
     void Unmap(void *logical, size_t count =  1);
     PhysicalPointer Address(void *logical);
+    UInt32 AddressRaw(void *logical);
     
 private:
     void Unmap(void *logical, bool mapPage);
