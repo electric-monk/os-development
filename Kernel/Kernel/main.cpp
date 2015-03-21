@@ -58,6 +58,147 @@ private:
     char _c;
 };
 
+#include "IPC.h"
+IpcService *testService = NULL;
+class TestServiceWatcher : public IpcServiceWatcher
+{
+public:
+    void ServiceProviderAppeared(KernelObject *provider)
+    {
+        kprintf("Provider started: %.8x\n", provider);
+    }
+    
+    void ServiceAppeared(KernelObject *provider, IpcService *service)
+    {
+        kprintf("Service started on %.8x: %.8x [%s / %s]\n", provider, service, service->Name()->CString(), service->ServiceType()->CString());
+        if (service->ServiceType()->IsEqualTo(KernelString::Create("system.test")))
+            testService = service;
+    }
+    
+    void ServiceRemoved(KernelObject *provider, IpcService *service)
+    {
+        kprintf("Service stopped on %.8x: %.8x [%s / %s]\n", provider, service, service->Name()->CString(), service->ServiceType()->CString());
+    }
+    
+    void ServiceProviderRemoved(KernelObject *provider)
+    {
+        kprintf("Provider stopped: %.8x\n", provider);
+    }
+};
+
+class TestService : public SignalWatcher
+{
+private:
+    IpcServiceList *_serviceList;
+    IpcService *_service;
+    
+    class Handler : public SignalWatcher
+    {
+    private:
+        IpcEndpoint *_ourEnd;
+    public:
+        Handler(IpcEndpoint *ourEnd)
+        {
+            _ourEnd = ourEnd;
+            _ourEnd->RegisterObserver(this);
+        }
+        
+        void SignalChanged(BlockableObject *source)
+        {
+            if (!_ourEnd->IsConnected()) {
+                _ourEnd->UnregisterObserver(this);
+                this->Release();
+            } else {
+                KernelBufferMemory *data;
+                while ((data = _ourEnd->Read(false)) != NULL) {
+                    KernelBufferMemory::Map *input = new KernelBufferMemory::Map(NULL, data, true);
+                    KernelBufferMemory *reply = _ourEnd->CreateSendBuffer();
+                    KernelBufferMemory::Map *output = new KernelBufferMemory::Map(NULL, reply, false);
+                    char *inputData = (char*)input->LinearBase();
+                    char *outputData = (char*)output->LinearBase();
+                    for (UInt64 i = 0; i < data->Size(); i++) {
+                        outputData[i] = ~inputData[i];
+                    }
+                    input->Release();
+                    output->Release();
+                    _ourEnd->SendBuffer(reply);
+                    reply->Release();
+                }
+            }
+        }
+    };
+public:
+    TestService()
+    {
+        _serviceList = new IpcServiceList(this);
+        _service = new IpcService(KernelString::Create("testNode"), KernelString::Create("system.test"));
+        _service->RegisterObserver(this);
+        _serviceList->AddService(_service);
+    }
+    
+    void SignalChanged(BlockableObject *source)
+    {
+        if (source) {
+            kprintf("TestService got new connection\n");
+            new Handler(_service->NextConnection(false));
+        }
+    }
+    
+protected:
+    ~TestService()
+    {
+        _serviceList->RemoveService(_service);
+        _service->Release();
+        _serviceList->Release();
+    }
+};
+
+class TestClient : public SignalWatcher
+{
+private:
+    IpcEndpoint *_ourEnd;
+public:
+    TestClient(IpcService *service)
+    {
+        _ourEnd = service->RequestConnection();
+        _ourEnd->RegisterObserver(this);
+        
+        KernelBufferMemory *request = _ourEnd->CreateSendBuffer();
+        KernelBufferMemory::Map *input = new KernelBufferMemory::Map(NULL, request, false);
+        char *inputBuf = (char*)input->LinearBase();
+        kprintf("Test client sending:");
+        for (int i = 0; i < 12; i++) {
+            inputBuf[i] = i;
+            kprintf(" %.2x", inputBuf[i]&0xFF);
+        }
+        kprintf("\n");
+        input->Release();
+        _ourEnd->SendBuffer(request);
+        request->Release();
+    }
+    
+    void SignalChanged(BlockableObject *source)
+    {
+        if (source) {
+            KernelBufferMemory *response = _ourEnd->Read(false);
+            KernelBufferMemory::Map *output = new KernelBufferMemory::Map(NULL, response, true);
+            char *outputBuf = (char*)output->LinearBase();
+            kprintf("Test client received:");
+            for (int i = 0; i < 12; i++) {
+                kprintf(" %.2x", outputBuf[i]&0xFF);
+            }
+            kprintf("\n");
+            output->Release();
+        }
+    }
+    
+protected:
+    ~TestClient()
+    {
+        _ourEnd->Release();
+    }
+};
+
 #include "Interrupts.h"
 int taunt = 0;
 static bool KeyboardTestHandler(void *context, void *state)
@@ -217,6 +358,13 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     TestTask *testTask = new TestTask('?');
     testQueue->AddTask(testTask);
     testTask->Release();
+    
+    // Service/IPC test
+    TestServiceWatcher *watcher = new TestServiceWatcher();
+    IpcServiceList::Register(watcher);
+    new TestService();
+    kprintf("Found service %.8x\n", testService);
+    new TestClient(testService);
     
     CPU_Interrupt_Disable();
     CPU_PIC_Enable(0, true);
