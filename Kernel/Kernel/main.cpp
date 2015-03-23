@@ -331,6 +331,7 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
 
     Thread::ConfigureService(rootDevice->Test());
     
+    AutoreleasePool testPool;
     // Thread test
     one = new TestThread(51, 20, "Ahoy");
     two = new TestThread(50, 20, "Hello", 250);
