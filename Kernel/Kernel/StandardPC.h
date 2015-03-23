@@ -36,8 +36,7 @@ class StandardPC : public Driver
 public:
     StandardPC();
     
-    int Match(Driver *parent/*, context? */);
-    void Start(Driver *parent);
+    bool Start(Driver *parent);
     void Stop(void);
     
     CPU* GetCPU(int index);

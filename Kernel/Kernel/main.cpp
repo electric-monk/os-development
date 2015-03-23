@@ -28,12 +28,6 @@ static Thread* ThreadAt(int index)
 }
 static int entered = -1;
 int x = 0, y = 0;
-static bool MultitaskHandler(void *context, void *state)
-{
-    Timer::TimerTick(MILLISECONDS(1));
-    Scheduler::EnterFromInterrupt();
-    return true;
-}
 
 #include "Queue.h"
 DispatchQueue *testQueue;
@@ -322,14 +316,14 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
 		}
 	}
 	CPhysicalMemory::AddReserved((void*)(((UInt32)&phys) & 0xFFC00000), 0x00400000);
+
+    TestServiceWatcher *watcher = new TestServiceWatcher();
+    IpcServiceList::Register(watcher);
     
     StandardPC *rootDevice = new StandardPC();
     rootDevice->Start(NULL);
 
     rootDevice->Test()->RegisterHandler(0x21, KeyboardTestHandler, NULL);
-    CPU_PIC_Enable(1, true);
-    
-    VirtualMemory::ConfigureService(rootDevice->Test());
     
     // Do something else
 	kprintf("\nStarting!\n");
@@ -340,12 +334,6 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     // Thread test
     one = new TestThread(51, 20, "Ahoy");
     two = new TestThread(50, 20, "Hello", 250);
-        // Set up timer
-    int divisor = 1193180 / 1000/*Hz*/;
-    outb(0x43, 0x36);
-    outb(0x40, divisor & 0xFF);
-    outb(0x40, divisor >> 8);
-    rootDevice->Test()->RegisterHandler(0x20, MultitaskHandler, NULL);
     
     // Process test
     ConfigureProcessTest(ProcessTestThreadOne, "Three");
@@ -360,14 +348,11 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     testTask->Release();
     
     // Service/IPC test
-    TestServiceWatcher *watcher = new TestServiceWatcher();
-    IpcServiceList::Register(watcher);
     new TestService();
     kprintf("Found service %.8x\n", testService);
     new TestClient(testService);
     
     CPU_Interrupt_Disable();
-    CPU_PIC_Enable(0, true);
     Scheduler::BeginScheduling();
 //    one->_context->SwitchFrom(&rootDevice->GetCPU(0)->scheduler);
     kprintf("What happen\n");

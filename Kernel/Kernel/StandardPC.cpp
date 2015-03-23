@@ -6,6 +6,10 @@
 #include "debug.h"
 #include "CPU_intr.h"
 #include "CPU.h"
+#include "Blocking.h"
+#include "Scheduler.h"
+#include "Collections.h"
+#include "mem_virtual.h"
 
 static const char *s_trapNames[] = {
     /* 0x00 */ "Division by zero",
@@ -43,8 +47,9 @@ private:
     class HandlerHandle
     {
     public:
-        HandlerHandle(HandlerHandle **root, InterruptHandler handler, void *context)
+        HandlerHandle(HandlerHandle **root, InterruptHandler handler, void *context, UInt16 irq)
         {
+            _irq = irq;
             _root = root;
             _last = NULL;
             _next = *root;
@@ -72,6 +77,7 @@ private:
             // TODO: Unhandled trap
             kprintf("Unhandled trap: 0x%.2x\n", frame->TrapNumber);
         }
+        UInt16 _irq;
     private:
         HandlerHandle **_root;
         HandlerHandle *_last, *_next;
@@ -108,12 +114,27 @@ public:
     // External API
     InterruptHandlerHandle RegisterHandler(int irq, InterruptHandler handler, void *context)
     {
-        return new HandlerHandle(handlers + irq, handler, context);
+        bool wasUsed = handlers[irq] != NULL;
+        InterruptHandlerHandle handle = new HandlerHandle(handlers + irq, handler, context, irq);
+        if (!wasUsed) {
+            // Any initialisation necessary?
+            if ((irq >= PIC_IRQ_OFFSET) && (irq < (PIC_IRQ_OFFSET + 16)))
+                CPU_PIC_Enable(irq - PIC_IRQ_OFFSET, true);
+        }
+        return handle;
     }
     
     void UnregisterHandler(InterruptHandlerHandle handler)
     {
-        delete (HandlerHandle*)handler;
+        HandlerHandle *handle = (HandlerHandle*)handler;
+        UInt16 irq = handle->_irq;
+        delete handle;
+        // Should this happen first?
+        if (handlers[irq] == NULL) {
+            // Do we need to uninitialise?
+            if ((irq >= PIC_IRQ_OFFSET) && (irq < (PIC_IRQ_OFFSET + 16)))
+                CPU_PIC_Enable(irq - PIC_IRQ_OFFSET, false);
+        }
     }
     
     void ConfigureSyscall(int irq)
@@ -123,6 +144,89 @@ public:
         // Tell CPU to reload
             // TODO: multiprocessor
         Set();
+    }
+};
+
+class StandardPC_Timer : public Driver
+{
+public:
+    StandardPC_Timer()
+    :Driver("PC Timer")
+    {
+    }
+    
+    bool Start(Driver *parent)
+    {
+        int divisor = 1193180 / 1000/*Hz*/;
+        outb(0x43, 0x36);
+        outb(0x40, divisor & 0xFF);
+        outb(0x40, divisor >> 8);
+        _timerInterrupt = InterruptSource()->RegisterHandler(PIC_IRQ_OFFSET + 0, InterruptCallback, this);
+        return Driver::Start(parent);
+    }
+    
+    void Stop(void)
+    {
+        InterruptSource()->UnregisterHandler(_timerInterrupt);
+        Driver::Stop();
+    }
+    
+private:
+    InterruptHandlerHandle _timerInterrupt;
+    
+    static bool InterruptCallback(void *context, void *state)
+    {
+        Timer::TimerTick(MILLISECONDS(1));
+        Scheduler::EnterFromInterrupt();
+        return true;
+    }
+};
+
+class StandardPC_Factory : public DriverFactory
+{
+private:
+    class Match_Timer : public DriverFactory::Match
+    {
+    public:
+        Match_Timer(){}
+        
+        int MatchValue(void)
+        {
+            return 1000000;
+        }
+        Driver* Instantiate(void)
+        {
+            return new StandardPC_Timer();
+        }
+        bool MatchMultiple(void)
+        {
+            return true;
+        }
+        
+    };
+public:
+    KernelArray* MatchForParent(Driver *parent)
+    {
+        KernelString *propertyBus = (KernelString*)parent->PropertyFor(kDriver_Property_Bus);
+        if (propertyBus == NULL)
+            return NULL;
+        if (!propertyBus->IsEqualTo(kDriver_Bus_System))
+            return NULL;
+        KernelArray *result = new KernelArray();
+        bool hasPCI = false;
+        // Add timer
+        Match_Timer *timer = new Match_Timer();
+        result->Add(timer);
+        timer->Release();
+        result->Autorelease();
+        return result;
+    }
+    
+    static void Install(void)
+    {
+        StandardPC_Factory *that = new StandardPC_Factory();
+        Driver::RegisterFactory(that);
+        that->Release();
     }
 };
 
@@ -204,12 +308,7 @@ StandardPC::~StandardPC()
 {
 }
 
-int StandardPC::Match(Driver *parent/*, context? */)
-{
-    return 999999;
-}
-
-void StandardPC::Start(Driver *parent)
+bool StandardPC::Start(Driver *parent)
 {
     // Multiprocessor
     // Main CPU LAPIC
@@ -220,11 +319,24 @@ void StandardPC::Start(Driver *parent)
     // IOAPIC
     // Begin Main CPU
     CPUMain();
+    // Configure driver infrastructure and start
+    AutoreleasePool pool;
+    StandardPC_Factory::Install();
+    ATADriver::Install();
+    VirtualMemory::ConfigureService(InterruptSource());
+    SetProperty(kDriver_Property_Bus, kDriver_Bus_System);
+    return Driver::Start(parent);
 }
 
 void StandardPC::Stop(void)
 {
-    
+    _ataSecondary->Stop();
+    DetachChild(_ataSecondary);
+    _ataSecondary->Release();
+    _ataPrimary->Stop();
+    DetachChild(_ataPrimary);
+    _ataPrimary->Release();
+    Driver::Stop();
 }
 
 Interrupts* StandardPC::InterruptSource(void)

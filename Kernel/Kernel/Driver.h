@@ -4,21 +4,51 @@
 #include "KernelObject.h"
 
 class Interrupts;
+class Driver;
+class KernelDictionary;
 
+#define kDriver_Property_Name               KS("name")
+#define kDriver_Property_Bus                KS("bus")
+
+#define kDriver_Bus_System                  KS("bus.system")
+#define kDriver_Bus_PCI                     KS("bus.pci")
+
+#define kDriver_Property_PCI_ManufacturerID KS("pci.manufacturer")
+#define kDriver_Property_PCI_ProductID      KS("pci.product")
+
+// A base driver factory - this will return an array of matches to try
+class DriverFactory : public KernelObject
+{
+public:
+    class Match : public KernelObject
+    {
+    public:
+        virtual int MatchValue(void) = 0;
+        virtual Driver* Instantiate(void) = 0;
+        virtual bool MatchMultiple(void) { return false; }  // Allow drivers to match multiple children simultaneously
+    };
+    
+    virtual KernelArray* MatchForParent(Driver *parent) = 0;
+};
+
+// A base driver implementation
 class Driver : public KernelObject
 {
 public:
+    static void RegisterFactory(DriverFactory *factory);
+    static void UnregisterFactory(DriverFactory *factory);
+    
     Driver(const char *name);
     
-    virtual int Match(Driver *parent/*, context? */) = 0;
-    virtual void Start(Driver *parent) = 0;
-    virtual void Stop(void) = 0;
-    
-    virtual void Ready(void);   // Trigger matching of child drivers
+    virtual bool Start(Driver *parent);   // Trigger matching of child drivers, so only call if you're successful
+    virtual void Stop(void);
     
     Driver* Parent(void) { return _parent; }
     Driver* Child(int index);
 Interrupts* Test(void){return InterruptSource();}
+    
+    KernelArray* PropertyList(void);
+    KernelObject* PropertyFor(KernelObject *property);
 protected:
     ~Driver();
     
@@ -27,7 +57,10 @@ protected:
 
     virtual Interrupts* InterruptSource(void);
     
+    void SetProperty(KernelObject *property, KernelObject *value);
+    
 private:
+    KernelDictionary *_properties;
     Driver *_start, *_end;          // Children
     Driver *_previous, *_next;      // Siblings
     Driver *_parent;                // Parent
