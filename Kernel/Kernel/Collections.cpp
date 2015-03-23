@@ -356,7 +356,7 @@ public:
         char *result = _data;
         *outputLength = _length;
         Reset();
-        return _data;
+        return result;
     }
     
 protected:
