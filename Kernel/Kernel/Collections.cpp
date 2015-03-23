@@ -290,6 +290,41 @@ void KernelArray::Remove(KernelObject *object)
     CopyMemory(_index + index, _index + index + 1, _count - index);
 }
 
+void KernelArray::AddArray(KernelArray *other)
+{
+    CheckCapacity(_count + other->_count);
+    CopyMemory(_index + _count, other->_index, sizeof(KernelObject*) * other->_count);
+    for (UInt32 i = 0; i < other->_count; i++)
+        _index[i + _count]->AddRef();
+    _count += other->_count;
+}
+
+static void QuickSort(KernelObject **array, UInt32 count, int (*compare)(KernelObject*,KernelObject*))
+{
+    if (count < 2)
+        return;
+    KernelObject *pivot = array[count / 2];
+    UInt32 i, j;
+    for (i = 0, j = count - 1; ; i++, j--) {
+        while (compare(array[i], pivot) < 0)
+            i++;
+        while (compare(pivot, array[j]) < 0)
+            j--;
+        if (i >= j)
+            break;
+        KernelObject *temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    QuickSort(array, i, compare);
+    QuickSort(array + i, count - i, compare);
+}
+
+void KernelArray::Sort(int (*compare)(KernelObject*,KernelObject*))
+{
+    QuickSort(_index, _count, compare);
+}
+
 UInt32 KernelArray::Find(KernelObject *object)
 {
     for (UInt32 i = 0; i < _count; i++) {

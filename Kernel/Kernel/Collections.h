@@ -8,6 +8,8 @@ class KernelArrayItem;
 class HashEntry;
 class FIFOItem;
 
+#define KS(s)       KernelString::Create(s)
+
 class KernelFIFO : public KernelObject
 {
 public:
@@ -57,6 +59,9 @@ public:
     void Remove(KernelObject *object);
     bool Contains(KernelObject *object);
     UInt32 Find(KernelObject *object);
+    
+    void AddArray(KernelArray *other);
+    void Sort(int (*compare)(KernelObject*,KernelObject*));
     
     UInt32 Count(void);
     KernelObject* ObjectAt(UInt32 index);
