@@ -288,8 +288,8 @@ static bool PageFaultExceptionHandler(void *context, void *state)
     asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
     kprintf("\nPANIC! CPU exception %.2x: %s\n", tf->TrapNumber, StandardPC::NameForTrap(tf->TrapNumber));
     kprintf("Error %.8x; address %.4x:%.8x\n", tf->ERR, tf->CS, tf->EIP);
-    PrintStack((void**)tf->ESP);
     kprintf("Attempting to access %.8x\n", faulting_address);
+    PrintStack((void**)tf->ESP);
     kprintf("CPU %.8x Process %.8x Thread %.8x\n", CPU::Active, Process::Active, Thread::Active);
     while(1) asm("hlt");
     return true;
