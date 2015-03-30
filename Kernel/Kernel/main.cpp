@@ -53,6 +53,59 @@ private:
 };
 
 #include "IPC.h"
+
+#include "Interface_Block.h"
+class TestCDClient : public SignalWatcher
+{
+private:
+    IpcEndpoint *_ourEnd;
+public:
+    TestCDClient(IpcService *service)
+    {
+        _ourEnd = service->RequestConnection();
+        _ourEnd->AddRef();
+        _ourEnd->RegisterObserver(this);
+        
+        KernelBufferMemory *request = _ourEnd->CreateSendBuffer();
+        KernelBufferMemory::Map *input = new KernelBufferMemory::Map(NULL, request, false);
+        BlockRequestRead *readRequest = (BlockRequestRead*)input->LinearBase();
+        readRequest->identifier = 1234;
+        readRequest->type = BlockRequest::blockRequestRead;
+        readRequest->offset = 0x10 * 2048;
+        readRequest->length = 8;
+        input->Release();
+        kprintf("Request %.8x size %i\n", request, request->Size());
+        _ourEnd->SendBuffer(request);
+        request->Release();
+    }
+protected:
+    ~TestCDClient()
+    {
+        _ourEnd->Release();
+    }
+    void SignalChanged(BlockableObject *source)
+    {
+        if (source) {
+            KernelBufferMemory *response = _ourEnd->Read(false);
+            KernelBufferMemory::Map *output = new KernelBufferMemory::Map(NULL, response, true);
+            BlockResponseRead *readResponse = (BlockResponseRead*)output->LinearBase();
+            if (readResponse->originalRequest.type != BlockRequest::blockRequestRead) {
+                kprintf("CD: unexpected type %i\n", readResponse->originalRequest.type);
+                return;
+            }
+            if (readResponse->status != BlockResponse::blockResponseSuccess) {
+                kprintf("CD: failed to read: %i\n", readResponse->status);
+                return;
+            }
+            kprintf("CD read:");
+            unsigned char *bob = (unsigned char*) readResponse->data();
+            for (int i = 0; i < 8; i++)
+                kprintf(" %.2x", (int)bob[i]);
+            kprintf("\n");
+        }
+    }
+};
+
 IpcService *testService = NULL;
 class TestServiceWatcher : public IpcServiceWatcher
 {
@@ -67,6 +120,9 @@ public:
         kprintf("Service started on %.8x: %.8x [%s / %s]\n", provider, service, service->Name()->CString(), service->ServiceType()->CString());
         if (service->ServiceType()->IsEqualTo(KernelString::Create("system.test")))
             testService = service;
+        if (service->Name()->IsEqualTo(KS("atapi0"))) {
+            new TestCDClient(service);
+        }
     }
     
     void ServiceRemoved(KernelObject *provider, IpcService *service)

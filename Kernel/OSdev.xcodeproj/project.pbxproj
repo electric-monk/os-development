@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		3B25C4921A70CE60004D39F6 /* Driver_ATA.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Driver_ATA.cpp; path = Kernel/Driver_ATA.cpp; sourceTree = "<group>"; };
+		3B25C4931A70CE60004D39F6 /* Driver_ATA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Driver_ATA.h; path = Kernel/Driver_ATA.h; sourceTree = "<group>"; };
 		3B25C4941A74E6E4004D39F6 /* Blocking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Blocking.h; path = Kernel/Blocking.h; sourceTree = "<group>"; };
 		3B25C4951A757B3B004D39F6 /* Blocking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Blocking.cpp; path = Kernel/Blocking.cpp; sourceTree = "<group>"; };
 		3B25C4961A75C126004D39F6 /* Locking.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Locking.cpp; path = Kernel/Locking.cpp; sourceTree = "<group>"; };
@@ -28,6 +30,7 @@
 		3B2DFD481A58718800C19756 /* Scheduler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Scheduler.h; path = Kernel/Scheduler.h; sourceTree = "<group>"; };
 		3B3FE33F1AB3C4D0008BE6D8 /* Queue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Queue.cpp; path = Kernel/Queue.cpp; sourceTree = "<group>"; };
 		3B3FE3401AB3C4D0008BE6D8 /* Queue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Queue.h; path = Kernel/Queue.h; sourceTree = "<group>"; };
+		3B3FE3411AB3F081008BE6D8 /* Interface_Block.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface_Block.h; path = Kernel/Interface_Block.h; sourceTree = "<group>"; };
 		3B7713361A6C353500556361 /* KernelObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = KernelObject.cpp; path = Kernel/KernelObject.cpp; sourceTree = "<group>"; };
 		3BE18B391A911A6E0028B70A /* IPC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IPC.cpp; path = Kernel/IPC.cpp; sourceTree = "<group>"; };
 		3BE18B3A1A911A6E0028B70A /* IPC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPC.h; path = Kernel/IPC.h; sourceTree = "<group>"; };
@@ -70,6 +73,7 @@
 		3BE43F5219B1B915009B16F3 = {
 			isa = PBXGroup;
 			children = (
+				3B3FE3411AB3F081008BE6D8 /* Interface_Block.h */,
 				3B3FE33F1AB3C4D0008BE6D8 /* Queue.cpp */,
 				3B3FE3401AB3C4D0008BE6D8 /* Queue.h */,
 				3BE18B391A911A6E0028B70A /* IPC.cpp */,
@@ -78,6 +82,8 @@
 				3B25C4971A75C126004D39F6 /* Locking.h */,
 				3B25C4951A757B3B004D39F6 /* Blocking.cpp */,
 				3B25C4941A74E6E4004D39F6 /* Blocking.h */,
+				3B25C4921A70CE60004D39F6 /* Driver_ATA.cpp */,
+				3B25C4931A70CE60004D39F6 /* Driver_ATA.h */,
 				3B26F89D1A6B311C003BE1B6 /* Collections.cpp */,
 				3B26F89E1A6B311C003BE1B6 /* Collections.h */,
 				3B26F89B1A698012003BE1B6 /* mem_virtual.cpp */,

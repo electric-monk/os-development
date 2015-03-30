@@ -6,6 +6,7 @@
 #include "debug.h"
 #include "CPU_intr.h"
 #include "CPU.h"
+#include "Driver_ATA.h"
 #include "Blocking.h"
 #include "Scheduler.h"
 #include "Collections.h"
@@ -47,6 +48,163 @@ const char* StandardPC::NameForTrap(unsigned int trap)
         return NULL;
     return s_trapNames[trap];
 }
+
+class StandardPC_LegacyATA : public ATADriverNode
+{
+private:
+    class SimplerSignal : public SimpleSignal
+    {
+    private:
+        bool _set;
+        
+    public:
+        SimplerSignal()
+        :SimpleSignal(false)
+        {
+            _set = false;
+        }
+        
+        void Activate(void)
+        {
+            if (_set)
+                return;
+            _set = true;
+            Set();
+        }
+        void Deactivate(void)
+        {
+            if (!_set)
+                return;
+            _set = false;
+            Reset();
+        }
+    };
+    
+    UInt16 _basePort;
+    UInt16 _baseIRQ;
+    InterruptHandlerHandle _interruptHandle;
+    SimplerSignal *_interrupt;
+    
+    unsigned short GetPort(UInt32 address)
+    {
+        static const UInt16 offsets[] = {0, 1, 2, 3, 4, 5, 6, 7, 0x206};
+        return _basePort + offsets[address];
+    }
+    
+    static bool InterruptCallback(void *context, void *info)
+    {
+        StandardPC_LegacyATA *that = (StandardPC_LegacyATA*)context;
+        kprintf("Starting disk interrupt %i\n", that->_baseIRQ);
+        that->_interrupt->Activate();
+        that->UpdateForInterrupt();
+        return true;
+    }
+    
+protected:
+    ~StandardPC_LegacyATA()
+    {
+        _interrupt->Release();
+    }
+    
+public:
+    StandardPC_LegacyATA(UInt16 basePort, UInt16 baseIRQ)
+    :ATADriverNode("ATA Legacy I/O")
+    {
+        _basePort = basePort;
+        _baseIRQ = baseIRQ;
+        _interrupt = new SimplerSignal();
+        SetProperty(kDriver_Property_Bus, kDriver_Bus_SystemATA);
+    }
+
+    bool Start(Driver *parent)
+    {
+        _interruptHandle = InterruptSource()->RegisterHandler(_baseIRQ + PIC_IRQ_OFFSET, InterruptCallback, this);
+        return ATADriverNode::Start(parent);
+    }
+    
+    void Stop(void)
+    {
+        InterruptSource()->UnregisterHandler(_interruptHandle);
+        ATADriverNode::Stop();
+    }
+    
+    UInt8 inByte(UInt32 address)
+    {
+        return inb(GetPort(address));
+    }
+    UInt16 inShort(UInt32 address)
+    {
+        return inw(GetPort(address));
+    }
+    UInt32 inLong(UInt32 address)
+    {
+        return inl(GetPort(address));
+    }
+    void outByte(UInt32 address, UInt8 byte)
+    {
+        outb(GetPort(address), byte);
+    }
+    void outShort(UInt32 address, UInt16 byte)
+    {
+        outw(GetPort(address), byte);
+    }
+    void outLong(UInt32 address, UInt32 byte)
+    {
+        outl(GetPort(address), byte);
+    }
+    
+    void inByteRep(UInt32 address, void *buffer, UInt32 length)
+    {
+        asm("rep insb"::"c"(length / sizeof(UInt8)), "d"(GetPort(address)), "D"(buffer));
+    }
+    void inShortRep(UInt32 address, void *buffer, UInt32 length)
+    {
+        asm("rep insw"::"c"(length / sizeof(UInt16)), "d"(GetPort(address)), "D"(buffer));
+    }
+    void inLongRep(UInt32 address, void *buffer, UInt32 length)
+    {
+//        asm("rep insd"::"c"(length / sizeof(UInt32)), "d"(GetPort(address)), "D"(buffer));
+        inShortRep(address, buffer, length);
+    }
+    void outByteRep(UInt32 address, void *buffer, UInt32 length)
+    {
+        asm("rep outsb"::"c"(length / sizeof(UInt8)), "d"(GetPort(address)), "S"(buffer));
+    }
+    void outShortRep(UInt32 address, void *buffer, UInt32 length)
+    {
+        asm("rep outsw"::"c"(length / sizeof(UInt16)), "d"(GetPort(address)), "S"(buffer));
+    }
+    void outLongRep(UInt32 address, void *buffer, UInt32 length)
+    {
+//        asm("rep outsd"::"c"(length / sizeof(UInt32)), "d"(GetPort(address)), "S"(buffer));
+        outShortRep(address, buffer, length);
+    }
+    
+    BlockableObject* Interrupt(void)
+    {
+        return _interrupt;
+    }
+    
+    void ResetInterrupt(void)
+    {
+        _interrupt->Deactivate();
+    }
+    
+    bool DMAAvailable(void)
+    {
+        return false;
+    }
+    
+    UInt8 readBusMasterStatus(void)
+    {
+        return 0;
+    }
+    
+    void writeBusMasterStatus(UInt8 x)
+    {
+        // nothing
+    }
+};
 
 class StandardPC_Interrupts : public Interrupts
 {
@@ -193,6 +351,31 @@ private:
 class StandardPC_Factory : public DriverFactory
 {
 private:
+    class Match_IDE : public DriverFactory::Match
+    {
+    public:
+        Match_IDE(UInt16 port, UInt16 irq)
+        {
+            _port = port;
+            _irq = irq;
+        }
+        
+        int MatchValue(void)
+        {
+            return 99999;
+        }
+        Driver* Instantiate(void)
+        {
+            kprintf("Instantiating IDE %i\n", _port);
+            return new StandardPC_LegacyATA(_port, _irq);
+        }
+        bool MatchMultiple(void)
+        {
+            return true;
+        }
+    private:
+        UInt16 _port, _irq;
+    };
     class Match_Timer : public DriverFactory::Match
     {
     public:
@@ -226,6 +409,18 @@ public:
         Match_Timer *timer = new Match_Timer();
         result->Add(timer);
         timer->Release();
+        // Try PCI?
+        if (hasPCI) {
+            // Add PCI device
+        } else {
+            // Add legacy (non-PCI) devices that we would otherwise have found via PCI
+            Match_IDE *primary = new Match_IDE(0x1F0, 14);
+            result->Add(primary);
+            primary->Release();
+            Match_IDE *secondary = new Match_IDE(0x170, 15);
+            result->Add(secondary);
+            secondary->Release();
+        }
         result->Autorelease();
         return result;
     }
