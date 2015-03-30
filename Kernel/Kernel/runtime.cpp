@@ -97,7 +97,7 @@ UInt64 __udivmoddi4(UInt64 num, UInt64 den, UInt64 *rem_p)
     }
     
     /* Left-justify denominator and count shift */
-    while ( (UInt64)den >= 0 ) {
+    while ( (SInt64)den >= 0 ) {
         den <<= 1;
         qbit <<= 1;
     }
