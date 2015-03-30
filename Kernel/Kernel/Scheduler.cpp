@@ -4,9 +4,12 @@
 #include "CPU_intr.h"
 #include "Process.h"
 #include "debug.h"
+#include "StandardPC.h"
 
 void Scheduler::BeginScheduling(void)
 {
+    CPU_Interrupt_Disable();
+    StartScheduling();
     test('*');
     while (true) {
         // Select a thread

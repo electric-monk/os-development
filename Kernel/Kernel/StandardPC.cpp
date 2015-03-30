@@ -11,6 +11,13 @@
 #include "Collections.h"
 #include "mem_virtual.h"
 
+static bool s_schedulerEnabled = false;
+
+void StartScheduling(void)
+{
+    s_schedulerEnabled = true;
+}
+
 static const char *s_trapNames[] = {
     /* 0x00 */ "Division by zero",
     /* 0x01 */ "Debugger",
@@ -177,7 +184,8 @@ private:
     static bool InterruptCallback(void *context, void *state)
     {
         Timer::TimerTick(MILLISECONDS(1));
-        Scheduler::EnterFromInterrupt();
+        if (s_schedulerEnabled)
+            Scheduler::EnterFromInterrupt();
         return true;
     }
 };

@@ -49,4 +49,6 @@ protected:
     Interrupts* InterruptSource(void);
 };
 
+void StartScheduling(void);
+
 #endif // __STANDARDPC_H__
