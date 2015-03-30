@@ -57,7 +57,7 @@ static int SortFunc(KernelObject *a, KernelObject *b)
 {
     DriverFactory::Match *matchA = (DriverFactory::Match*)a;
     DriverFactory::Match *matchB = (DriverFactory::Match*)b;
-    return matchA->MatchValue() - matchB->MatchValue();
+    return matchB->MatchValue() - matchA->MatchValue();
 }
 
 bool Driver::Start(Driver *parent)
