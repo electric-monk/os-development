@@ -12,7 +12,7 @@
 
 #define CURRENT_PAGE_SIZE           4096
 
-#define KERNEL_STACK_PAGES          10
+#define KERNEL_STACK_PAGES          2
 
 // This pointer points into the guts of the interrupt handler - the part that returns from an interrupt
 extern "C" void trapret(void);
@@ -32,7 +32,8 @@ Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt3
     int userStackSize = stackSize / CURRENT_PAGE_SIZE;
     if (process == NULL)
         kernelStackSize += userStackSize;
-    _kernelStack = new GrowableStack(NULL, kernelStackSize);
+    _kernelStackLength = kernelStackSize * CURRENT_PAGE_SIZE;
+    _kernelStack = new char[_kernelStackLength];
     
     // Make a note of the current process (if any - NULL is kernel thread)
     _process = process;
@@ -45,7 +46,7 @@ Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt3
     }
     
     // Configure initial stack
-    char *stackPointer = (char*)_kernelStack->StackTop();
+    char *stackPointer = _kernelStack + _kernelStackLength;
     int usedStack = 0;
     
     // For ThreadEntryPoint - first context, second function
@@ -66,6 +67,7 @@ Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt3
     // Create trap frame
     stackPointer -= sizeof(TrapFrame);
     _trapFrame = (TrapFrame*)stackPointer;
+    ClearMemory(_trapFrame, sizeof(TrapFrame));
     _trapFrame->CS = _process ? ((SEG_UCODE << 3) | DPL_USER) : (SEG_KCODE << 3);
     _trapFrame->DS = _process ? ((SEG_UDATA << 3) | DPL_USER) : (SEG_KDATA << 3);
     _trapFrame->ES = _trapFrame->DS;
@@ -98,7 +100,7 @@ Thread::~Thread()
         _stackInProcess->Release();
         _process->Release();
     }
-    _kernelStack->Release();
+    delete[] _kernelStack;
     _kernelStorage->Release();
 }
 
@@ -183,7 +185,7 @@ void Thread::Select(CPU::Context **scheduler)
 {
     if (Process::Active != _process) {
         if (_process) {
-            CPU::Active->InitTSS(_kernelStack->LinearBase(), _kernelStack->LinearLength());
+            CPU::Active->InitTSS(_kernelStack, _kernelStackLength);
             _process->pageDirectory.Select();
             Process::Active = _process;
         }

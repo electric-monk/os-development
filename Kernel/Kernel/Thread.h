@@ -60,7 +60,8 @@ private:
     BlockableObject *_blockingObject, *_blockingResult;
     
     // The stack used in the kernel
-    GrowableStack *_kernelStack;
+    char *_kernelStack;
+    UInt32 _kernelStackLength;
     // The stack used in userspace
     GrowableStack *_stackInProcess;
     
