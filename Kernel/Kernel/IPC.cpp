@@ -45,7 +45,7 @@ UInt64 KernelBufferMemory::Size(void)
 }
 
 KernelBufferMemory::Map::Map(Process *process, KernelBufferMemory *memory, bool readonly)
-:VirtualMemory(process, readonly ? memory->Size() : memory->MaximumSize())
+:VirtualMemory(process, memory->MaximumSize())
 {
     _memory = memory;
     _memory->AddRef();

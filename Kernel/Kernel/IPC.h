@@ -52,7 +52,7 @@ public:
     
     /* Sending */
     
-    KernelBufferMemory* CreateSendBuffer(UInt64 size = 65536);
+    KernelBufferMemory* CreateSendBuffer(UInt64 size = 65535);
     void SendBuffer(KernelBufferMemory *buffer);
     
     /* Receiving */
