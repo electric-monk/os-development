@@ -20,6 +20,9 @@
 		3B26F89C1A698013003BE1B6 /* mem_virtual.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mem_virtual.h; path = Kernel/mem_virtual.h; sourceTree = "<group>"; };
 		3B26F89D1A6B311C003BE1B6 /* Collections.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Collections.cpp; path = Kernel/Collections.cpp; sourceTree = "<group>"; };
 		3B26F89E1A6B311C003BE1B6 /* Collections.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Collections.h; path = Kernel/Collections.h; sourceTree = "<group>"; };
+		3B2706881AD8FE3C00C2178E /* Provider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Provider.cpp; path = Kernel/Provider.cpp; sourceTree = "<group>"; };
+		3B2706891AD8FE3C00C2178E /* Provider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Provider.h; path = Kernel/Provider.h; sourceTree = "<group>"; };
+		3B27068C1ADF766B00C2178E /* KernelFunction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KernelFunction.h; path = Kernel/KernelFunction.h; sourceTree = "<group>"; };
 		3B2DFD1C1A53565700C19756 /* Kernel.ld */ = {isa = PBXFileReference; lastKnownFileType = text; name = Kernel.ld; path = Kernel/Kernel.ld; sourceTree = "<group>"; };
 		3B2DFD1D1A54D15700C19756 /* CPU_context.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = CPU_context.asm; path = Kernel/CPU_context.asm; sourceTree = "<group>"; };
 		3B2DFD1E1A54D9D400C19756 /* Thread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Thread.cpp; path = Kernel/Thread.cpp; sourceTree = "<group>"; };
@@ -31,6 +34,11 @@
 		3B3FE33F1AB3C4D0008BE6D8 /* Queue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Queue.cpp; path = Kernel/Queue.cpp; sourceTree = "<group>"; };
 		3B3FE3401AB3C4D0008BE6D8 /* Queue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Queue.h; path = Kernel/Queue.h; sourceTree = "<group>"; };
 		3B3FE3411AB3F081008BE6D8 /* Interface_Block.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface_Block.h; path = Kernel/Interface_Block.h; sourceTree = "<group>"; };
+		3B3FE3431AC8F42D008BE6D8 /* Interface_File.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface_File.h; path = Kernel/Interface_File.h; sourceTree = "<group>"; };
+		3B3FE3481AC8F5CA008BE6D8 /* Interface_Partition.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface_Partition.h; path = Kernel/Interface_Partition.h; sourceTree = "<group>"; };
+		3B3FE3491AC8FE72008BE6D8 /* Interface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface.h; path = Kernel/Interface.h; sourceTree = "<group>"; };
+		3B5E06BE1AD265B900280BDD /* fs_iso9660.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fs_iso9660.cpp; path = Kernel/fs_iso9660.cpp; sourceTree = "<group>"; };
+		3B5E06BF1AD265B900280BDD /* fs_iso9660.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fs_iso9660.h; path = Kernel/fs_iso9660.h; sourceTree = "<group>"; };
 		3B7713361A6C353500556361 /* KernelObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = KernelObject.cpp; path = Kernel/KernelObject.cpp; sourceTree = "<group>"; };
 		3BE18B391A911A6E0028B70A /* IPC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IPC.cpp; path = Kernel/IPC.cpp; sourceTree = "<group>"; };
 		3BE18B3A1A911A6E0028B70A /* IPC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPC.h; path = Kernel/IPC.h; sourceTree = "<group>"; };
@@ -70,62 +78,110 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		3BE43F5219B1B915009B16F3 = {
+		3B3FE3421AC8F400008BE6D8 /* System Interfaces */ = {
 			isa = PBXGroup;
 			children = (
+				3B3FE3491AC8FE72008BE6D8 /* Interface.h */,
 				3B3FE3411AB3F081008BE6D8 /* Interface_Block.h */,
-				3B3FE33F1AB3C4D0008BE6D8 /* Queue.cpp */,
-				3B3FE3401AB3C4D0008BE6D8 /* Queue.h */,
-				3BE18B391A911A6E0028B70A /* IPC.cpp */,
-				3BE18B3A1A911A6E0028B70A /* IPC.h */,
-				3B25C4961A75C126004D39F6 /* Locking.cpp */,
-				3B25C4971A75C126004D39F6 /* Locking.h */,
-				3B25C4951A757B3B004D39F6 /* Blocking.cpp */,
-				3B25C4941A74E6E4004D39F6 /* Blocking.h */,
-				3B25C4921A70CE60004D39F6 /* Driver_ATA.cpp */,
-				3B25C4931A70CE60004D39F6 /* Driver_ATA.h */,
-				3B26F89D1A6B311C003BE1B6 /* Collections.cpp */,
-				3B26F89E1A6B311C003BE1B6 /* Collections.h */,
-				3B26F89B1A698012003BE1B6 /* mem_virtual.cpp */,
-				3B26F89C1A698013003BE1B6 /* mem_virtual.h */,
-				3B26F89A1A5A14EC003BE1B6 /* process_test.asm */,
-				3B26F8981A59CB41003BE1B6 /* Process.cpp */,
-				3B26F8991A59CB41003BE1B6 /* Process.h */,
-				3B2DFD471A58718800C19756 /* Scheduler.cpp */,
-				3B2DFD481A58718800C19756 /* Scheduler.h */,
-				3B2DFD461A567A0200C19756 /* Thread_init.asm */,
-				3B2DFD451A56459500C19756 /* Makefile */,
-				3B2DFD1E1A54D9D400C19756 /* Thread.cpp */,
-				3B2DFD1F1A54D9D400C19756 /* Thread.h */,
-				3B2DFD1C1A53565700C19756 /* Kernel.ld */,
-				3BE43F5919B1B95A009B16F3 /* BasicHeap.cpp */,
-				3BE43F5A19B1B95A009B16F3 /* BasicHeap.h */,
-				3BE43F5B19B1B95A009B16F3 /* debug.cpp */,
-				3BE43F5C19B1B95A009B16F3 /* debug.h */,
-				3BE43F5D19B1B95A009B16F3 /* descript_cpu.asm */,
-				3BE43F5E19B1B95A009B16F3 /* descript.cpp */,
-				3BE43F5F19B1B95A009B16F3 /* descript.h */,
-				3BE43F6019B1B95A009B16F3 /* Driver.cpp */,
-				3BE43F6119B1B95A009B16F3 /* Driver.h */,
-				3BE43F6219B1B95A009B16F3 /* entry.asm */,
-				3BE43F6319B1B95A009B16F3 /* Interrupts.h */,
-				3B7713361A6C353500556361 /* KernelObject.cpp */,
-				3BE43F6419B1B95A009B16F3 /* KernelObject.h */,
-				3BE43F6519B1B95A009B16F3 /* main.cpp */,
+				3B3FE3481AC8F5CA008BE6D8 /* Interface_Partition.h */,
+				3B3FE3431AC8F42D008BE6D8 /* Interface_File.h */,
+			);
+			name = "System Interfaces";
+			sourceTree = "<group>";
+		};
+		3B3FE3441AC8F441008BE6D8 /* Core system */ = {
+			isa = PBXGroup;
+			children = (
+				3BE43F6A19B1B95A009B16F3 /* multiboot.h */,
 				3BE43F6619B1B95A009B16F3 /* mem_logical.cpp */,
 				3BE43F6719B1B95A009B16F3 /* mem_logical.h */,
 				3BE43F6819B1B95A009B16F3 /* mem_physical.cpp */,
 				3BE43F6919B1B95A009B16F3 /* mem_physical.h */,
-				3BE43F6A19B1B95A009B16F3 /* multiboot.h */,
+				3B26F89B1A698012003BE1B6 /* mem_virtual.cpp */,
+				3B26F89C1A698013003BE1B6 /* mem_virtual.h */,
 				3BE43F6B19B1B95A009B16F3 /* runtime.cpp */,
 				3BE43F6C19B1B95A009B16F3 /* runtime.h */,
+				3B2DFD471A58718800C19756 /* Scheduler.cpp */,
+				3B2DFD481A58718800C19756 /* Scheduler.h */,
+				3BE43F5919B1B95A009B16F3 /* BasicHeap.cpp */,
+				3BE43F5A19B1B95A009B16F3 /* BasicHeap.h */,
+				3BE43F5D19B1B95A009B16F3 /* descript_cpu.asm */,
+				3BE43F5E19B1B95A009B16F3 /* descript.cpp */,
+				3BE43F5F19B1B95A009B16F3 /* descript.h */,
+				3BE43F6F19B1B95A009B16F3 /* tools.cpp */,
+				3BE43F7019B1B95A009B16F3 /* tools.h */,
+				3BE43F5B19B1B95A009B16F3 /* debug.cpp */,
+				3BE43F5C19B1B95A009B16F3 /* debug.h */,
+				3B7713361A6C353500556361 /* KernelObject.cpp */,
+				3BE43F6419B1B95A009B16F3 /* KernelObject.h */,
+				3B27068C1ADF766B00C2178E /* KernelFunction.h */,
+			);
+			name = "Core system";
+			sourceTree = "<group>";
+		};
+		3B3FE3451AC8F4D5008BE6D8 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				3B3FE33F1AB3C4D0008BE6D8 /* Queue.cpp */,
+				3B3FE3401AB3C4D0008BE6D8 /* Queue.h */,
+				3BE18B391A911A6E0028B70A /* IPC.cpp */,
+				3BE18B3A1A911A6E0028B70A /* IPC.h */,
+				3B25C4951A757B3B004D39F6 /* Blocking.cpp */,
+				3B25C4941A74E6E4004D39F6 /* Blocking.h */,
+				3B25C4961A75C126004D39F6 /* Locking.cpp */,
+				3B25C4971A75C126004D39F6 /* Locking.h */,
+				3B2DFD1E1A54D9D400C19756 /* Thread.cpp */,
+				3B2DFD1F1A54D9D400C19756 /* Thread.h */,
+				3B2DFD461A567A0200C19756 /* Thread_init.asm */,
+				3B26F89D1A6B311C003BE1B6 /* Collections.cpp */,
+				3B26F89E1A6B311C003BE1B6 /* Collections.h */,
+			);
+			name = Utilities;
+			sourceTree = "<group>";
+		};
+		3B3FE3461AC8F519008BE6D8 /* Drivers */ = {
+			isa = PBXGroup;
+			children = (
+				3B2706881AD8FE3C00C2178E /* Provider.cpp */,
+				3B2706891AD8FE3C00C2178E /* Provider.h */,
+				3BE43F6019B1B95A009B16F3 /* Driver.cpp */,
+				3BE43F6119B1B95A009B16F3 /* Driver.h */,
+				3BE43F6D19B1B95A009B16F3 /* StandardPC.cpp */,
+				3BE43F6E19B1B95A009B16F3 /* StandardPC.h */,
+				3B3FE3471AC8F51F008BE6D8 /* Filesystem */,
+			);
+			name = Drivers;
+			sourceTree = "<group>";
+		};
+		3B3FE3471AC8F51F008BE6D8 /* Filesystem */ = {
+			isa = PBXGroup;
+			children = (
+				3B5E06BE1AD265B900280BDD /* fs_iso9660.cpp */,
+				3B5E06BF1AD265B900280BDD /* fs_iso9660.h */,
+				3B25C4921A70CE60004D39F6 /* Driver_ATA.cpp */,
+				3B25C4931A70CE60004D39F6 /* Driver_ATA.h */,
+			);
+			name = Filesystem;
+			sourceTree = "<group>";
+		};
+		3BE43F5219B1B915009B16F3 = {
+			isa = PBXGroup;
+			children = (
+				3B3FE3461AC8F519008BE6D8 /* Drivers */,
+				3B3FE3451AC8F4D5008BE6D8 /* Utilities */,
+				3B3FE3441AC8F441008BE6D8 /* Core system */,
+				3B3FE3421AC8F400008BE6D8 /* System Interfaces */,
+				3B26F89A1A5A14EC003BE1B6 /* process_test.asm */,
+				3B26F8981A59CB41003BE1B6 /* Process.cpp */,
+				3B26F8991A59CB41003BE1B6 /* Process.h */,
+				3B2DFD451A56459500C19756 /* Makefile */,
+				3B2DFD1C1A53565700C19756 /* Kernel.ld */,
+				3BE43F6219B1B95A009B16F3 /* entry.asm */,
+				3BE43F6319B1B95A009B16F3 /* Interrupts.h */,
+				3BE43F6519B1B95A009B16F3 /* main.cpp */,
 				3BE43F7519B6E615009B16F3 /* StandardPC_traps_shared.inc */,
 				3BE43F7319B1CF8B009B16F3 /* StandardPC_traps.asm */,
 				3BE43F7419B1D16B009B16F3 /* StandardPC_traps.h */,
-				3BE43F6D19B1B95A009B16F3 /* StandardPC.cpp */,
-				3BE43F6E19B1B95A009B16F3 /* StandardPC.h */,
-				3BE43F6F19B1B95A009B16F3 /* tools.cpp */,
-				3BE43F7019B1B95A009B16F3 /* tools.h */,
 				3BE43F7619B6F7B6009B16F3 /* CPU.cpp */,
 				3BE43F7719B6F7B6009B16F3 /* CPU.h */,
 				3BE43F7919B6FB1B009B16F3 /* CPU_IOAPIC.cpp */,
