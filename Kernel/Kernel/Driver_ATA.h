@@ -14,7 +14,7 @@ class ATADriverDrive_ATA;
 class DispatchQueue;
 class IpcServiceList;
 
-#define kDriver_Bus_SystemATA      KS("provider.ata")
+#define kDriver_Bus_SystemATA      "provider.ata"_ko
 
 // A class a driver can provide to give the ATA driver a place to connect (e.g. PCI)
 class ATADriverNode : public Driver

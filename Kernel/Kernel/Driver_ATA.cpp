@@ -225,7 +225,7 @@ public:
         _driver = driver;
         _driverIndex = index;
         _queue = queue;
-        _service = new IpcService(KernelString::Format("%s%i", mode, index), KernelString::Create(SERVICE_TYPE_BLOCK));
+        _service = new IpcService(KernelString::Format("%s%i", mode, index), SERVICE_TYPE_BLOCK);
         ConnectionHandler *handler = new ConnectionHandler(this);
         _service->RegisterObserver(handler);
         handler->Release();
@@ -284,7 +284,7 @@ protected:
             _mapping = new KernelBufferMemory::Map(NULL, _response, false);
             
             Response()->originalRequest = *request;
-            Response()->status = BlockResponse::blockResponseNotSupported;
+            Response()->status = BlockResponse::Unsupported;
         }
         
         ~ResponseHelper()
@@ -319,8 +319,8 @@ public:
     {
         ResponseHelper response(endpoint, request);
         switch(request->type) {
-            case BlockRequest::blockRequestRead:
-            case BlockRequest::blockRequestWrite:
+            case BlockRequest::Read:
+            case BlockRequest::Write:
             default:
                 // Default response is "unsupported"
                 break;
@@ -341,7 +341,7 @@ public:
     {
         ResponseHelper response(endpoint, request);
         switch(request->type) {
-            case BlockRequest::blockRequestRead:
+            case BlockRequest::Read:
             {
                 BlockRequestRead *readRequest = (BlockRequestRead*)request;
                 BlockResponseRead *readResponse = (BlockResponseRead*)response.Response();
@@ -365,14 +365,24 @@ public:
                     0x00, 0x00
                 };
                 bool status = _driver->Packet(_driverIndex, packet, sizeof(packet), false, readResponse->rawData(), readResponse->actualLength);
-                response.Response()->status = status ? BlockResponse::blockResponseSuccess : BlockResponse::blockResponseGeneralFailure;
+                UInt32 result;  // Can't seem to use ?: here, gcc will leave references to symbol in, and it won't link
+                if (status)
+                    result = BlockResponse::Success;
+                else
+                    result = BlockResponse::GeneralFailure;
+                response.Response()->status = result;
                 break;
             }
-            case BlockRequest::blockRequestEject:
+            case BlockRequest::Eject:
             {
                 char packet[] = {ATAPI_CMD_EJECT, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
                 bool status = _driver->Packet(_driverIndex, packet, sizeof(packet), true, NULL, 0);
-                response.Response()->status = status ? BlockResponse::blockResponseSuccess : BlockResponse::blockResponseGeneralFailure;
+                UInt32 result;  // Can't seem to use ?: here, gcc will leave references to symbol in, and it won't link
+                if (status)
+                    result = BlockResponse::Success;
+                else
+                    result = BlockResponse::GeneralFailure;
+                response.Response()->status = result;
                 break;
             }
             default:
