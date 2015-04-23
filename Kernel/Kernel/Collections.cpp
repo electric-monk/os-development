@@ -359,7 +359,14 @@ UInt32 KernelArray::Hash(void)
 
 /* String */
 
-KernelString* KernelString::Create(const char *input)
+KernelString* operator"" _ko(char const *buf, size_t len)
+{
+    KernelString *result = new KernelString(buf, len, KernelString::ksbfConstant);
+    result->Autorelease();
+    return result;
+}
+
+KernelString* operator"" _ko(const char *input)
 {
     KernelString *result = new KernelString(input);
     result->Autorelease();
@@ -442,7 +449,7 @@ KernelString* KernelString::Format(const char *input, ...)
     
     UInt32 length;
     char *output = generator.FinaliseString(&length);
-    KernelString *result = new KernelString(output, length);
+    KernelString *result = new KernelString(output, length, KernelString::ksbfInherit);
     result->Autorelease();
     return result;
 }
@@ -457,20 +464,29 @@ static UInt32 tempstrlen(const char *input)
 
 KernelString::KernelString(const char *input)
 {
+    _ownBuffer = true;
     _length = tempstrlen(input);
     _data = new char[_length + 1];
-    CopyMemory(_data, input, _length + 1);
+    CopyMemory((char*)_data, input, _length + 1);
 }
 
-KernelString::KernelString(char *input, UInt32 length)
+KernelString::KernelString(const char *input, UInt32 length, BUFFER_DISPOSITION disposition)
 {
     _data = input;
     _length = length;
+    if (disposition == ksbfCopy) {
+        char *result = new char[length + 1];
+        CopyMemory(result, input, length);
+        result[length] = '\0';
+        _data = result;
+    }
+    _ownBuffer = disposition != ksbfConstant;
 }
 
 KernelString::~KernelString()
 {
-    delete[] _data;
+    if (_ownBuffer)
+        delete[] _data;
 }
 
 const char *KernelString::CString(void)
@@ -496,7 +512,7 @@ UInt32 KernelString::Hash(void)
 
 /* Number */
 
-KernelNumber* KernelNumber::Create(UInt32 value)
+KernelNumber* operator"" _ko(unsigned long long value)
 {
     KernelNumber *result = new KernelNumber(value);
     result->Autorelease();

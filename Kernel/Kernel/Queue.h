@@ -77,6 +77,7 @@ public:
     DispatchQueue();
     
     void AddTask(Task *task);
+    void AddTask(bicycle::function<int(void)> task);
     
 protected:
     ~DispatchQueue();

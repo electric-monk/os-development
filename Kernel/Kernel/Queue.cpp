@@ -165,6 +165,31 @@ void DispatchQueue::AddTask(Task *task)
         SignalFor(task);
 }
 
+class DispatchQueue_LlambdaTask : public DispatchQueue::Task
+{
+public:
+    DispatchQueue_LlambdaTask(bicycle::function<int(void)> task)
+    {
+        _function = task;
+    }
+    
+protected:
+    void Execute(void)
+    {
+        _function();
+    }
+    
+private:
+    bicycle::function<int(void)> _function;
+};
+
+void DispatchQueue::AddTask(bicycle::function<int(void)> task)
+{
+    DispatchQueue_LlambdaTask *newTask = new DispatchQueue_LlambdaTask(task);
+    AddTask(newTask);
+    newTask->Release();
+}
+
 void DispatchQueue::WorkThread(void *context)
 {
     AutoreleasePool pool;

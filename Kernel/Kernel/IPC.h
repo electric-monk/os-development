@@ -32,6 +32,8 @@ public:
     UInt64 MaximumSize(void);
     UInt64 Size(void);
     
+    void PerformOnBuffer(bool readonly, bicycle::function<int(void*)> operations);
+    
 protected:
     ~KernelBufferMemory();
     
@@ -54,6 +56,8 @@ public:
     
     KernelBufferMemory* CreateSendBuffer(UInt64 size = 65535);
     void SendBuffer(KernelBufferMemory *buffer);
+    
+    void SendMessage(bicycle::function<bool(void*)> generator, UInt64 maximumSize = 65535);
     
     /* Receiving */
     

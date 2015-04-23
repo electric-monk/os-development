@@ -7,14 +7,17 @@ class Interrupts;
 class Driver;
 class KernelDictionary;
 
-#define kDriver_Property_Name               KS("name")
-#define kDriver_Property_Bus                KS("bus")
+#define kDriver_Property_Name               "name"_ko
+#define kDriver_Property_Bus                "bus"_ko
 
-#define kDriver_Bus_System                  KS("bus.system")
-#define kDriver_Bus_PCI                     KS("bus.pci")
+#define kDriver_Bus_System                  "bus.system"_ko
+#define kDriver_Bus_PCI                     "bus.pci"_ko
 
-#define kDriver_Property_PCI_ManufacturerID KS("pci.manufacturer")
-#define kDriver_Property_PCI_ProductID      KS("pci.product")
+#define kDriver_Property_PCI_ManufacturerID "pci.manufacturer"_ko
+#define kDriver_Property_PCI_ProductID      "pci.product"_ko
+
+//#define kDriver_Processor_Interrupts        KS("x86.interrupt")
+//#define kDriver_PCI_Interrupts              KS("pci.interrupt")
 
 // A base driver factory - this will return an array of matches to try
 class DriverFactory : public KernelObject

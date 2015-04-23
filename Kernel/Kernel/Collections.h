@@ -8,8 +8,6 @@ class KernelArrayItem;
 class HashEntry;
 class FIFOItem;
 
-#define KS(s)       KernelString::Create(s)
-
 class KernelFIFO : public KernelObject
 {
 public:
@@ -82,9 +80,15 @@ private:
 class KernelString : public KernelObject
 {
 public:
-    static KernelString* Create(const char *input);
+    typedef enum {
+        ksbfConstant = 0,   // The string is never going away, so just use it and don't release it
+        ksbfCopy = 1,       // The string is dynamic, so copy it and release your copy
+        ksbfInherit = 2,    // The string is dynamic, but whoever allocated it is giving it to you to release when you're done
+    } BUFFER_DISPOSITION;
+    
     static KernelString* Format(const char *input, ...);
     KernelString(const char *input);
+    KernelString(const char *input, UInt32 length, BUFFER_DISPOSITION disposition = ksbfCopy);
     
     const char *CString(void);
     UInt32 Length(void);
@@ -92,19 +96,17 @@ public:
     UInt32 Hash(void);
     
 protected:
-    KernelString(char *input, UInt32 length);
     ~KernelString();
     
 private:
-    char *_data;
+    bool _ownBuffer;
+    const char *_data;
     UInt32 _length;
 };
 
 class KernelNumber : public KernelObject
 {
 public:
-    static KernelNumber* Create(UInt32 value);
-    
     KernelNumber(UInt32 value) { _value = value; }
     
     UInt32 Value(void) { return _value; }
@@ -116,5 +118,9 @@ public:
 private:
     UInt32 _value;
 };
+
+KernelString* operator"" _ko(char const *, size_t);
+KernelString* operator"" _ko(const char*);
+KernelNumber* operator"" _ko(unsigned long long value);
 
 #endif // __COLLECTIONS_H__

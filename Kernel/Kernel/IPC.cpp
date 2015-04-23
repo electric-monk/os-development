@@ -44,6 +44,13 @@ UInt64 KernelBufferMemory::Size(void)
     return _pagesUsed * PAGESIZE;
 }
 
+void KernelBufferMemory::PerformOnBuffer(bool readonly, bicycle::function<int(void*)> operations)
+{
+    Map *mapping = new Map(NULL, this, readonly);
+    operations(mapping->LinearBase());
+    mapping->Release();
+}
+
 KernelBufferMemory::Map::Map(Process *process, KernelBufferMemory *memory, bool readonly)
 :VirtualMemory(process, memory->MaximumSize())
 {
@@ -106,6 +113,17 @@ void IpcEndpoint::SendBuffer(KernelBufferMemory *buffer)
     _remote->_fifoCount++;
     if (unSignalled)
         _remote->SignalFor(this);
+}
+
+void IpcEndpoint::SendMessage(bicycle::function<bool(void*)> generator, UInt64 maximumSize)
+{
+    KernelBufferMemory *buffer = new KernelBufferMemory(maximumSize);
+    KernelBufferMemory::Map *mapping = new KernelBufferMemory::Map(NULL, buffer, false);
+    bool send = generator(mapping->LinearBase());
+    mapping->Release();
+    if (send)
+        SendBuffer(buffer);
+    buffer->Release();
 }
 
 KernelBufferMemory* IpcEndpoint::Read(bool wait)

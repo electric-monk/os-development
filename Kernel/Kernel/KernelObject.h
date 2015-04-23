@@ -2,6 +2,7 @@
 #define __KERNELOBJECT_H__
 
 #include "tools.h"
+#include "KernelFunction.h"
 
 class KernelObject
 {
@@ -59,6 +60,17 @@ public:
 private:
     KernelArray *_objects;
     AutoreleasePool *_previous;
+};
+
+template<typename func> class KernelFunction : public KernelObject
+{
+public:
+    KernelFunction(bicycle::function<func> callback) { m_function = callback; }
+    
+    bicycle::function<func> Pointer(void) { return m_function; }
+    
+private:
+    bicycle::function<func> m_function;
 };
 
 #endif // __KERNELOBJECT_H__
