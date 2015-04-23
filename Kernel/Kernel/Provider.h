@@ -14,6 +14,8 @@ class IpcServiceList;
 class GenericProvider : public KernelObject
 {
 public:
+    GenericProvider();
+
     // Hooking up inputs
     virtual UInt32 InputCount(void) = 0;
     virtual KernelDictionary* Input(UInt32 index) = 0;
@@ -99,7 +101,6 @@ public:
 protected:
     friend GenericProvider_Thunk;
     
-    GenericProvider();
     ~GenericProvider();
     
     // Attaching new outputs
@@ -116,7 +117,6 @@ protected:
     virtual void OutputConnectionMessage(OutputConnection *connection, KernelBufferMemory *message) = 0;
     virtual void OutputConnectionEnd(OutputConnection *oldConnection) = 0;
     
-public://but not really
     // The queue to handle events on
     DispatchQueue *_queue;
     

@@ -1,6 +1,7 @@
 #include "Provider.h"
 #include "Queue.h"
 #include "IPC.h"
+#include "debug.h"
 
 class GenericProvider_Thunk
 {
@@ -17,14 +18,31 @@ public:
     {
         provider->InputConnectionEnd(connection);
     }
+    static GenericProvider::OutputConnection* OutputConnect(GenericProvider *provider, GenericProvider::Service *source, IpcEndpoint *connection)
+    {
+        return provider->OutputConnectionStart(source, connection);
+    }
+    static void OutputMessage(GenericProvider *provider, GenericProvider::OutputConnection *connection, KernelBufferMemory *message)
+    {
+        provider->OutputConnectionMessage(connection, message);
+    }
+    static void OutputDisconnect(GenericProvider *provider, GenericProvider::OutputConnection *connection)
+    {
+        provider->OutputConnectionEnd(connection);
+    }
+    static void AddTask(GenericProvider *provider, DispatchQueue::Task *task)
+    {
+        provider->_queue->AddTask(task);
+    }
+    static KernelDictionary* Inputs(GenericProvider *provider)
+    {
+        return provider->_inputs;
+    }
+    static KernelArray* Connections(GenericProvider *provider)
+    {
+        return provider->_connections;
+    }
 };
-
-DispatchQueue *_queue;
-
-// Useful information
-KernelDictionary *_inputs;
-KernelArray *_services;
-KernelArray *_connections;
 
 GenericProvider::GenericProvider()
 {
@@ -43,6 +61,119 @@ GenericProvider::~GenericProvider()
     _inputs->Release();
     _queue->Release();
 }
+
+class GenericProvider_Output_Watch : public SignalWatcher
+{
+private:
+    class MessageHandler : public DispatchQueue::Task
+    {
+    public:
+        MessageHandler(GenericProvider *provider, GenericProvider::OutputConnection *connection, KernelBufferMemory *message)
+        {
+            _provider = provider;
+            _connection = connection;
+            _message = message;
+            _message->AddRef();
+        }
+        
+    protected:
+        ~MessageHandler()
+        {
+            _message->Release();
+        }
+        
+        void Execute(void)
+        {
+            GenericProvider_Thunk::OutputMessage(_provider, _connection, _message);
+        }
+        
+    private:
+        GenericProvider *_provider;
+        GenericProvider::OutputConnection *_connection;
+        KernelBufferMemory *_message;
+    };
+    class DisconnectionHandler : public DispatchQueue::Task
+    {
+    public:
+        DisconnectionHandler(GenericProvider *provider, GenericProvider::OutputConnection *connection)
+        {
+            _provider = provider;
+            _connection = connection;
+        }
+        
+    protected:
+        void Execute(void)
+        {
+            GenericProvider_Thunk::OutputDisconnect(_provider, _connection);
+        }
+        
+    private:
+        GenericProvider *_provider;
+        GenericProvider::OutputConnection *_connection;
+    };
+public:
+    GenericProvider_Output_Watch(GenericProvider *provider, GenericProvider::Service *service)
+    {
+        _provider = provider;
+        _service = service;
+    }
+    
+protected:
+    class Message : public SignalWatcher
+    {
+    public:
+        Message(GenericProvider *provider, GenericProvider::OutputConnection *connection)
+        {
+            _provider = provider;
+            _connection = connection;
+        }
+        
+    protected:
+        void SignalChanged(BlockableObject *source) // On message
+        {
+            if (source) {
+//            while (source && source->Signalled()) { // TODO: Some runloop thing
+                KernelBufferMemory *message = _connection->Link()->Read(false);
+                DispatchQueue::Task *task;
+                if (message == NULL)
+                    task = new DisconnectionHandler(_provider, _connection);
+                else
+                    task = new MessageHandler(_provider, _connection, message);
+                GenericProvider_Thunk::AddTask(_provider, task);
+                task->Release();
+            }
+        }
+        
+    private:
+        GenericProvider *_provider;
+        GenericProvider::OutputConnection *_connection;
+    };
+    
+    void SignalChanged(BlockableObject *source) // On output connection
+    {
+        if (source) {
+//            while (source && source->Signalled()) { // TODO: Some runloop thing
+            // Get the new connection
+            IpcEndpoint *link = _service->ServiceObject()->NextConnection(false);
+            if (link == NULL)
+                return;
+            // Create the object
+            GenericProvider::OutputConnection *connection = GenericProvider_Thunk::OutputConnect(_provider, _service, link);
+            if (connection == NULL)
+                return;
+            // Set up the monitoring
+            Message *observer = new Message(_provider, connection);
+            link->RegisterObserver(observer);
+            observer->Release();
+            // Add to the connection list
+            GenericProvider_Thunk::Connections(_provider)->Add(connection);
+            kprintf("Got connection %.8x\n", connection);
+        }
+    }
+private:
+    GenericProvider *_provider;
+    GenericProvider::Service *_service;
+};
 
 void GenericProvider::Launch(Service *service)
 {
@@ -116,17 +247,17 @@ private:
         }
         
     protected:
-        void SignalChanged(BlockableObject *source)
+        void SignalChanged(BlockableObject *source) // On input message
         {
-            // TODO: Some runloop thing
-            while (source && source->Signalled()) {
+            if (source) {
+//            while (source && source->Signalled()) { // TODO: Some runloop thing
                 KernelBufferMemory *message = _connection->Link()->Read(false);
                 DispatchQueue::Task *task;
                 if (message == NULL)
                     task = new DisconnectionHandler(_provider, _connection);
                 else
                     task = new MessageHandler(_provider, _connection, message);
-                _provider->_queue->AddTask(task);
+                GenericProvider_Thunk::AddTask(_provider, task);
                 task->Release();
             }
         }
@@ -163,16 +294,15 @@ protected:
             return;
         // Get our new object
         GenericProvider::InputConnection *connection = GenericProvider_Thunk::InputConnect(_provider, _name, link);
-        if (connection == NULL) {
-            link->Release();    // If the above failed, assume it didn't take ownership
+        if (connection == NULL)
             return;
-        }
         // Begin monitoring
         MessageWatcher *observer = new MessageWatcher(_provider, connection);
         connection->Link()->RegisterObserver(observer);
         observer->Release();
         // Add it to the list
-        _provider->_inputs->Set(_name, connection);
+        GenericProvider_Thunk::Inputs(_provider)->Set(_name, connection);
+        connection->Release();  // Dictionary owns it
     }
     
 private:
@@ -204,6 +334,10 @@ GenericProvider::Service::Service(GenericProvider *owner, IpcService *service)
     _owner->AddRef();
     _service = service;
     _service->AddRef();
+    
+    GenericProvider_Output_Watch *watcher = new GenericProvider_Output_Watch(owner, this);
+    _service->RegisterObserver(watcher);
+    watcher->Release();
 }
 
 GenericProvider::Service::~Service()
