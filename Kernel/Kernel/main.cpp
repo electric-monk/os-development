@@ -8,6 +8,8 @@
 #include "CPU_intr.h"
 #include "Scheduler.h"
 #include "mem_virtual.h"
+#include "Interface.h"
+#include "fs_iso9660.h"
 
 extern UInt32 kern_start, kern_end;
 
@@ -58,10 +60,13 @@ private:
 class TestCDClient : public SignalWatcher
 {
 private:
+    IpcService *_service;
     IpcEndpoint *_ourEnd;
 public:
     TestCDClient(IpcService *service)
     {
+        _service = service;
+        
         _ourEnd = service->RequestConnection();
         _ourEnd->AddRef();
         _ourEnd->RegisterObserver(this);
@@ -70,7 +75,7 @@ public:
         KernelBufferMemory::Map *input = new KernelBufferMemory::Map(NULL, request, false);
         BlockRequestRead *readRequest = (BlockRequestRead*)input->LinearBase();
         readRequest->identifier = 1234;
-        readRequest->type = BlockRequest::blockRequestRead;
+        readRequest->type = BlockRequest::Read;
         readRequest->offset = 0x10 * 2048;
         readRequest->length = 8;
         input->Release();
@@ -89,11 +94,11 @@ protected:
             KernelBufferMemory *response = _ourEnd->Read(false);
             KernelBufferMemory::Map *output = new KernelBufferMemory::Map(NULL, response, true);
             BlockResponseRead *readResponse = (BlockResponseRead*)output->LinearBase();
-            if (readResponse->originalRequest.type != BlockRequest::blockRequestRead) {
+            if (readResponse->originalRequest.type != BlockRequest::Read) {
                 kprintf("CD: unexpected type %i\n", readResponse->originalRequest.type);
                 return;
             }
-            if (readResponse->status != BlockResponse::blockResponseSuccess) {
+            if (readResponse->status != BlockResponse::Success) {
                 kprintf("CD: failed to read: %i\n", readResponse->status);
                 return;
             }
@@ -102,11 +107,84 @@ protected:
             for (int i = 0; i < 8; i++)
                 kprintf(" %.2x", (int)bob[i]);
             kprintf("\n");
+
+            FileSystem_ISO9660 *fs = new FileSystem_ISO9660();
+            fs->ConnectInput("cdrom"_ko, _service);
+        }
+    }
+};
+
+#include "Interface_File.h"
+class TestFileSystemClient : public SignalWatcher
+{
+private:
+    IpcService *_service;
+    IpcEndpoint *_ourEnd;
+public:
+    TestFileSystemClient(IpcService *service)
+    {
+        _service = service;
+        
+        _ourEnd = service->RequestConnection();
+        _ourEnd->AddRef();
+        _ourEnd->RegisterObserver(this);
+        
+        KernelBufferMemory *request = _ourEnd->CreateSendBuffer();
+        KernelBufferMemory::Map *input = new KernelBufferMemory::Map(NULL, request, false);
+        DirectoryRequest *dirRequest = (DirectoryRequest*)input->LinearBase();
+        dirRequest->identifier = 1234;
+        dirRequest->type = DirectoryRequest::Search;
+        dirRequest->rootNode = DirectoryRequest::RootNode;
+        dirRequest->offset = 0;
+        dirRequest->length = 0xFFFF;
+        dirRequest->subpath.Initialise();
+        input->Release();
+        kprintf("Requesting root directory\n");
+        _ourEnd->SendBuffer(request);
+        request->Release();
+    }
+protected:
+    ~TestFileSystemClient()
+    {
+        _ourEnd->Release();
+        
+    }
+    
+    void SignalChanged(BlockableObject *source)
+    {
+        if (source) {
+            KernelBufferMemory *response = _ourEnd->Read(false);
+            KernelBufferMemory::Map *output = new KernelBufferMemory::Map(NULL, response, true);
+            DirectoryResponse *dirResponse = (DirectoryResponse*)output->LinearBase();
+            if (dirResponse->originalRequest.type != DirectoryRequest::Search) {
+                kprintf("FS: unexpected type %i\n", dirResponse->originalRequest.type);
+                return;
+            }
+            if (dirResponse->status != Interface_Response::Success) {
+                kprintf("FS: failed to read: %i\n", dirResponse->status);
+                return;
+            }
+            kprintf("Directory read %i items:\n", (int)dirResponse->directoryEntries.Count());
+            FlatString *nameKey = FlatString::CreateDynamic(Node_Name);
+            FlatString *typeKey = FlatString::CreateDynamic(Node_Type);
+            FlatString *typeDirectory =FlatString::CreateDynamic(NoteType_Directory);
+            for (UInt32 i = 0; i < dirResponse->directoryEntries.Count(); i++) {
+                FlatDictionary *file = (FlatDictionary*)dirResponse->directoryEntries.ItemAt(i);
+                FlatString *name = (FlatString*)file->ItemFor(nameKey);
+                FlatString *type = (FlatString*)file->ItemFor(typeKey);
+                kprintf("\t%s   %s\n", name->Value(), type->Value());
+            }
+            typeDirectory->ReleaseDynamic();
+            typeKey->ReleaseDynamic();
+            nameKey->ReleaseDynamic();
+            output->Release();
+            kprintf("\n");
         }
     }
 };
 
 IpcService *testService = NULL;
+IpcService *cdService = NULL;
 class TestServiceWatcher : public IpcServiceWatcher
 {
 public:
@@ -118,11 +196,20 @@ public:
     void ServiceAppeared(KernelObject *provider, IpcService *service)
     {
         kprintf("Service started on %.8x: %.8x [%s / %s]\n", provider, service, service->Name()->CString(), service->ServiceType()->CString());
-        if (service->ServiceType()->IsEqualTo(KernelString::Create("system.test")))
+        if (service->ServiceType()->IsEqualTo("system.test"_ko))
             testService = service;
-        if (service->Name()->IsEqualTo(KS("atapi0"))) {
+        if (service->Name()->IsEqualTo("atapi0"_ko)) {
+            kprintf("Found CD service %.8x\n", service);
             new TestCDClient(service);
         }
+        if (service->ServiceType()->IsEqualTo("filesystem"_ko)) {
+            new TestFileSystemClient(service);
+        }
+    }
+
+    void ServiceChanged(KernelObject *provider, IpcService *service)
+    {
+        kprintf("Service changed on %.8x: %.8x\n", provider, service);
     }
     
     void ServiceRemoved(KernelObject *provider, IpcService *service)
@@ -181,7 +268,7 @@ public:
     TestService()
     {
         _serviceList = new IpcServiceList(this);
-        _service = new IpcService(KernelString::Create("testNode"), KernelString::Create("system.test"));
+        _service = new IpcService("testNode"_ko, "system.test"_ko);
         _service->RegisterObserver(this);
         _serviceList->AddService(_service);
     }
