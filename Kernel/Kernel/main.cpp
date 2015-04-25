@@ -165,18 +165,28 @@ protected:
                 return;
             }
             kprintf("Directory read %i items:\n", (int)dirResponse->directoryEntries.Count());
+            FlatString *nodeKey = FlatString::CreateDynamic(Node_ID);
             FlatString *nameKey = FlatString::CreateDynamic(Node_Name);
             FlatString *typeKey = FlatString::CreateDynamic(Node_Type);
             FlatString *typeDirectory =FlatString::CreateDynamic(NoteType_Directory);
+            FlatString *sizeKey = FlatString::CreateDynamic(Node_Size);
             for (UInt32 i = 0; i < dirResponse->directoryEntries.Count(); i++) {
                 FlatDictionary *file = (FlatDictionary*)dirResponse->directoryEntries.ItemAt(i);
+                FlatInteger *node = (FlatInteger*)file->ItemFor(nodeKey);
                 FlatString *name = (FlatString*)file->ItemFor(nameKey);
                 FlatString *type = (FlatString*)file->ItemFor(typeKey);
-                kprintf("\t%s   %s\n", name->Value(), type->Value());
+                if (type->IsEqual(typeDirectory))
+                    kprintf("\t%i: %s/\n", (int)node->Value(), name->Value());
+                else {
+                    FlatInteger *size = (FlatInteger*)file->ItemFor(sizeKey);
+                    kprintf("\t%i: %s   %i bytes\n", (int)node->Value(), name->Value(), (int)size->Value());
+                }
             }
+            sizeKey->ReleaseDynamic();
             typeDirectory->ReleaseDynamic();
             typeKey->ReleaseDynamic();
             nameKey->ReleaseDynamic();
+            nodeKey->ReleaseDynamic();
             output->Release();
             kprintf("\n");
         }

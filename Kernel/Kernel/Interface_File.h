@@ -56,13 +56,14 @@ public:
     static const int MAX = Interface_Response::MAX + 100;
 };
 
-#define Node_ID             "id"
-#define Node_Name           "name"
-#define Node_Type           "type"
-#define Node_Size           "size"
-#define Node_Date_Create    "dcreat"
-#define Node_Date_Modify    "dmod"
+#define Node_ID             "id"        /* FlatInteger */
+#define Node_Name           "name"      /* FlatString */
+#define Node_Type           "type"      /* FlatString as below */
+#define Node_Size           "size"      /* FlatInteger */
+#define Node_Date_Create    "dcreat"    /* FlatDate */
+#define Node_Date_Modify    "dmod"      /* FlatDate */
 
+// Node_Type values
 #define NoteType_Directory  "x-system/directory"
 #define NoteType_PlainFile  "x-system/file/unknown"
 

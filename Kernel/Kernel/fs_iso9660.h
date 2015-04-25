@@ -37,6 +37,7 @@ private:
     KernelDictionary *_tasks;
     UInt32 _identifier;
     ISO9660Driver::DirectoryEntry *_rootDirectory;
+    UInt64 _nodeCounter;
     
     void PerformTask(IpcEndpoint *destination, bicycle::function<int(Interface_Request*)> generate, bicycle::function<int(Interface_Response*)> response);
     

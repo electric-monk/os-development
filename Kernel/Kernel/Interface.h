@@ -64,12 +64,9 @@ public:
     }
     bool IsEqual(FlatObject *other)
     {
-        if (length != other->length)
-            return false;
-        if (type != other->type)
-            return false;
+        // By comparing bytes, we'll implicitly check type and size too, so it's all good
         char *a = (char*)this, *b = (char*)other;
-        for (UInt32 i = sizeof(FlatObject); i < length; i++, a++, b++)
+        for (UInt32 i = 0; i < length; i++, a++, b++)
             if (*a != *b)
                 return false;
         return true;
@@ -275,6 +272,20 @@ public:
             cursor = next ? next->NextObject(false) : NULL;
         }
         return NULL;
+    }
+};
+
+class FlatDate : public FlatObject
+{
+public:
+    static UInt32 Type(void) { return "Date"_type; }
+    
+    UInt32 Year, Month, Day, Hour, Minute, Second, Millisecond;
+    
+    void Initialise(void)
+    {
+        type = Type();
+        length = sizeof(FlatDate);
     }
 };
 

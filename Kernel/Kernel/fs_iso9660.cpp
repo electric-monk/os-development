@@ -110,13 +110,64 @@ namespace ISO9660Driver {
     
     class GenericEntry : public KernelObject
     {
+    private:
+        class InterimDate
+        {
+        private:
+            UInt8 Year; // From 1900
+            UInt8 Month;
+            UInt8 Day;
+            UInt8 Hour;
+            UInt8 Minute;
+            UInt8 Second;
+        public:
+            InterimDate(const DirectoryRecord *record)
+            {
+                Year = record->Year;
+                Month = record->Month;
+                Day = record->Day;
+                Hour = record->Hour;
+                Minute = record->Minute;
+                Second = record->Second;
+            }
+            
+            void Save(FlatDictionary *output)
+            {
+                FlatDate *fd = (FlatDate*)output->GetNextAddress();
+                fd->Initialise();
+                fd->Year = Year + 1900;
+                fd->Month = Month;
+                fd->Day = Day;
+                fd->Hour = Hour;
+                fd->Minute = Minute;
+                fd->Second = Second;
+                fd->Millisecond = 0;
+                output->CompleteNextItem();
+            }
+        };
     public:
-        GenericEntry(DirectoryRecord *record)
+        GenericEntry(const DirectoryRecord *record)
+        :_creationDate(record)
         {
             start = SECTOR_SIZE * record->Start.lsb;
             length = record->DataLength.lsb;
-            name = new KernelString(record->FileIdentifier, record->FileIdentifierLength);
             _isDirectory = record->FileFlags & FileFlag_Directory;
+            UInt32 nameLength = record->FileIdentifierLength;
+            if (!_isDirectory) {
+                // Find the ;
+                while ((record->FileIdentifier[nameLength - 1] != ';') && (nameLength != 0))
+                    nameLength--;
+                // Also find a . if it's at the end
+                if ((record->FileIdentifier[nameLength - 2] == '.') && (nameLength > 1))
+                    nameLength --;
+                // If there wasn't one, give up
+                if (nameLength == 0)
+                    nameLength = record->FileIdentifierLength;
+                else {
+                    nameLength--;   // We want to remove the last character
+                }
+            }
+            name = new KernelString(record->FileIdentifier, nameLength);
         }
         
         UInt32 node;    // Assigned pretty much at random, as disk contents are found.
@@ -142,6 +193,8 @@ namespace ISO9660Driver {
             if (!_isDirectory) {
                 SaveString(output, Node_Size);  SaveInteger(output, length);
             }
+            // Date
+            SaveString(output, Node_Date_Create);   _creationDate.Save(output);
         }
         
     protected:
@@ -152,6 +205,7 @@ namespace ISO9660Driver {
         
     private:
         bool _isDirectory;
+        InterimDate _creationDate;
         
         static void SaveString(FlatArray *output, const char *key)
         {
@@ -180,12 +234,15 @@ namespace ISO9660Driver {
     class DirectoryEntry : public GenericEntry
     {
     private:
-        static GenericEntry* Create(DirectoryRecord *record)
+        static GenericEntry* Create(UInt64 &nodeCounter, DirectoryRecord *record)
         {
+            GenericEntry *result;
             if (record->FileFlags & FileFlag_Directory)
-                return new DirectoryEntry(record);
+                result = new DirectoryEntry(record);
             else
-                return new FileEntry(record);
+                result = new FileEntry(record);
+            result->node = nodeCounter++;
+            return result;
         }
     public:
         DirectoryEntry(DirectoryRecord *record)
@@ -199,7 +256,7 @@ namespace ISO9660Driver {
             return _entries != NULL;
         }
         
-        void Parse(void *data)
+        void Parse(UInt64 &nodeCounter, void *data)
         {
             // Create storage
             if (_entries != NULL)
@@ -225,7 +282,7 @@ namespace ISO9660Driver {
                     }
                     // Create entry if necessary
                     if (use) {
-                        GenericEntry *entry = Create(record);
+                        GenericEntry *entry = Create(nodeCounter, record);
                         _entries->Add(entry);
                         entry->Release();
                     }
@@ -301,6 +358,7 @@ FileSystem_ISO9660::FileSystem_ISO9660()
 {
     _tasks = new KernelDictionary();
     _identifier = 0;
+    _nodeCounter = 0;
 }
 
 FileSystem_ISO9660::~FileSystem_ISO9660()
@@ -474,13 +532,13 @@ void FileSystem_ISO9660::EnsureEntryLoaded(ISO9660Driver::GenericEntry *entry, b
         readRequest->offset = entry->start;
         readRequest->length = entry->length;
         return 0;
-    }, [onLoaded, dir](Interface_Response *response){
+    }, [onLoaded, dir, this](Interface_Response *response){
         BlockResponseRead *readResponse = (BlockResponseRead*)response;
         if (readResponse->status != Interface_Response::Success) {
             onLoaded(LOADED_ERROR);
             return -1;
         }
-        dir->Parse(readResponse->data());
+        dir->Parse(_nodeCounter, readResponse->data());
         onLoaded(LOADED_OK);
         return 0;
     });
