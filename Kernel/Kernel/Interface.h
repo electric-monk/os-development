@@ -1,21 +1,36 @@
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__
 
+/* BASE PACKET - since packets can be generated unsolicited, this is a base class */
+
+class Interface_Packet
+{
+public:
+    // Classes
+    static const int Request = 0;
+    static const int Response = 1;
+    static const int MAX = 100;
+
+    UInt32 packetClass;
+    
+    // Useful fields
+    UInt32 identifier;
+    UInt32 type;
+};
+
 /* REQUESTS - requests that can be sent to these services */
 
-class Interface_Request
+class Interface_Request : public Interface_Packet
 {
 public:
     // Standard interface requests
     static const int MAX = 100;
     
-    UInt32 identifier;
-    UInt32 type;
 };
 
 /* RESPONSES - responses that will be received from these services */
 
-class Interface_Response
+class Interface_Response : public Interface_Packet
 {
 public:
     // Standard response statuses
@@ -23,8 +38,13 @@ public:
     static const int Unsupported = 1;
     static const int MAX = 100;
     
+    void Fill(Interface_Request *request)
+    {
+        packetClass = Interface_Packet::Response;
+        identifier = request->identifier;
+        type = request->type;
+    }
     UInt32 status;
-    Interface_Request originalRequest;
 };
 
 /* UTILITIES - classes that can be used to encode requests */
@@ -74,6 +94,12 @@ public:
     void ReleaseDynamic(void)
     {
         delete[] (char*)this;
+    }
+    void CopyFrom(FlatObject *source)
+    {
+        char *a = (char*)this, *b = (char*)source;
+        for (UInt32 i = 0; i < source->length; i++, a++, b++)
+            *a = *b;
     }
 protected:
     static FlatObject* AllocDynamic(UInt32 length, UInt32 type)

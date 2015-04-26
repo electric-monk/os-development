@@ -352,6 +352,52 @@ namespace ISO9660Driver {
     private:
         KernelArray *_entries;
     };
+    
+    class Interface_File_Output : public GenericProvider::OutputConnection
+    {
+    public:
+        Interface_File_Output(FileSystem_ISO9660 *owner, GenericProvider::Service *service, IpcEndpoint *endpoint)
+        :GenericProvider::OutputConnection(owner, service, endpoint)
+        {
+            _handles = new KernelDictionary();
+            _handleCount = 0;
+        }
+        
+        UInt32 Open(FileEntry *file)
+        {
+            KernelNumber *handle = new KernelNumber(_handleCount++);
+            _handles->Set(handle, file);
+            UInt32 result = handle->Value();
+            handle->Release();
+            return result;
+        }
+        
+        void Close(UInt32 fileHandle)
+        {
+            KernelNumber *handle = new KernelNumber(fileHandle);
+            _handles->Set(handle, NULL);
+            handle->Release();
+        }
+        
+        FileEntry* FileForHandle(UInt32 fileHandle)
+        {
+            KernelNumber *handle = new KernelNumber(fileHandle);
+            FileEntry *file = (FileEntry*)_handles->ObjectFor(handle);
+            _handles->Set(handle, NULL);
+            handle->Release();
+            return file;
+        }
+        
+    protected:
+        ~Interface_File_Output()
+        {
+            _handles->Release();
+        }
+        
+    private:
+        KernelDictionary *_handles;
+        UInt32 _handleCount;
+    };
 }
 
 FileSystem_ISO9660::FileSystem_ISO9660()
@@ -377,7 +423,7 @@ public:
         KernelBufferMemory::Map *mapping = new KernelBufferMemory::Map(NULL, responseMemory, true);
         Interface_Response *response = (Interface_Response*)mapping->LinearBase();
         // Get handler ID
-        KernelNumber *number = new KernelNumber(response->originalRequest.identifier);
+        KernelNumber *number = new KernelNumber(response->identifier);
         // Find task
         FileSystem_ISO9660_Handler *task = (FileSystem_ISO9660_Handler*)handlers->ObjectFor(number);
         if (task == NULL) {
@@ -463,7 +509,7 @@ void FileSystem_ISO9660::ReadGVD(int offset)
         // Get actual volume info!
         PrimaryVolumeDescriptor *pvd = (PrimaryVolumeDescriptor*)gvd;
         _rootDirectory = new ISO9660Driver::DirectoryEntry((DirectoryRecord*)&pvd->RootDirectoryRecord);
-        _rootDirectory->node = NodeRequest::RootNode;
+        _rootDirectory->node = (UInt32)NodeRequest::RootNode;
         // Launch service
         IpcService *ipcService = new IpcService("iso9660"_ko, "filesystem"_ko);
         GenericProvider::Service *service = new GenericProvider::Service(this, ipcService);
@@ -503,7 +549,7 @@ void FileSystem_ISO9660::InputConnectionEnd(InputConnection *connection)
 
 GenericProvider::OutputConnection* FileSystem_ISO9660::OutputConnectionStart(Service *source, IpcEndpoint *connection)
 {
-    return new OutputConnection(this, source, connection);
+    return new ISO9660Driver::Interface_File_Output(this, source, connection);
 }
 
 GenericProvider::InputConnection* FileSystem_ISO9660::Input(void)
@@ -515,6 +561,8 @@ GenericProvider::InputConnection* FileSystem_ISO9660::Input(void)
 #define LOADED_NOTFOUND 1
 #define LOADED_NOTDIR   2
 #define LOADED_ERROR    3
+#define LOADED_BADROOT  4
+
 void FileSystem_ISO9660::EnsureEntryLoaded(ISO9660Driver::GenericEntry *entry, bicycle::function<int(int)> onLoaded)
 {
     if (!entry->IsDirectory()) {
@@ -585,6 +633,31 @@ void FileSystem_ISO9660::ParsePath(ISO9660Driver::GenericEntry *current, FlatArr
     });
 }
 
+void FileSystem_ISO9660::ParsePath(UInt64 startNode, FlatArray *path, UInt32 pathIndex, bicycle::function<int(ISO9660Driver::GenericEntry*)> onFound, bicycle::function<int(UInt32 failedIndex, UInt32 reason)> onNotFound)
+{
+    ISO9660Driver::GenericEntry *node = _rootDirectory->FindNode(startNode);
+    if (node == NULL)
+        onNotFound(0, LOADED_BADROOT);
+    else
+        ParsePath(node, path, pathIndex, onFound, onNotFound);
+}
+
+static UInt32 GetErrorResponse(UInt32 reason)
+{
+    switch(reason) {
+        case LOADED_ERROR:
+            return NodeResponse::IOError;
+        case LOADED_NOTDIR:
+            return NodeResponse::NotDirectory;
+        case LOADED_NOTFOUND:
+            return NodeResponse::NotFound;
+        case LOADED_BADROOT:
+            return NodeResponse::InvalidNode;
+        default:
+            return NodeResponse::Unsupported;
+    }
+}
+
 void FileSystem_ISO9660::OutputConnectionMessage(OutputConnection *connection, KernelBufferMemory *message)
 {
     KernelBufferMemory::Map *mapping = new KernelBufferMemory::Map(NULL, message, true);
@@ -594,36 +667,26 @@ void FileSystem_ISO9660::OutputConnectionMessage(OutputConnection *connection, K
         case NodeRequest::Search:
         {
             DirectoryRequest *readDirectory = (DirectoryRequest*)request;
-            // Find the requested node
-            ISO9660Driver::GenericEntry *node = _rootDirectory->FindNode(readDirectory->rootNode);
-            if (node == NULL) {
-                // Return 'not found'
-                connection->Link()->SendMessage([readDirectory](void *context){
+            // Find the right directory
+            bicycle::function<int(UInt32 failedIndex, UInt32 reason)> errorHandler = [connection, readDirectory](UInt32 failedIndex, UInt32 reason){
+                // Return 'not found' or whatever is approriate for reason :(
+                connection->Link()->SendMessage([readDirectory, reason](void *context){
                     DirectoryResponse *response = (DirectoryResponse*)context;
-                    response->status = NodeResponse::NotFound;
-                    response->originalRequest = *readDirectory;
+                    response->Fill(readDirectory);
+                    response->status = GetErrorResponse(reason);
                     response->directoryEntries.Initialise();
                     return true;
                 }, 4096);
-            } else {
-                // Request the directory, if necessary
-                ParsePath(node, &readDirectory->subpath, 0, [connection, readDirectory](ISO9660Driver::GenericEntry *foundDirectory){
-                    // Check it is a directory
-                    if (!foundDirectory->IsDirectory()) {
-                        connection->Link()->SendMessage([readDirectory, foundDirectory](void *context){
-                            DirectoryResponse *response = (DirectoryResponse*)context;
-                            response->status = NodeResponse::NotDirectory;
-                            response->originalRequest = *readDirectory;
-                            response->directoryEntries.Initialise();
-                            return true;
-                        }, 4096);
-                        return 0;
-                    }
+                return 0;
+            };
+            mapping->AddRef();
+            ParsePath(readDirectory->rootNode, &readDirectory->subpath, 0, [mapping, connection, readDirectory, errorHandler](ISO9660Driver::GenericEntry *foundDirectory){
+                if (foundDirectory->IsDirectory()) {
                     // Got the required directory
                     connection->Link()->SendMessage([readDirectory, foundDirectory](void *context){
                         DirectoryResponse *response = (DirectoryResponse*)context;
                         response->status = NodeResponse::Success;
-                        response->originalRequest = *readDirectory;
+                        response->Fill(readDirectory);
                         response->directoryEntries.Initialise();
                         KernelArray *items = ((ISO9660Driver::DirectoryEntry*)foundDirectory)->Entries();
                         UInt32 max = items->Count();
@@ -636,29 +699,108 @@ void FileSystem_ISO9660::OutputConnectionMessage(OutputConnection *connection, K
                         }
                         return true;
                     });
-                    return 0;
-                }, [connection, readDirectory](UInt32 failedIndex, UInt32 reason){
-                    // Return 'not found' or whatever is approriate for reason :(
-                    connection->Link()->SendMessage([readDirectory, reason](void *context){
-                        DirectoryResponse *response = (DirectoryResponse*)context;
-                        switch(reason) {
-                            case LOADED_ERROR:
-                                response->status = NodeResponse::IOError;
-                                break;
-                            case LOADED_NOTDIR:
-                                response->status = NodeResponse::NotDirectory;
-                                break;
-                            case LOADED_NOTFOUND:
-                                response->status = NodeResponse::NotFound;
-                                break;
-                            default:
-                                response->status = NodeResponse::Unsupported;
-                                break;
-                        }
-                        response->originalRequest = *readDirectory;
-                        response->directoryEntries.Initialise();
+                } else {
+                    // It wasn't a directory
+                    errorHandler(0, LOADED_NOTDIR);
+                }
+                mapping->Release();
+                return 0;
+            }, errorHandler);
+        }
+            break;
+        case NodeRequest::OpenFile:
+        {
+            OpenRequest *openRequest = (OpenRequest*)request;
+            // Find the node
+            bicycle::function<int(UInt32 failedIndex, UInt32 reason)> errorHandler = [connection, openRequest](UInt32 failedIndex, UInt32 reason){
+                // Return 'not found' or whatever is approriate for reason :(
+                connection->Link()->SendMessage([openRequest, reason](void *context){
+                    OpenResponse *response = (OpenResponse*)context;
+                    response->status = GetErrorResponse(reason);
+                    response->Fill(openRequest);
+                    return true;
+                }, 4096);
+                return 0;
+            };
+            mapping->AddRef();
+            ParsePath(openRequest->rootNode, &openRequest->subpath, 0, [mapping, connection, errorHandler, openRequest](ISO9660Driver::GenericEntry *foundNode){
+                if (foundNode->IsDirectory()) {
+                    // It wasn't a file
+                    errorHandler(0, LOADED_NOTFOUND);
+                } else {
+                    // Got the file, so make a handle
+                    ISO9660Driver::Interface_File_Output *outputConnection = (ISO9660Driver::Interface_File_Output*)connection;
+                    UInt32 handle = outputConnection->Open((ISO9660Driver::FileEntry*)foundNode);
+                    // Reply!
+                    outputConnection->Link()->SendMessage([openRequest, handle](void *context){
+                        OpenResponse *response = (OpenResponse*)context;
+                        response->status = NodeResponse::Success;
+                        response->Fill(openRequest);
+                        response->handle = handle;
                         return true;
-                    }, 4096);
+                    });
+                }
+                mapping->Release();
+                return 0;
+            }, errorHandler);
+        }
+            break;
+        case NodeRequest::CloseFile:
+        {
+            FileRequest *closeRequest = (FileRequest*)request;
+            // Do it
+            ISO9660Driver::Interface_File_Output *outputConnection = (ISO9660Driver::Interface_File_Output*)connection;
+            outputConnection->Close(closeRequest->handle);
+            // Reply!
+            outputConnection->Link()->SendMessage([closeRequest](void *context){
+                NodeResponse *response = (NodeResponse*)context;
+                response->status = NodeResponse::Success;
+                response->Fill(closeRequest);
+                return true;
+            });
+        }
+            break;
+        case NodeRequest::ReadFile:
+        {
+            ReadRequest *readRequest = (ReadRequest*)request;
+            ISO9660Driver::Interface_File_Output *outputConnection = (ISO9660Driver::Interface_File_Output*)connection;
+            mapping->AddRef();
+            bicycle::function<int(UInt32 status, void *data, UInt32 length)> replyHandler = [mapping, outputConnection, readRequest](UInt32 status, void *data, UInt32 length){
+                outputConnection->Link()->SendMessage([readRequest, status, data, length](void *context){
+                    ReadResponse *response = (ReadResponse*)context;
+                    response->Fill(readRequest);
+                    response->status = status;
+                    response->readOffset = 0;
+                    response->readLength = length;
+                    if (status == Interface_Response::Success)
+                        CopyMemory(response->data(), data, length);
+                    else
+                        response->readLength = 0;
+                    return true;
+                });
+                mapping->Release();
+                return 0;
+            };
+            // Get file
+            ISO9660Driver::FileEntry *entry = outputConnection->FileForHandle(readRequest->handle);
+            if (entry == NULL) {
+                // No file?
+                replyHandler(NodeResponse::InvalidHandle, NULL, 0);
+            } else {
+                // Read file
+                PerformTask(Input()->Link(), [entry, readRequest](Interface_Request *request){
+                    BlockRequestRead *blockRequest = (BlockRequestRead*)request;
+                    blockRequest->type = BlockRequest::Read;
+                    UInt32 actualOffset = entry->start + readRequest->offset;
+                    blockRequest->offset = actualOffset & ~(SECTOR_SIZE - 1);
+                    blockRequest->length = readRequest->length + (actualOffset - blockRequest->offset);
+                    UInt32 baseSizeRemainder = blockRequest->length % SECTOR_SIZE;
+                    if (baseSizeRemainder != 0)
+                        blockRequest->length += SECTOR_SIZE - baseSizeRemainder;
+                    return 0;
+                }, [replyHandler](Interface_Response *response){
+                    BlockResponseRead *readResponse = (BlockResponseRead*)response;
+                    replyHandler(readResponse->status, readResponse->data(), readResponse->requestedLength);
                     return 0;
                 });
             }

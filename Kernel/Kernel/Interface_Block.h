@@ -42,18 +42,21 @@ public:
     static const int MAX = Interface_Response::MAX + 100;
 };
 
-class BlockResponseRead /*: public BlockResponse*/
+class BlockResponseRead : public BlockResponse
 {
 public:
-    // From BlockResponse
-    UInt32 status;
-    BlockRequestRead originalRequest;
-    // Read response
-    UInt64 actualOffset;
-    UInt64 actualLength;
+    UInt64 requestedOffset, readOffset;
+    UInt64 requestedLength, readLength;
     char* rawData(void) { return ((char*)this) + sizeof(*this); }
-    char* data(void) { return rawData() + (originalRequest.offset - actualOffset); }
-    UInt64 length(void) { return actualLength - actualOffset; }
+    char* data(void) { return rawData() + (requestedOffset - readOffset); }
+    UInt64 length(void) { return readLength - readOffset; }
+    
+    void Fill(BlockRequestRead *request)
+    {
+        BlockResponse::Fill(request);
+        requestedOffset = request->offset;
+        requestedLength = request->length;
+    }
 };
 
 #endif // __INTERFACE_BLOCK_H__

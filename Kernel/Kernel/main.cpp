@@ -16,7 +16,7 @@ extern UInt32 kern_start, kern_end;
 extern UInt32 virt, phys;
 
 BasicHeap *s_coreHeap;
-static unsigned char s_coreMemory[65535];
+static unsigned char s_coreMemory[65535*4];
 
 #include "Thread.h"
 Thread *one, *two;
@@ -94,8 +94,8 @@ protected:
             KernelBufferMemory *response = _ourEnd->Read(false);
             KernelBufferMemory::Map *output = new KernelBufferMemory::Map(NULL, response, true);
             BlockResponseRead *readResponse = (BlockResponseRead*)output->LinearBase();
-            if (readResponse->originalRequest.type != BlockRequest::Read) {
-                kprintf("CD: unexpected type %i\n", readResponse->originalRequest.type);
+            if (readResponse->type != BlockRequest::Read) {
+                kprintf("CD: unexpected type %i\n", readResponse->type);
                 return;
             }
             if (readResponse->status != BlockResponse::Success) {
@@ -120,6 +120,154 @@ class TestFileSystemClient : public SignalWatcher
 private:
     IpcService *_service;
     IpcEndpoint *_ourEnd;
+    
+    UInt32 _fileNode;
+    UInt32 _handle;
+    
+    void LaunchTest(int index)
+    {
+        KernelBufferMemory *request = _ourEnd->CreateSendBuffer();
+        KernelBufferMemory::Map *input = new KernelBufferMemory::Map(NULL, request, false);
+        bool send = true;
+        switch (index) {
+            case 0:
+            {
+                DirectoryRequest *dirRequest = (DirectoryRequest*)input->LinearBase();
+                dirRequest->identifier = index;
+                dirRequest->type = DirectoryRequest::Search;
+                dirRequest->rootNode = DirectoryRequest::RootNode;
+                dirRequest->offset = 0;
+                dirRequest->length = 0xFFFF;
+                dirRequest->subpath.Initialise();
+                kprintf("Requesting root directory\n");
+            }
+                break;
+            case 1:
+            {
+                OpenRequest *openRequest = (OpenRequest*)input->LinearBase();
+                openRequest->identifier = index;
+                openRequest->type = OpenRequest::OpenFile;
+                openRequest->rootNode = _fileNode;
+                openRequest->subpath.Initialise();
+                kprintf("Opening first file\n");
+            }
+                break;
+            case 2:
+            {
+                ReadRequest *readRequest = (ReadRequest*)input->LinearBase();
+                readRequest->identifier = index;
+                readRequest->type = ReadRequest::ReadFile;
+                readRequest->handle = _handle;
+                readRequest->offset = 0;
+                readRequest->length = 25;
+                kprintf("Reading %i bytes\n", readRequest->length);
+            }
+                break;
+            case 3:
+            {
+                FileRequest *closeRequest = (FileRequest*)input->LinearBase();
+                closeRequest->identifier = index;
+                closeRequest->type = FileRequest::CloseFile;
+                closeRequest->handle = _handle;
+                kprintf("Closing file\n");
+            }
+                break;
+            default:
+                send = false;
+                break;
+        }
+        input->Release();
+        if (send)
+            _ourEnd->SendBuffer(request);
+        request->Release();
+    }
+    void HandleTest(Interface_Response *response)
+    {
+        switch (response->identifier) {
+            case 0:
+            {
+                DirectoryResponse *dirResponse = (DirectoryResponse*)response;
+                if (dirResponse->type != DirectoryRequest::Search) {
+                    kprintf("FS: unexpected type %i\n", dirResponse->type);
+                    return;
+                }
+                if (dirResponse->status != Interface_Response::Success) {
+                    kprintf("FS: failed to read: %i\n", dirResponse->status);
+                    return;
+                }
+                kprintf("Directory read %i items:\n", (int)dirResponse->directoryEntries.Count());
+                FlatString *nodeKey = FlatString::CreateDynamic(Node_ID);
+                FlatString *nameKey = FlatString::CreateDynamic(Node_Name);
+                FlatString *typeKey = FlatString::CreateDynamic(Node_Type);
+                FlatString *typeDirectory =FlatString::CreateDynamic(NoteType_Directory);
+                FlatString *sizeKey = FlatString::CreateDynamic(Node_Size);
+                for (UInt32 i = 0; i < dirResponse->directoryEntries.Count(); i++) {
+                    FlatDictionary *file = (FlatDictionary*)dirResponse->directoryEntries.ItemAt(i);
+                    FlatInteger *node = (FlatInteger*)file->ItemFor(nodeKey);
+                    FlatString *name = (FlatString*)file->ItemFor(nameKey);
+                    FlatString *type = (FlatString*)file->ItemFor(typeKey);
+                    if (type->IsEqual(typeDirectory))
+                        kprintf("\t%i: %s   (directory)\n", (int)node->Value(), name->Value());
+                    else {
+                        FlatInteger *size = (FlatInteger*)file->ItemFor(sizeKey);
+                        kprintf("\t%i: %s   %i bytes\n", (int)node->Value(), name->Value(), (int)size->Value());
+                        if (!_fileNode)
+                            _fileNode = node->Value();
+                    }
+                }
+                sizeKey->ReleaseDynamic();
+                typeDirectory->ReleaseDynamic();
+                typeKey->ReleaseDynamic();
+                nameKey->ReleaseDynamic();
+                nodeKey->ReleaseDynamic();
+                kprintf("\n");
+                
+            }
+                break;
+            case 1:
+            {
+                OpenResponse *openResponse = (OpenResponse*)response;
+                if (openResponse->type != OpenRequest::OpenFile) {
+                    kprintf("FS: unexpected type %i\n", openResponse->type);
+                    return;
+                }
+                if (openResponse->status != Interface_Response::Success) {
+                    kprintf("FS: failed to open: %i\n", openResponse->status);
+                    return;
+                }
+                kprintf("Opened file: handle %i\n", openResponse->handle);
+                _handle = openResponse->handle;
+            }
+                break;
+            case 2:
+            {
+                ReadResponse *readResponse = (ReadResponse*)response;
+                if (readResponse->type != ReadRequest::ReadFile) {
+                    kprintf("FS: unexpected type %i\n", readResponse->type);
+                    return;
+                }
+                if (readResponse->status != Interface_Response::Success) {
+                    kprintf("FS: failed to read file: %i\n", readResponse->status);
+                    return;
+                }
+                kprintf("Got: %s\n", readResponse->data());
+            }
+                break;
+            case 3:
+            {
+                NodeResponse *closeResponse = (NodeResponse*)response;
+                if (closeResponse->type != NodeRequest::CloseFile) {
+                    kprintf("FS: unexpected type %i\n", closeResponse->type);
+                    return;
+                }
+                kprintf("File closed: %i\n", closeResponse->status);
+            }
+                break;
+            default:
+                break;
+        }
+        LaunchTest(response->identifier + 1);
+    }
 public:
     TestFileSystemClient(IpcService *service)
     {
@@ -129,19 +277,8 @@ public:
         _ourEnd->AddRef();
         _ourEnd->RegisterObserver(this);
         
-        KernelBufferMemory *request = _ourEnd->CreateSendBuffer();
-        KernelBufferMemory::Map *input = new KernelBufferMemory::Map(NULL, request, false);
-        DirectoryRequest *dirRequest = (DirectoryRequest*)input->LinearBase();
-        dirRequest->identifier = 1234;
-        dirRequest->type = DirectoryRequest::Search;
-        dirRequest->rootNode = DirectoryRequest::RootNode;
-        dirRequest->offset = 0;
-        dirRequest->length = 0xFFFF;
-        dirRequest->subpath.Initialise();
-        input->Release();
-        kprintf("Requesting root directory\n");
-        _ourEnd->SendBuffer(request);
-        request->Release();
+        _fileNode = 0;
+        LaunchTest(0);
     }
 protected:
     ~TestFileSystemClient()
@@ -155,40 +292,8 @@ protected:
         if (source) {
             KernelBufferMemory *response = _ourEnd->Read(false);
             KernelBufferMemory::Map *output = new KernelBufferMemory::Map(NULL, response, true);
-            DirectoryResponse *dirResponse = (DirectoryResponse*)output->LinearBase();
-            if (dirResponse->originalRequest.type != DirectoryRequest::Search) {
-                kprintf("FS: unexpected type %i\n", dirResponse->originalRequest.type);
-                return;
-            }
-            if (dirResponse->status != Interface_Response::Success) {
-                kprintf("FS: failed to read: %i\n", dirResponse->status);
-                return;
-            }
-            kprintf("Directory read %i items:\n", (int)dirResponse->directoryEntries.Count());
-            FlatString *nodeKey = FlatString::CreateDynamic(Node_ID);
-            FlatString *nameKey = FlatString::CreateDynamic(Node_Name);
-            FlatString *typeKey = FlatString::CreateDynamic(Node_Type);
-            FlatString *typeDirectory =FlatString::CreateDynamic(NoteType_Directory);
-            FlatString *sizeKey = FlatString::CreateDynamic(Node_Size);
-            for (UInt32 i = 0; i < dirResponse->directoryEntries.Count(); i++) {
-                FlatDictionary *file = (FlatDictionary*)dirResponse->directoryEntries.ItemAt(i);
-                FlatInteger *node = (FlatInteger*)file->ItemFor(nodeKey);
-                FlatString *name = (FlatString*)file->ItemFor(nameKey);
-                FlatString *type = (FlatString*)file->ItemFor(typeKey);
-                if (type->IsEqual(typeDirectory))
-                    kprintf("\t%i: %s/\n", (int)node->Value(), name->Value());
-                else {
-                    FlatInteger *size = (FlatInteger*)file->ItemFor(sizeKey);
-                    kprintf("\t%i: %s   %i bytes\n", (int)node->Value(), name->Value(), (int)size->Value());
-                }
-            }
-            sizeKey->ReleaseDynamic();
-            typeDirectory->ReleaseDynamic();
-            typeKey->ReleaseDynamic();
-            nameKey->ReleaseDynamic();
-            nodeKey->ReleaseDynamic();
+            HandleTest((Interface_Response*)output->LinearBase());
             output->Release();
-            kprintf("\n");
         }
     }
 };
@@ -380,8 +485,9 @@ protected:
             if (testchars[i] == '\0')
                 i = 0;
             if ((_x - 49) == taunt) {
-                kprintf("Lose all marks in exam\n");
-                break;
+//                kprintf("Lose all marks in exam\n");
+//                break;
+                s_coreHeap->Test();
             }
             if (_sleep) {
                 test(12, 0, '?');
@@ -389,14 +495,14 @@ protected:
                 test(12, 0, '!');
                 
                 TestTask *testTask = new TestTask('W');
-                testQueue->AddTask(testTask);
+//                testQueue->AddTask(testTask);
                 testTask->Release();
             } else {
                 _count++;
                 if (_count > 100000) {
                     _count = 0;
                     TestTask *testTask = new TestTask('N');
-                    testQueue->AddTask(testTask);
+//                    testQueue->AddTask(testTask);
                     testTask->Release();
                     
                 }
@@ -481,6 +587,12 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     // Do something else
 	kprintf("\nStarting!\n");
 	test('Z');
+    
+    bicycle::function<int(void)> test = [rootDevice](){
+        kprintf("Lambda %.8x\n", rootDevice);
+        return 0;
+    };
+    test();
 
     Thread::ConfigureService(rootDevice->Test());
     
@@ -500,7 +612,7 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     TestTask *testTask = new TestTask('?');
     testQueue->AddTask(testTask);
     testTask->Release();
-    
+
     // Service/IPC test
     new TestService();
     kprintf("Found service %.8x\n", testService);
@@ -508,7 +620,6 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     
     CPU_Interrupt_Disable();
     Scheduler::BeginScheduling();
-//    one->_context->SwitchFrom(&rootDevice->GetCPU(0)->scheduler);
     kprintf("What happen\n");
     
     // Start scheduler?

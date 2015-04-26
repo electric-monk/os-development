@@ -283,8 +283,8 @@ protected:
             _response = _endpoint->CreateSendBuffer();
             _mapping = new KernelBufferMemory::Map(NULL, _response, false);
             
-            Response()->originalRequest = *request;
             Response()->status = BlockResponse::Unsupported;
+            Response()->Fill(request);
         }
         
         ~ResponseHelper()
@@ -345,18 +345,19 @@ public:
             {
                 BlockRequestRead *readRequest = (BlockRequestRead*)request;
                 BlockResponseRead *readResponse = (BlockResponseRead*)response.Response();
-                readResponse->originalRequest = *readRequest; // Copy extra fields
-                readResponse->actualOffset = readRequest->offset - (readRequest->offset % _sectorSize);
-                readResponse->actualLength = readRequest->length + (readRequest->offset - readResponse->actualOffset);
-                if  (readResponse->actualLength > (255 * _sectorSize)) {
-                    readResponse->actualLength = 255 * _sectorSize;
+                readResponse->requestedOffset = readRequest->offset;
+                readResponse->requestedLength = readRequest->length;
+                readResponse->readOffset = readRequest->offset - (readRequest->offset % _sectorSize);
+                readResponse->readLength = readRequest->length + (readRequest->offset - readResponse->readOffset);
+                if  (readResponse->readLength > (255 * _sectorSize)) {
+                    readResponse->readLength = 255 * _sectorSize;
                 } else {
-                    UInt64 remainder = readResponse->actualLength % _sectorSize;
+                    UInt64 remainder = readResponse->readLength % _sectorSize;
                     if (remainder != 0)
-                        readResponse->actualLength += _sectorSize - remainder;
+                        readResponse->readLength += _sectorSize - remainder;
                 }
-                UInt32 sectorOffset = readResponse->actualOffset / _sectorSize;
-                UInt32 sectorLength = readResponse->actualLength / _sectorSize;
+                UInt32 sectorOffset = readResponse->readOffset / _sectorSize;
+                UInt32 sectorLength = readResponse->readLength / _sectorSize;
                 char packet[] = {
                     ATAPI_CMD_READ, 0x00,
                     (sectorOffset >> 24) & 0xFF, (sectorOffset >> 16) & 0xFF, (sectorOffset >> 8) & 0xFF, sectorOffset & 0xFF,
@@ -364,7 +365,7 @@ public:
                     sectorLength,
                     0x00, 0x00
                 };
-                bool status = _driver->Packet(_driverIndex, packet, sizeof(packet), false, readResponse->rawData(), readResponse->actualLength);
+                bool status = _driver->Packet(_driverIndex, packet, sizeof(packet), false, readResponse->rawData(), readResponse->readLength);
                 UInt32 result;  // Can't seem to use ?: here, gcc will leave references to symbol in, and it won't link
                 if (status)
                     result = BlockResponse::Success;
