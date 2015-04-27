@@ -9,6 +9,7 @@ class Process;
 class Interrupts;
 class SPageDirectoryInfo;
 class GrowableStackMapping;
+class Thread;
 
 class VirtualMemory : public KernelObject
 {
@@ -25,7 +26,7 @@ public:
 protected:
     ~VirtualMemory();
     
-    virtual void HandlePageFault(void *linearAddress) = 0;  // Called from ISR - if more work is necessary, place the request on a queue before handling
+    virtual void HandlePageFault(void *linearAddress) = 0;  // Called from ISR - if more work is necessary, place the request on a queue before handling. If you don't map it in before returning, thread will be blocked and task switched!
     
     // These two methods allow a virtual memory manager to add/remove a single page, be it in response to a page fault or just because they felt like it
     void Map(/*MAP_FLAGS*/int permissions, void *linearAddress, PhysicalPointer physicalAddress);
@@ -39,6 +40,11 @@ private:
     UInt32 _identifier;
     void *_linear;
     UInt32 _length;
+    
+    // Automatic thread blocking functionality
+    void AddFault(void *address, Thread *callee);
+    void CheckMap(void *address);
+    KernelDictionary *_pendingFaults;
     
     static bool PageFaultHandler(void *context, void *state);
 };
