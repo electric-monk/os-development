@@ -9,6 +9,8 @@ class IpcEndpoint;
 class KernelBufferMemory;
 class DispatchQueue;
 class IpcServiceList;
+class Interface_Request;
+class Interface_Response;
 
 /* A generic class which can connect to some sort of service, and provide new services based upon it */
 class GenericProvider : public KernelObject
@@ -47,6 +49,8 @@ public:
         
     protected:
         ~Service();
+        
+        GenericProvider* Owner(void) { return _owner; }
         
     private:
         GenericProvider *_owner;
@@ -139,6 +143,23 @@ public:
     private:
         KernelArray *_factories;
     };
+};
+
+/* A class to help with interfaces */
+class InterfaceHelper : public KernelObject
+{
+public:
+    InterfaceHelper();
+    
+    void PerformTask(IpcEndpoint *destination, bicycle::function<int(Interface_Request*)> generate, bicycle::function<int(Interface_Response*)> response);
+    void HandleMessage(KernelBufferMemory *responseMemory, bicycle::function<int(Interface_Response*)> onUnhandled);
+
+protected:
+    ~InterfaceHelper();
+    
+private:
+    UInt64 _identifier;
+    KernelDictionary *_tasks;
 };
 
 #endif // __PROVIDER_H__

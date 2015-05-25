@@ -2,6 +2,7 @@
 #include "Queue.h"
 #include "IPC.h"
 #include "debug.h"
+#include "Interface.h"
 
 class GenericProvider_Thunk
 {
@@ -402,4 +403,65 @@ void GenericProvider::Stash::Register(Factory *factory)
 void GenericProvider::Stash::Unregister(Factory *factory)
 {
     
+}
+
+class InterfaceHelper_Handler : public KernelFunction<int(Interface_Response*)>
+{
+public:
+    InterfaceHelper_Handler(bicycle::function<int(Interface_Response*)> callback) : KernelFunction<int(Interface_Response*)>(callback) {}
+};
+
+InterfaceHelper::InterfaceHelper()
+{
+    _identifier = 0;
+    _tasks = new KernelDictionary();
+}
+
+InterfaceHelper::~InterfaceHelper()
+{
+    _tasks->Release();
+}
+
+void InterfaceHelper::PerformTask(IpcEndpoint *destination, bicycle::function<int(Interface_Request*)> generate, bicycle::function<int(Interface_Response*)> response)
+{
+    // Select identifier
+    KernelNumber *number = new KernelNumber(_identifier++);
+    while (_tasks->ObjectFor(number) != NULL)
+        number->Reset(_identifier++);
+    UInt32 identifier = number->Value();
+    // Save handler
+    InterfaceHelper_Handler *handler = new InterfaceHelper_Handler(response);
+    _tasks->Set(number, handler);
+    handler->Release();
+    number->Release();
+    // Generate request
+    KernelBufferMemory *request = destination->CreateSendBuffer();
+    KernelBufferMemory::Map *mapping = new KernelBufferMemory::Map(NULL, request, false);
+    Interface_Request *read = (Interface_Request*)mapping->LinearBase();
+    generate(read);
+    read->identifier = identifier;
+    mapping->Release();
+    // Send it
+    destination->SendBuffer(request);
+    request->Release();
+}
+
+void InterfaceHelper::HandleMessage(KernelBufferMemory *responseMemory, bicycle::function<int(Interface_Response*)> onUnhandled)
+{
+    // Map it in
+    KernelBufferMemory::Map *mapping = new KernelBufferMemory::Map(NULL, responseMemory, true);
+    Interface_Response *response = (Interface_Response*)mapping->LinearBase();
+    // Get handler ID
+    KernelNumber *number = new KernelNumber(response->identifier);
+    // Find task
+    InterfaceHelper_Handler *task = (InterfaceHelper_Handler*)_tasks->ObjectFor(number);
+    if (task == NULL) {
+        onUnhandled(response);
+    } else {
+        task->Pointer()(response);
+        _tasks->Set(number, NULL);
+    }
+    // Done
+    number->Release();
+    mapping->Release();
 }
