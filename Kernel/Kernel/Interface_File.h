@@ -12,7 +12,7 @@ public:
     
     static const UInt32 Search = Interface_Request::MAX + 0;        // DirectoryRequest -> DirectoryResponse
     static const UInt32 OpenFile = Interface_Request::MAX + 1;      // OpenRequest -> OpenResponse
-    static const UInt32 CloseFile = Interface_Request::MAX + 2;     // FileRequest -> FileResponse
+    static const UInt32 CloseFile = Interface_Request::MAX + 2;     // FileRequest -> NodeResponse
     static const UInt32 ReadFile = Interface_Request::MAX + 3;      // ReadRequest -> ReadResponse
     static const UInt32 MAX = Interface_Request::MAX + 100;
     
