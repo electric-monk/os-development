@@ -299,7 +299,7 @@ void KernelArray::AddArray(KernelArray *other)
     _count += other->_count;
 }
 
-static void QuickSort(KernelObject **array, UInt32 count, int (*compare)(KernelObject*,KernelObject*))
+static void QuickSort(KernelObject **array, UInt32 count, bicycle::function<int(KernelObject*, KernelObject*)> compare)
 {
     if (count < 2)
         return;
@@ -322,7 +322,25 @@ static void QuickSort(KernelObject **array, UInt32 count, int (*compare)(KernelO
 
 void KernelArray::Sort(int (*compare)(KernelObject*,KernelObject*))
 {
+    QuickSort(_index, _count, [compare](KernelObject *a, KernelObject *b){
+        // Backwards compatibility for external users
+        return compare(a, b);
+    });
+}
+
+void KernelArray::Sort(bicycle::function<int(KernelObject*, KernelObject*)> compare)
+{
     QuickSort(_index, _count, compare);
+}
+
+void* KernelArray::Enumerate(bicycle::function<void*(KernelObject*)> enumerator)
+{
+    for (UInt32 i = 0; i < _count; i++) {
+        void *result = enumerator(_index[i]);
+        if (result != NULL)
+            return result;
+    }
+    return NULL;
 }
 
 UInt32 KernelArray::Find(KernelObject *object)

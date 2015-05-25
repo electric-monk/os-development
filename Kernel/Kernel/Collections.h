@@ -66,6 +66,9 @@ public:
     
     UInt32 Hash(void);
     
+    void Sort(bicycle::function<int(KernelObject*, KernelObject*)> compare);
+    void* Enumerate(bicycle::function<void*(KernelObject*)> enumerator);
+    
 protected:
     ~KernelArray();
     
