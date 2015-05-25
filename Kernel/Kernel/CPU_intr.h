@@ -23,6 +23,24 @@ static inline void CPU_Interrupt_Disable(void) { asm("cli"); }
 #include "descript.h"
 #include "StandardPC_traps.h"
 
+class InterruptEnabler
+{
+public:
+    InterruptEnabler()
+    {
+        UInt32 flag = GetEflag();
+        CPU_Interrupt_Enable();
+        _was = flag & FL_IF;
+    }
+    ~InterruptEnabler()
+    {
+        if (!_was)
+            CPU_Interrupt_Disable();
+    }
+private:
+    bool _was;
+};
+
 class InterruptDisabler
 {
 public:
