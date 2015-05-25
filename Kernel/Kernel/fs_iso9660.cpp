@@ -402,64 +402,13 @@ namespace ISO9660Driver {
 
 FileSystem_ISO9660::FileSystem_ISO9660()
 {
-    _tasks = new KernelDictionary();
-    _identifier = 0;
+    _tasks = new InterfaceHelper();
     _nodeCounter = 0;
 }
 
 FileSystem_ISO9660::~FileSystem_ISO9660()
 {
     _tasks->Release();
-}
-
-class FileSystem_ISO9660_Handler : public KernelFunction<int(Interface_Response*)>
-{
-public:
-    FileSystem_ISO9660_Handler(bicycle::function<int(Interface_Response*)> callback) : KernelFunction<int(Interface_Response*)>(callback) {}
-    
-    static void Handle(KernelDictionary *handlers, KernelBufferMemory *responseMemory, bicycle::function<int(Interface_Response*)> onUnhandled)
-    {
-        // Map it in
-        KernelBufferMemory::Map *mapping = new KernelBufferMemory::Map(NULL, responseMemory, true);
-        Interface_Response *response = (Interface_Response*)mapping->LinearBase();
-        // Get handler ID
-        KernelNumber *number = new KernelNumber(response->identifier);
-        // Find task
-        FileSystem_ISO9660_Handler *task = (FileSystem_ISO9660_Handler*)handlers->ObjectFor(number);
-        if (task == NULL) {
-            onUnhandled(response);
-        } else {
-            task->Pointer()(response);
-            handlers->Set(number, NULL);
-        }
-        // Done
-        number->Release();
-        mapping->Release();
-    }
-};
-
-void FileSystem_ISO9660::PerformTask(IpcEndpoint *destination, bicycle::function<int(Interface_Request*)> generate, bicycle::function<int(Interface_Response*)> response)
-{
-    // Select identifier
-    KernelNumber *number = new KernelNumber(_identifier++);
-    while (_tasks->ObjectFor(number) != NULL)
-        number->Reset(_identifier++);
-    UInt32 identifier = number->Value();
-    // Save handler
-    FileSystem_ISO9660_Handler *handler = new FileSystem_ISO9660_Handler(response);
-    _tasks->Set(number, handler);
-    handler->Release();
-    number->Release();
-    // Generate request
-    KernelBufferMemory *request = destination->CreateSendBuffer();
-    KernelBufferMemory::Map *mapping = new KernelBufferMemory::Map(NULL, request, false);
-    Interface_Request *read = (Interface_Request*)mapping->LinearBase();
-    generate(read);
-    read->identifier = identifier;
-    mapping->Release();
-    // Send it
-    destination->SendBuffer(request);
-    request->Release();
 }
 
 UInt32 FileSystem_ISO9660::InputCount(void)
@@ -479,7 +428,7 @@ void FileSystem_ISO9660::ReadGVD(int offset)
     InputConnection *input = (InputConnection*)_inputs->ObjectFor(INPUT_NAME);
     if (input == NULL)
         return; // ???
-    PerformTask(input->Link(), [offset](Interface_Request *request){
+    _tasks->PerformTask(input->Link(), [offset](Interface_Request *request){
         BlockRequestRead *read = (BlockRequestRead*)request;
         read->type = BlockRequest::Read;
         read->offset = SECTOR_SIZE * (0x10 + offset);
@@ -536,7 +485,7 @@ GenericProvider::InputConnection* FileSystem_ISO9660::InputConnectionStart(Kerne
 
 void FileSystem_ISO9660::InputConnectionReceived(GenericProvider::InputConnection *connection, KernelBufferMemory *message)
 {
-    FileSystem_ISO9660_Handler::Handle(_tasks, message, [](Interface_Response *response){
+    _tasks->HandleMessage(message, [](Interface_Response *response){
         // TODO: Non-response message from the service
         return 0;
     });
@@ -545,6 +494,7 @@ void FileSystem_ISO9660::InputConnectionReceived(GenericProvider::InputConnectio
 void FileSystem_ISO9660::InputConnectionEnd(InputConnection *connection)
 {
     // We're done :(
+    connection->Release();
 }
 
 GenericProvider::OutputConnection* FileSystem_ISO9660::OutputConnectionStart(Service *source, IpcEndpoint *connection)
@@ -574,7 +524,7 @@ void FileSystem_ISO9660::EnsureEntryLoaded(ISO9660Driver::GenericEntry *entry, b
         onLoaded(LOADED_OK);
         return;
     }
-    PerformTask(Input()->Link(), [entry](Interface_Request *request){
+    _tasks->PerformTask(Input()->Link(), [entry](Interface_Request *request){
         BlockRequestRead *readRequest = (BlockRequestRead*)request;
         readRequest->type = BlockRequest::Read;
         readRequest->offset = entry->start;
@@ -668,18 +618,19 @@ void FileSystem_ISO9660::OutputConnectionMessage(OutputConnection *connection, K
         {
             DirectoryRequest *readDirectory = (DirectoryRequest*)request;
             // Find the right directory
-            bicycle::function<int(UInt32 failedIndex, UInt32 reason)> errorHandler = [connection, readDirectory](UInt32 failedIndex, UInt32 reason){
+            mapping->AddRef();
+            bicycle::function<int(UInt32 failedIndex, UInt32 reason)> errorHandler = [mapping, connection, readDirectory](UInt32 failedIndex, UInt32 reason){
                 // Return 'not found' or whatever is approriate for reason :(
-                connection->Link()->SendMessage([readDirectory, reason](void *context){
+                connection->Link()->SendMessage([mapping, readDirectory, reason](void *context){
                     DirectoryResponse *response = (DirectoryResponse*)context;
                     response->Fill(readDirectory);
                     response->status = GetErrorResponse(reason);
                     response->directoryEntries.Initialise();
                     return true;
                 }, 4096);
+                mapping->Release();
                 return 0;
             };
-            mapping->AddRef();
             ParsePath(readDirectory->rootNode, &readDirectory->subpath, 0, [mapping, connection, readDirectory, errorHandler](ISO9660Driver::GenericEntry *foundDirectory){
                 if (foundDirectory->IsDirectory()) {
                     // Got the required directory
@@ -699,11 +650,11 @@ void FileSystem_ISO9660::OutputConnectionMessage(OutputConnection *connection, K
                         }
                         return true;
                     });
+                    mapping->Release();
                 } else {
                     // It wasn't a directory
                     errorHandler(0, LOADED_NOTDIR);
                 }
-                mapping->Release();
                 return 0;
             }, errorHandler);
         }
@@ -788,7 +739,7 @@ void FileSystem_ISO9660::OutputConnectionMessage(OutputConnection *connection, K
                 replyHandler(NodeResponse::InvalidHandle, NULL, 0);
             } else {
                 // Read file
-                PerformTask(Input()->Link(), [entry, readRequest](Interface_Request *request){
+                _tasks->PerformTask(Input()->Link(), [entry, readRequest](Interface_Request *request){
                     BlockRequestRead *blockRequest = (BlockRequestRead*)request;
                     blockRequest->type = BlockRequest::Read;
                     UInt32 actualOffset = entry->start + readRequest->offset;
@@ -807,6 +758,12 @@ void FileSystem_ISO9660::OutputConnectionMessage(OutputConnection *connection, K
         }
             break;
         default:
+            connection->Link()->SendMessage([request](void *context){
+                Interface_Response *response = (Interface_Response*)context;
+                response->Fill(request);
+                response->status = Interface_Response::Unsupported;
+                return true;
+            });
             break;
     }
     mapping->Release();
@@ -814,5 +771,5 @@ void FileSystem_ISO9660::OutputConnectionMessage(OutputConnection *connection, K
 
 void FileSystem_ISO9660::OutputConnectionEnd(OutputConnection *oldConnection)
 {
-    // Nothing to do
+    oldConnection->Release();
 }
