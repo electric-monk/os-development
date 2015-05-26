@@ -36,6 +36,7 @@
 		3B76301D1B12A9D600C41D62 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F6519B1B95A009B16F3 /* main.cpp */; };
 		3B76301E1B12A9D600C41D62 /* CPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F7619B6F7B6009B16F3 /* CPU.cpp */; };
 		3B7630211B12A9D600C41D62 /* CPU_PICIRQ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F7B19B6FB1B009B16F3 /* CPU_PICIRQ.cpp */; };
+		3B7630241B144E6800C41D62 /* Runloop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B27068A1ADA30B400C2178E /* Runloop.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -67,6 +68,8 @@
 		3B26F89E1A6B311C003BE1B6 /* Collections.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Collections.h; path = Kernel/Collections.h; sourceTree = "<group>"; };
 		3B2706881AD8FE3C00C2178E /* Provider.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Provider.cpp; path = Kernel/Provider.cpp; sourceTree = "<group>"; };
 		3B2706891AD8FE3C00C2178E /* Provider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Provider.h; path = Kernel/Provider.h; sourceTree = "<group>"; };
+		3B27068A1ADA30B400C2178E /* Runloop.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Runloop.cpp; path = Kernel/Runloop.cpp; sourceTree = "<group>"; };
+		3B27068B1ADA30B400C2178E /* Runloop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Runloop.h; path = Kernel/Runloop.h; sourceTree = "<group>"; };
 		3B27068C1ADF766B00C2178E /* KernelFunction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KernelFunction.h; path = Kernel/KernelFunction.h; sourceTree = "<group>"; };
 		3B2706A81AEDFB3A00C2178E /* ImageLoader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ImageLoader.cpp; path = Kernel/ImageLoader.cpp; sourceTree = "<group>"; };
 		3B2706A91AEDFB3A00C2178E /* ImageLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ImageLoader.h; path = Kernel/ImageLoader.h; sourceTree = "<group>"; };
@@ -200,6 +203,8 @@
 		3B3FE3451AC8F4D5008BE6D8 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				3B27068A1ADA30B400C2178E /* Runloop.cpp */,
+				3B27068B1ADA30B400C2178E /* Runloop.h */,
 				3B3FE33F1AB3C4D0008BE6D8 /* Queue.cpp */,
 				3B3FE3401AB3C4D0008BE6D8 /* Queue.h */,
 				3BE18B391A911A6E0028B70A /* IPC.cpp */,
@@ -387,6 +392,7 @@
 				3B76301D1B12A9D600C41D62 /* main.cpp in Sources */,
 				3B76301E1B12A9D600C41D62 /* CPU.cpp in Sources */,
 				3B7630211B12A9D600C41D62 /* CPU_PICIRQ.cpp in Sources */,
+				3B7630241B144E6800C41D62 /* Runloop.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

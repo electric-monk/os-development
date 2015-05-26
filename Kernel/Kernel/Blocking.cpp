@@ -37,7 +37,7 @@ void BlockableObject::SignalFor(BlockableObject *sender)
     GenericLock::Autolock locker(&_locker);
     _currentSignal = sender;    // weak ref
     for (UInt32 i = 0; i < _watchers->Count(); i++)
-        ((SignalWatcher*)_watchers->ObjectAt(i))->SignalChanged(sender);
+        ((SignalWatcher*)_watchers->ObjectAt(i))->SignalChanged(this, sender);
 }
 
 ListSignalWatcher::ListSignalWatcher()

@@ -35,7 +35,17 @@ private:
 class SignalWatcher : public BlockableObject
 {
 public:
-    virtual void SignalChanged(BlockableObject *source) = 0;
+    // Actually sensible entry point, that indicates both the root of the tree and the branch that triggered it
+    virtual void SignalChanged(BlockableObject *root, BlockableObject *source)
+    {
+        SignalChanged(source);
+    }
+protected:
+    // TODO: Deprecate this
+    virtual void SignalChanged(BlockableObject *source)
+    {
+        // Legacy implementation, so overrisers of SignalChanged(,) don't need to worry about this
+    }
 };
 
 class ListSignalWatcher : public SignalWatcher
