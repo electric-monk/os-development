@@ -181,9 +181,10 @@ void Thread::Sleep(UInt32 microseconds)
 
 void Thread::Select(CPU::Context **scheduler)
 {
+    if (_process && _stackInProcess)
+        CPU::Active->InitTSS(_kernelStack, _kernelStackLength);
     if (Process::Active != _process) {
         if (_process) {
-            CPU::Active->InitTSS(_kernelStack, _kernelStackLength);
             _process->pageDirectory.Select();
             Process::Active = _process;
         }
