@@ -27,7 +27,11 @@ public:
 protected:
     ~VirtualMemory();
     
-    virtual void HandlePageFault(void *linearAddress) = 0;  // Called from ISR - if more work is necessary, place the request on a queue before handling. If you don't map it in before returning, thread will be blocked and task switched!
+    // When implementing this, there are a few choices:
+    // 1) Map a page and return - note that while it's within an ISR, interrupts will have been enabled, so take as long as you like
+    // 2) Don't map a page and return - the thread will enter the scheduler as if the timer interrupt had done it (allowing you to trigger some other thread to do something)
+    // 3) Turn interrupts on, thus switching to kernel thread mode. This allows the thread to do useful work inside the kernel, whilst blocking the user side of the thread. Use the InterruptEnabler class to ensure interrupt correctness.
+    virtual void HandlePageFault(void *linearAddress) = 0;
     
     // These two methods allow a virtual memory manager to add/remove a single page, be it in response to a page fault or just because they felt like it
     void Map(/*MAP_FLAGS*/int permissions, void *linearAddress, PhysicalPointer physicalAddress);
