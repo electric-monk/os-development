@@ -19,24 +19,36 @@ extern "C" void trapret(void);
 extern "C" void ThreadEntryPoint(void);
 extern "C" void KernelThreadEntryPoint(void);
 
-Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt32 stackSize)
+Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, ThreadMode mode, UInt32 stackSize)
 {
     _state = tsRunnable;
     _blockingObject = NULL;
     _blockingResult = NULL;
     
+    if (mode == tmAuto) {
+        // Select actual mode
+        mode = (process == NULL) ? tmKernel : tmUserspace;
+    } else if ((mode == tmUserspace) && (process == NULL)) {
+        // TODO: Error state: requested userspace, no process
+    }
+    bool isUserspace = mode == tmUserspace;
+    if (!isUserspace && (mode != tmKernel)) {
+        // TODO: Error state: nonsense value in mode
+    }
+    
     _kernelStorage = new KernelDictionary();
     int kernelStackSize = KERNEL_STACK_PAGES;
     int userStackSize = stackSize / PAGE_SIZE;
-    if (process == NULL)
+    if (!isUserspace)
         kernelStackSize += userStackSize;
     _kernelStackLength = kernelStackSize * PAGE_SIZE;
     _kernelStack = new char[_kernelStackLength];
     
     // Make a note of the current process (if any - NULL is kernel thread)
     _process = process;
-    if (_process) {
+    if (_process)
         _process->AddRef();
+    if (isUserspace) {
         // Process stack needs to exist in process space
         _stackInProcess = new GrowableStack(_process, userStackSize);
     } else {
@@ -48,7 +60,7 @@ Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt3
     int usedStack = 0;
     
     // For ThreadEntryPoint - first context, second function
-    if (_process) {
+    if (isUserspace) {
         AutoreleasePool pool;
         VirtualMemory *userStack = _stackInProcess->MapIntoKernel();
         char *userStackTop = (char*)userStack->LinearBase() + userStack->LinearLength();
@@ -66,16 +78,16 @@ Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt3
     stackPointer -= sizeof(TrapFrame);
     _trapFrame = (TrapFrame*)stackPointer;
     ClearMemory(_trapFrame, sizeof(TrapFrame));
-    _trapFrame->CS = _process ? ((SEG_UCODE << 3) | DPL_USER) : (SEG_KCODE << 3);
-    _trapFrame->DS = _process ? ((SEG_UDATA << 3) | DPL_USER) : (SEG_KDATA << 3);
+    _trapFrame->CS = isUserspace ? ((SEG_UCODE << 3) | DPL_USER) : (SEG_KCODE << 3);
+    _trapFrame->DS = isUserspace ? ((SEG_UDATA << 3) | DPL_USER) : (SEG_KDATA << 3);
     _trapFrame->ES = _trapFrame->DS;
-    _trapFrame->EFlags = _process ? FL_IF : GetEflag();
-    _trapFrame->GS = _process ? 0 : (SEG_KCPU << 3);    // Set up the TLS
+    _trapFrame->EFlags = isUserspace ? FL_IF : GetEflag();
+    _trapFrame->GS = isUserspace ? 0 : (SEG_KCPU << 3);    // Set up the TLS
     // These two are only used in userspace processes. KernelThreadEntryPoint will strip them out accordingly.
-    _trapFrame->ESP = UInt32(_process ? _stackInProcess->StackTop() : 0) - usedStack;
+    _trapFrame->ESP = UInt32(isUserspace ? _stackInProcess->StackTop() : 0) - usedStack;
     _trapFrame->SS = _trapFrame->DS;
     // Set up entrypoint
-    _trapFrame->EIP = _process ? UInt32(entryPoint) : UInt32(KernelThreadEntryPoint);   // Upon exiting the (pretend) trap, start the thread
+    _trapFrame->EIP = isUserspace ? UInt32(entryPoint) : UInt32(KernelThreadEntryPoint);   // Upon exiting the (pretend) trap, start the thread
     
     // Configure context
     stackPointer -= sizeof(CPU::Context);
@@ -94,10 +106,10 @@ Thread::~Thread()
 {
     Detach();   // May already be detached, but shouldn't hurt
     BlockOn(NULL);
-    if (_process) {
+    if (_stackInProcess)
         _stackInProcess->Release();
+    if (_process)
         _process->Release();
-    }
     delete[] _kernelStack;
     _kernelStorage->Release();
 }
@@ -266,7 +278,7 @@ Thread *Thread::last = NULL;
 Thread *Thread::cursor = NULL;
 
 KernelThread::KernelThread(UInt32 stackSize)
-:Thread(NULL, KernelThread::Thunk, this, stackSize)
+:Thread(NULL, KernelThread::Thunk, this, tmKernel, stackSize)
 {
 }
 void KernelThread::Thunk(void *context)

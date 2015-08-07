@@ -28,9 +28,15 @@ typedef enum {
 class Thread : public SignalWatcher // TODO: Implement SignalWatcher mechanisms
 {
 public:
+    typedef enum {
+        tmAuto = 0,     // Automatically select user or kernel mode
+        tmKernel,
+        tmUserspace,
+    } ThreadMode;
+    
     static void ConfigureService(Interrupts *interruptSource);
     
-    Thread(Process *process, void (*entryPoint)(void*), void *context, UInt32 stackSize = 8192);
+    Thread(Process *process, void (*entryPoint)(void*), void *context, ThreadMode mode = tmAuto, UInt32 stackSize = 8192);
     
     Process *_process;
     CPU::Context *_context;
