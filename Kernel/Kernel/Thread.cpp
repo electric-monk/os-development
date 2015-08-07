@@ -245,6 +245,34 @@ void Thread::ThreadLast(void)
     cursor = (temp?temp->_last:NULL)?:last;
 }
 
+void Thread::DebugPrint(void)
+{
+    InterruptDisabler disabler;
+    kprintf("Threads:\n");
+    int i = 0;
+    for (Thread *cursor = first; cursor != NULL; cursor = cursor->_next, i++) {
+        kprintf("\t%i: %s %x [%x] ", i, cursor->_stackInProcess ? "User" : "Kernel", cursor, cursor->_process);
+        switch (cursor->_state) {
+            case tsBlocked:
+                kprintf("Blocked: %x", cursor->_blockingObject);
+                break;
+            case tsCompleted:
+                kprintf("Completed");
+                break;
+            case tsRunnable:
+                kprintf("Runnable");
+                break;
+            case tsRunning:
+                kprintf("Running");
+                break;
+            default:
+                kprintf("Unknown: %i", cursor->_state);
+                break;
+        }
+        kprintf("\n");
+    }
+}
+
 void Thread::Attach(void)
 {
     AddRef();   // Keep a reference to ourselves, while we're runnable

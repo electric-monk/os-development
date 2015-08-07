@@ -57,6 +57,8 @@ public:
     static void ThreadNext(void);
     static void ThreadLast(void);
     
+    static void DebugPrint(void);
+    
 protected:
     ~Thread();
     

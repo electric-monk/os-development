@@ -479,6 +479,7 @@ static bool GenericExceptionHandler(void *context, void *state)
     kprintf("Error %.8x; address %.4x:%.8x\n", tf->ERR, tf->CS, tf->EIP);
     PrintStack((void**)tf->ESP);
     kprintf("CPU %.8x Process %.8x Thread %.8x\n", CPU::Active, Process::Active, Thread::Active);
+    Thread::DebugPrint();
     while(1) asm("hlt");
     return true;
 }
@@ -494,6 +495,7 @@ static bool PageFaultExceptionHandler(void *context, void *state)
     kprintf("Attempting to access %.8x\n", faulting_address);
     PrintStack((void**)tf->ESP);
     kprintf("CPU %.8x Process %.8x Thread %.8x\n", CPU::Active, Process::Active, Thread::Active);
+    Thread::DebugPrint();
     while(1) asm("hlt");
     return true;
 }

@@ -460,6 +460,9 @@ static bool KeyboardTestHandler(void *context, void *state)
     if (c == 0x39)
 //        ((BasicHeap*)NULL)->AddBlock(0, 0);
         taunt++;
+    if (c == 0x14)
+        Thread::DebugPrint();
+    
     return true;
 }
 
