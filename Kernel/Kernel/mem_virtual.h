@@ -16,7 +16,8 @@ class VirtualMemory : public KernelObject
 public:
     static void ConfigureService(Interrupts *interruptSource);
     
-    VirtualMemory(Process *process, UInt32 length);
+    VirtualMemory(Process *process, UInt32 length);                     // Find pages to map
+    VirtualMemory(Process *process, void *linearBase, UInt32 length);   // Map specified address
     
     void* LinearBase(void) { return _linear; }
     UInt32 LinearLength(void) { return _length; }
@@ -40,6 +41,8 @@ private:
     UInt32 _identifier;
     void *_linear;
     UInt32 _length;
+    
+    void Init(Process *process);
     
     // Automatic thread blocking functionality
     void AddFault(void *address, Thread *callee);

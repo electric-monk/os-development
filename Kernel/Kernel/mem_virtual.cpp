@@ -89,19 +89,39 @@ static UInt32 FlagForProcess(Process *process, UInt32 flags)
     return flags | ((process != NULL) ? fmUser : 0);
 }
 
-VirtualMemory::VirtualMemory(Process *process, UInt32 length)
+void VirtualMemory::Init(Process *process)
 {
     _pendingFaults = new KernelDictionary();
     if (_identifierCounter == 0)
         _identifierCounter++;
     _identifier = _identifierCounter++;
     _process = process;
-    _length = length;
-    _linear = PageDirectory()->Map(FlagForProcess(_process, fmNotPresent), _process ? pmApplication : pmKernel, (PhysicalPointer)(_identifier << 1), _length >> 12);
     KernelNumber *number = new KernelNumber(_identifier);
     s_identifierMap->Set(number, this);
     number->Release();
 //    kprintf("VirtualMemory 0x%.8x: process 0x%.8x from 0x%.8x to 0x%.8x\n", this, _process, _linear, _linear + _length);
+}
+
+VirtualMemory::VirtualMemory(Process *process, UInt32 length)
+{
+    Init(process);
+    _length = length;
+    _linear = PageDirectory()->Map(FlagForProcess(_process, fmNotPresent), _process ? pmApplication : pmKernel, (PhysicalPointer)(_identifier << 1), _length >> 12);
+}
+
+VirtualMemory::VirtualMemory(Process *process, void *linearBase, UInt32 length)
+{
+    Init(process);
+    _length = length;
+    _linear = linearBase;
+    // Map each page
+    length = PAGE_LIMITED(length) / PAGE_SIZE;  // Convert to pages
+    UInt32 offset = (UInt32)linearBase;
+    while (length != 0) {
+        PageDirectory()->Map(FlagForProcess(_process, fmNotPresent), (void*)offset, (PhysicalPointer)(_identifier << 1));
+        length--;
+        offset += PAGE_SIZE;
+    }
 }
 
 VirtualMemory::~VirtualMemory()
@@ -110,7 +130,7 @@ VirtualMemory::~VirtualMemory()
     KernelNumber *number = new KernelNumber(_identifier);
     s_identifierMap->Set(number, NULL);
     number->Release();
-    PageDirectory()->Unmap(_linear, _length >> 12);
+    PageDirectory()->Unmap(_linear, (size_t)_length >> 12);
     _pendingFaults->Release();
 }
 
@@ -121,9 +141,15 @@ SPageDirectoryInfo* VirtualMemory::PageDirectory(void)
 
 void VirtualMemory::Map(/*MAP_FLAGS*/int permissions, void *linearAddress, PhysicalPointer physicalAddress)
 {
+    Map(permissions, linearAddress, physicalAddress, [](void*){return 0;});
+}
+
+void VirtualMemory::Map(/*MAP_FLAGS*/int permissions, void *linearAddress, PhysicalPointer physicalAddress, bicycle::function<int(void*)> completion)
+{
     if ((linearAddress < _linear) || (linearAddress >= (((char*)_linear) + _length)))
         return; // TODO: Error!
     PageDirectory()->Map(FlagForProcess(_process, permissions), linearAddress, physicalAddress);
+    completion(linearAddress);
     if (!(permissions & fmNotPresent))
         CheckMap(linearAddress);
 }
