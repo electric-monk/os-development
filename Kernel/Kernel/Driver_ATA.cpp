@@ -98,7 +98,6 @@ static const UInt8 s_devices[] = {CB_DH_DEV0, CB_DH_DEV1};
 #define MAX_SEG ((MAX_TRANSFER_SIZE/65536L)+2L)
 #define MAX_PRD (MAX_SEG*4L)
 #define PRD_BUF_SIZE (48+(2*MAX_PRD*8))
-#define PAGE_SIZE       4096
 class DMABuffer
 {
 public:

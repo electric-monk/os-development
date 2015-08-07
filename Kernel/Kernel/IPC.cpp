@@ -5,11 +5,9 @@
 #include "Thread.h"
 #include "debug.h"
 
-#define PAGESIZE        4096
-
 KernelBufferMemory::KernelBufferMemory(UInt64 maximumSize)
 {
-    _pageCount = (maximumSize + PAGESIZE - 1) / PAGESIZE;
+    _pageCount = (maximumSize + PAGE_SIZE - 1) / PAGE_SIZE;
     _pages = new PhysicalPointer[_pageCount];
     for (UInt64 i = 0; i < _pageCount; i++)
         _pages[i] = CPhysicalMemory::Invalid;
@@ -27,7 +25,7 @@ KernelBufferMemory::~KernelBufferMemory()
 
 PhysicalPointer KernelBufferMemory::PointerForOffset(UInt64 offset)
 {
-    UInt64 index = offset / PAGESIZE;
+    UInt64 index = offset / PAGE_SIZE;
     if (_pages[index] == CPhysicalMemory::Invalid) {
         _pagesUsed++;
         _pages[index] = CPhysicalMemory::AllocateContiguousPages(1);
@@ -37,11 +35,11 @@ PhysicalPointer KernelBufferMemory::PointerForOffset(UInt64 offset)
 
 UInt64 KernelBufferMemory::MaximumSize(void)
 {
-    return _pageCount * PAGESIZE;
+    return _pageCount * PAGE_SIZE;
 }
 UInt64 KernelBufferMemory::Size(void)
 {
-    return _pagesUsed * PAGESIZE;
+    return _pagesUsed * PAGE_SIZE;
 }
 
 void KernelBufferMemory::PerformOnBuffer(bool readonly, bicycle::function<int(void*)> operations)

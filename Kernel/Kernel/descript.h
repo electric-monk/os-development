@@ -15,7 +15,8 @@ typedef struct
 
 #define DPL_USER    0x3     // User DPL
 
-#define PAGE_LIMITED(size)  (((size) + 0xFFFF) & 0xFFFF0000)
+#define PAGE_SIZE       4096
+#define PAGE_LIMITED(size)  (((size) + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1))
 
 /**** Global Descriptor Table ****/
     

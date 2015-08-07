@@ -10,8 +10,6 @@
 #include "CPU_intr.h"
 #include "mem_virtual.h"
 
-#define CURRENT_PAGE_SIZE           4096
-
 #define KERNEL_STACK_PAGES          2
 
 // This pointer points into the guts of the interrupt handler - the part that returns from an interrupt
@@ -29,10 +27,10 @@ Thread::Thread(Process *process, void (*entryPoint)(void*), void *context, UInt3
     
     _kernelStorage = new KernelDictionary();
     int kernelStackSize = KERNEL_STACK_PAGES;
-    int userStackSize = stackSize / CURRENT_PAGE_SIZE;
+    int userStackSize = stackSize / PAGE_SIZE;
     if (process == NULL)
         kernelStackSize += userStackSize;
-    _kernelStackLength = kernelStackSize * CURRENT_PAGE_SIZE;
+    _kernelStackLength = kernelStackSize * PAGE_SIZE;
     _kernelStack = new char[_kernelStackLength];
     
     // Make a note of the current process (if any - NULL is kernel thread)
