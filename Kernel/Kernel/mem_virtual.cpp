@@ -8,6 +8,7 @@
 #include "Thread.h"
 #include "Scheduler.h"
 #include "debug.h"
+#include "CPU_intr.h"
 
 static UInt32 _identifierCounter = 0;
 static KernelDictionary *s_identifierMap;
@@ -24,17 +25,14 @@ bool VirtualMemory::PageFaultHandler(void *context, void *state)
     s_utilityNumber->Reset(identifier);
     VirtualMemory *handler = (VirtualMemory*)s_identifierMap->ObjectFor(s_utilityNumber);
     if (handler != NULL) {
+        InterruptEnabler enabler;   // Enabling interrupts allows us to use memory allocation/etc.
         void *voidFaultingAddress = (void*)faulting_address;
         Thread *activeThread = Thread::Active;  // Ideally we'd always implement the 'block on unhandled fault' code, but if there's no thread, there's nothing to block
         if (activeThread != NULL)
             handler->AddFault(voidFaultingAddress, activeThread);
         handler->HandlePageFault(voidFaultingAddress);
-        if (activeThread != NULL) {
-            if (activeThread->_state == tsBlocked)    // AddFault will set this, CheckMap will reset it. Anyone else messing with it will cause a crash anyway, so we can use it
-                Scheduler::EnterFromInterrupt();
-            else
-                activeThread->_state = tsRunning;    // CheckMap will only set it to tsRunnable, but if we get here it's obviously running
-        }
+        if (activeThread != NULL)
+            handler->UpdateThread(voidFaultingAddress, activeThread);
         return true;
     }
     return false;
@@ -43,8 +41,6 @@ bool VirtualMemory::PageFaultHandler(void *context, void *state)
 // This method adds a newly occurred fault, by noting the calling thread and address.
 void VirtualMemory::AddFault(void *address, Thread *callee)
 {
-    // First, mark thread non-runnable
-    callee->_state = tsBlocked;
     // Now, add the address and callee to the list
     KernelNumber *addressObject = new KernelNumber((UInt32)address);
     KernelArray *blockedThreadsForPage = (KernelArray*)_pendingFaults->ObjectFor(addressObject);
@@ -72,9 +68,25 @@ void VirtualMemory::CheckMap(void *address)
     UInt32 max = blockedThreadsForPage->Count();
     for (UInt32 i = 0; i < max; i++) {
         Thread *blockedThread = (Thread*)blockedThreadsForPage->ObjectAt(i);
-        blockedThread->_state = tsRunnable;
+        if (blockedThread != Thread::Active)
+            blockedThread->_state = tsRunnable;
     }
     blockedThreadsForPage->Release();
+}
+
+// This method checks if a thread is meant to be blocked now
+void VirtualMemory::UpdateThread(void *address, Thread *callee)
+{
+    KernelNumber *addressObject = new KernelNumber((UInt32)address);
+    KernelArray *blockedThreadsForPage = (KernelArray*)_pendingFaults->ObjectFor(addressObject);
+    addressObject->Release();
+    if (blockedThreadsForPage != NULL) {
+        if (blockedThreadsForPage->Contains(callee)) {
+            InterruptDisabler disabler;
+            callee->_state = tsBlocked;
+            Scheduler::EnterFromInterrupt();
+        }
+    }
 }
 
 void VirtualMemory::ConfigureService(Interrupts *interruptSource)
@@ -86,6 +98,7 @@ void VirtualMemory::ConfigureService(Interrupts *interruptSource)
 
 static UInt32 FlagForProcess(Process *process, UInt32 flags)
 {
+    // TODO: Should probably use a flag, not just process itself
     return flags | ((process != NULL) ? fmUser : 0);
 }
 
