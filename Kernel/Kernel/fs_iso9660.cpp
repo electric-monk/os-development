@@ -438,22 +438,22 @@ void FileSystem_ISO9660::ReadGVD(int offset)
         BlockResponseRead *blockResponse = (BlockResponseRead*)response;
         // Check it succeeded
         if (blockResponse->status != Interface_Response::Success)
-            return /* TODO: Error state: I/O error */;
+            return 0/* TODO: Error state: I/O error */;
         // Check we got at least the required sector
         if (blockResponse->length() < SECTOR_SIZE)
-            return /* TODO: Error state: read failure */;
+            return 0/* TODO: Error state: read failure */;
         // Get sector
         GenericVolumeDescriptor *gvd = (GenericVolumeDescriptor*)blockResponse->data();
         // Check magic numbers
         if (gvd->StandardVersion != 1)
-            return /* TODO: Error state: invalid filesystem */;
+            return 0/* TODO: Error state: invalid filesystem */;
         if ((gvd->StandardId[0] != 'C') || (gvd->StandardId[1] != 'D') || (gvd->StandardId[2] != '0') || (gvd->StandardId[3] != '0') || (gvd->StandardId[4] != '1'))
-            return /* TODO: Error state: invalid filesystem */;
+            return 0/* TODO: Error state: invalid filesystem */;
         if (gvd->VolumeDescriptorType == VolumeDescriptorType_Terminator)
-            return /* TODO: Error state: invalid filesystem */;
+            return 0/* TODO: Error state: invalid filesystem */;
         if (gvd->VolumeDescriptorType != VolumeDescriptorType_PrimaryVolume) {
             ReadGVD(offset + 1);
-            return;
+            return 0;
         }
         // Get actual volume info!
         PrimaryVolumeDescriptor *pvd = (PrimaryVolumeDescriptor*)gvd;
