@@ -101,11 +101,11 @@ void TaskQueue::ProcessSignal(Runloop *runloop, BlockableObject *root, Blockable
         task->Pointer()();
 }
 
-RunloopThread::RunloopThread()
+RunloopThread::RunloopThread(Process *owner)
 {
     _tasks = new TaskQueue();
     AddSource(_tasks);
-    _thread = new Thread(NULL, WorkThread, this);
+    _thread = new Thread(owner, WorkThread, this, Thread::tmKernel);
 }
 
 RunloopThread::~RunloopThread()

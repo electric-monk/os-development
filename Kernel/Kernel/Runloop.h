@@ -6,6 +6,7 @@
 class KernelDictionary;
 class KernelFIFO;
 class Thread;
+class Process;
 
 class Runloop : public KernelObject
 {
@@ -58,10 +59,11 @@ private:
 class RunloopThread : public Runloop
 {
 public:
-    RunloopThread();
+    RunloopThread(Process *owner = NULL);
     
     // For convenience, a task queue is also provided
     void AddTask(bicycle::function<int(void)> task) { _tasks->AddTask(task); }
+    TaskQueue* Queue(void) { return _tasks; }
     
 protected:
     ~RunloopThread();
