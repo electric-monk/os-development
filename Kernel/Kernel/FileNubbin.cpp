@@ -253,8 +253,9 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
             }, [this, connection, request, mapping, message](int state, NubbinHandle *handle){
                 if (state == Interface_Response::Success)
                     Launch(handle);
-                connection->Link()->SendMessage([request, handle](void *context){
+                connection->Link()->SendMessage([state, request, handle](void *context){
                     Interface_File_Nubbin::ExposeResponse *response = (Interface_File_Nubbin::ExposeResponse*)context;
+                    response->status = state;
                     response->Fill(request);
                     response->handle = handle->Value();
                     response->connectionName.Initialise("0");
@@ -268,13 +269,13 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
             break;
         case Interface_File_Nubbin::Command::UnexposeFile | INDICATE_COMMAND:
         {
-            Interface_File_Nubbin::Unexpose *request = (Interface_File_Nubbin::Unexpose*)request;
+            Interface_File_Nubbin::Unexpose *unexpose = (Interface_File_Nubbin::Unexpose*)request;
             Service *found = NULL;
             bool invalid = false;
-            if (request->exposedFile.type == FlatString::Type())
-                found = Find(_services, ((FlatString*)&request->exposedFile)->Value());
-            else if (request->exposedFile.type == FlatInteger::Type())
-                found = Find(_services, ((FlatInteger*)&request->exposedFile)->Value());
+            if (unexpose->exposedFile.type == FlatString::Type())
+                found = Find(_services, ((FlatString*)&unexpose->exposedFile)->Value());
+            else if (unexpose->exposedFile.type == FlatInteger::Type())
+                found = Find(_services, ((FlatInteger*)&unexpose->exposedFile)->Value());
             else
                 invalid = true;
             if (invalid) {
@@ -318,14 +319,7 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
         case BlockRequest::Eject | INDICATE_FILE:
             if (((NubbinHandle*)service)->CanEject()) {
                 Kill(service);
-                connection->Link()->SendMessage([request](void *context){
-                    Interface_Response *response = (Interface_Response*)context;
-                    response->Fill(request);
-                    response->status = Interface_Response::Success;
-                    return true;
-                });
-                mapping->Release();
-                message->Release();
+                doError(Interface_Response::Success);
             } else {
                 doError(Interface_Response::Unsupported);
             }
