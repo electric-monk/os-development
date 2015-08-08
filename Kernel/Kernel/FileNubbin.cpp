@@ -223,6 +223,9 @@ static GenericProvider::Service* Find(KernelArray *services, UInt64 value)
     });
 }
 
+#define INDICATE_COMMAND        0xFF000000
+#define INDICATE_FILE           0xFE000000
+
 void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *connection, KernelBufferMemory *message)
 {
     KernelBufferMemory::Map *mapping = new KernelBufferMemory::Map(NULL, message, true);
@@ -240,8 +243,8 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
         message->Release();
         return 0;
     };
-    switch (request->type | (service->IsCommand() ? 0xFF000000 : 0xFE000000)) {
-        case Interface_File_Nubbin::Command::ExposeFile | 0xFF000000:
+    switch (request->type | (service->IsCommand() ? INDICATE_COMMAND : INDICATE_FILE)) {
+        case Interface_File_Nubbin::Command::ExposeFile | INDICATE_COMMAND:
         {
             IpcService *service = new IpcService(/*name*/"0"_ko, SERVICE_TYPE_BLOCK);
             new NubbinHandle(this, service, (Interface_File_Nubbin::Expose*)request, [this](bicycle::function<int(Interface_Request*)> request, bicycle::function<int(Interface_Response*)> response){
@@ -263,7 +266,7 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
             });
         }
             break;
-        case Interface_File_Nubbin::Command::UnexposeFile | 0xFF000000:
+        case Interface_File_Nubbin::Command::UnexposeFile | INDICATE_COMMAND:
         {
             Interface_File_Nubbin::Unexpose *request = (Interface_File_Nubbin::Unexpose*)request;
             Service *found = NULL;
@@ -284,7 +287,7 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
             }
         }
             break;
-        case BlockRequest::Read | 0xFE000000:
+        case BlockRequest::Read | INDICATE_FILE:
             _tasks->PerformTask(Input()->Link(), [request](Interface_Request *newRequest){
                 BlockRequestRead *blockReadRequest = (BlockRequestRead*)request;
                 ReadRequest *fileReadRequest = (ReadRequest*)newRequest;
@@ -310,9 +313,9 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
                 return 0;
             });
             break;
-//        case BlockRequest::Write | 0xFE000000:
+//        case BlockRequest::Write | INDICATE_FILE:
 //            break;
-        case BlockRequest::Eject | 0xFE000000:
+        case BlockRequest::Eject | INDICATE_FILE:
             if (((NubbinHandle*)service)->CanEject()) {
                 Kill(service);
                 connection->Link()->SendMessage([request](void *context){
