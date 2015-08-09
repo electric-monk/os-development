@@ -78,6 +78,7 @@ public:
         _exclusive = request->exclusive;
         _autoUnexpose = request->autoUnexpose;
         _allowEject = false;    // TODO: Also a nice option
+        _openCount = 0;
         _requester([request](Interface_Request *newRequest){
             OpenRequest *openRequest = (OpenRequest*)newRequest;
             openRequest->type = NodeRequest::OpenFile;
@@ -289,10 +290,11 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
         }
             break;
         case BlockRequest::Read | INDICATE_FILE:
-            _tasks->PerformTask(Input()->Link(), [request](Interface_Request *newRequest){
+            _tasks->PerformTask(Input()->Link(), [service, request](Interface_Request *newRequest){
                 BlockRequestRead *blockReadRequest = (BlockRequestRead*)request;
                 ReadRequest *fileReadRequest = (ReadRequest*)newRequest;
                 fileReadRequest->type = ReadRequest::ReadFile;
+                fileReadRequest->handle = ((NubbinHandle*)service)->Value();
                 fileReadRequest->offset = blockReadRequest->offset;
                 fileReadRequest->length = blockReadRequest->length;
                 return 0;
@@ -303,8 +305,8 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
                     newResponse->Fill((BlockRequestRead*)request);
                     newResponse->status = fileReadResponse->status;
                     if (fileReadResponse->status == Interface_Response::Success) {
-                        newResponse->requestedOffset = fileReadResponse->readOffset = fileReadResponse->readOffset;
-                        newResponse->requestedLength = fileReadResponse->readLength = fileReadResponse->readLength;
+                        newResponse->requestedOffset = newResponse->readOffset = fileReadResponse->readOffset;
+                        newResponse->requestedLength = newResponse->readLength = fileReadResponse->readLength;
                         CopyMemory(newResponse->rawData(), fileReadResponse->data(), fileReadResponse->readLength);
                     }
                     return true;
