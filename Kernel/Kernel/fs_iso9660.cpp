@@ -383,7 +383,6 @@ namespace ISO9660Driver {
         {
             KernelNumber *handle = new KernelNumber(fileHandle);
             FileEntry *file = (FileEntry*)_handles->ObjectFor(handle);
-            _handles->Set(handle, NULL);
             handle->Release();
             return file;
         }
