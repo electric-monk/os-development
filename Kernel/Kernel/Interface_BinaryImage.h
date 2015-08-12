@@ -12,6 +12,7 @@ namespace Interface_BinaryImage {
     public:
         static const UInt32 GetChunks = Interface_Request::MAX + 0; // Request -> GotChunks
         static const UInt32 ReadChunk = Interface_Request::MAX + 1; // Read -> ReadChunk
+        static const UInt32 GetSymbols = Interface_Request::MAX + 2;// Request -> GotSymbols
         static const UInt32 MAX = Interface_Request::MAX + 100;
     };
     
@@ -104,6 +105,18 @@ namespace Interface_BinaryImage {
                 cursor = cursor->Next();
             }
         }
+    };
+    
+// All fields optional for symbols dictionaries:
+#define Symbol_Name             "name"      /* FlatString - default none */
+#define Symbol_Address_Virtual  "virtual"   /* FlatInteger - default none */
+#define Symbol_Launch           "launch"    /* FlatInteger - default 0: if non-zero, entrypoint is a main-like symbol, and should be attached to a thread on load of the binary */
+    
+    class GotSymbols : public Response
+    {
+    public:
+        FlatArray symbols;
+            // FlatDictionary: values
     };
 }
 
