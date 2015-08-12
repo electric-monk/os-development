@@ -357,14 +357,14 @@ public:
                 }
                 UInt32 sectorOffset = readResponse->readOffset / _sectorSize;
                 UInt32 sectorLength = readResponse->readLength / _sectorSize;
-                char packet[] = {
+                unsigned char packet[] = {
                     ATAPI_CMD_READ, 0x00,
-                    (sectorOffset >> 24) & 0xFF, (sectorOffset >> 16) & 0xFF, (sectorOffset >> 8) & 0xFF, sectorOffset & 0xFF,
+                    static_cast<unsigned char>((sectorOffset >> 24) & 0xFF), static_cast<unsigned char>((sectorOffset >> 16) & 0xFF), static_cast<unsigned char>((sectorOffset >> 8) & 0xFF), static_cast<unsigned char>(sectorOffset & 0xFF),
                     0x00, 0x00, 0x00,
-                    sectorLength,
+                    static_cast<unsigned char>(sectorLength),
                     0x00, 0x00
                 };
-                bool status = _driver->Packet(_driverIndex, packet, sizeof(packet), false, readResponse->rawData(), readResponse->readLength);
+                bool status = _driver->Packet(_driverIndex, (char*)packet, sizeof(packet), false, readResponse->rawData(), readResponse->readLength);
                 UInt32 result;  // Can't seem to use ?: here, gcc will leave references to symbol in, and it won't link
                 if (status)
                     result = BlockResponse::Success;
