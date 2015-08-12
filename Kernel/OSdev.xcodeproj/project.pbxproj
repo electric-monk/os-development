@@ -36,6 +36,7 @@
 		3B76301D1B12A9D600C41D62 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F6519B1B95A009B16F3 /* main.cpp */; };
 		3B76301E1B12A9D600C41D62 /* CPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F7619B6F7B6009B16F3 /* CPU.cpp */; };
 		3B7630211B12A9D600C41D62 /* CPU_PICIRQ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F7B19B6FB1B009B16F3 /* CPU_PICIRQ.cpp */; };
+		3B7630231B13AFFA00C41D62 /* Startup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7630221B13AFFA00C41D62 /* Startup.cpp */; };
 		3B7630241B144E6800C41D62 /* Runloop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B27068A1ADA30B400C2178E /* Runloop.cpp */; };
 /* End PBXBuildFile section */
 
@@ -98,6 +99,7 @@
 		3B762FFA1B12A9AD00C41D62 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		3B762FFD1B12A9AD00C41D62 /* test-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "test-Prefix.pch"; sourceTree = "<group>"; };
 		3B762FFE1B12A9AD00C41D62 /* test.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = test.1; sourceTree = "<group>"; };
+		3B7630221B13AFFA00C41D62 /* Startup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Startup.cpp; path = Kernel/Startup.cpp; sourceTree = "<group>"; };
 		3B7713361A6C353500556361 /* KernelObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = KernelObject.cpp; path = Kernel/KernelObject.cpp; sourceTree = "<group>"; };
 		3BE18B391A911A6E0028B70A /* IPC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IPC.cpp; path = Kernel/IPC.cpp; sourceTree = "<group>"; };
 		3BE18B3A1A911A6E0028B70A /* IPC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPC.h; path = Kernel/IPC.h; sourceTree = "<group>"; };
@@ -134,6 +136,7 @@
 		3BE43F7919B6FB1B009B16F3 /* CPU_IOAPIC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU_IOAPIC.cpp; path = Kernel/CPU_IOAPIC.cpp; sourceTree = "<group>"; };
 		3BE43F7A19B6FB1B009B16F3 /* CPU_LAPIC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU_LAPIC.cpp; path = Kernel/CPU_LAPIC.cpp; sourceTree = "<group>"; };
 		3BE43F7B19B6FB1B009B16F3 /* CPU_PICIRQ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU_PICIRQ.cpp; path = Kernel/CPU_PICIRQ.cpp; sourceTree = "<group>"; };
+		3BE6C2991B7477F6008A16E2 /* Startup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Startup.h; path = Kernel/Startup.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -298,6 +301,8 @@
 				3BE43F6219B1B95A009B16F3 /* entry.asm */,
 				3BE43F6319B1B95A009B16F3 /* Interrupts.h */,
 				3BE43F6519B1B95A009B16F3 /* main.cpp */,
+				3B7630221B13AFFA00C41D62 /* Startup.cpp */,
+				3BE6C2991B7477F6008A16E2 /* Startup.h */,
 				3BE43F7519B6E615009B16F3 /* StandardPC_traps_shared.inc */,
 				3BE43F7319B1CF8B009B16F3 /* StandardPC_traps.asm */,
 				3BE43F7419B1D16B009B16F3 /* StandardPC_traps.h */,
@@ -371,6 +376,7 @@
 				3B7630071B12A9D600C41D62 /* fs_iso9660.cpp in Sources */,
 				3B7630081B12A9D600C41D62 /* Driver_ATA.cpp in Sources */,
 				3B76300A1B12A9D600C41D62 /* Queue.cpp in Sources */,
+				3B7630231B13AFFA00C41D62 /* Startup.cpp in Sources */,
 				3B76300B1B12A9D600C41D62 /* IPC.cpp in Sources */,
 				3B76300C1B12A9D600C41D62 /* Blocking.cpp in Sources */,
 				3B76300D1B12A9D600C41D62 /* Locking.cpp in Sources */,

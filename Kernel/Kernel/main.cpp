@@ -10,6 +10,7 @@
 #include "mem_virtual.h"
 #include "Interface.h"
 #include "fs_iso9660.h"
+#include "Startup.h"
 
 extern UInt32 kern_start, kern_end;
 
@@ -598,6 +599,7 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     test();
 
     Thread::ConfigureService(rootDevice->Test());
+    InitStartup();
     
     AutoreleasePool testPool;
     // Thread test
