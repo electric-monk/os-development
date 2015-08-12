@@ -715,15 +715,15 @@ void FileSystem_ISO9660::OutputConnectionMessage(OutputConnection *connection, K
             ReadRequest *readRequest = (ReadRequest*)request;
             ISO9660Driver::Interface_File_Output *outputConnection = (ISO9660Driver::Interface_File_Output*)connection;
             mapping->AddRef();
-            bicycle::function<int(UInt32 status, void *data, UInt32 length)> replyHandler = [mapping, outputConnection, readRequest](UInt32 status, void *data, UInt32 length){
-                outputConnection->Link()->SendMessage([readRequest, status, data, length](void *context){
+            bicycle::function<int(UInt32 status, UInt32 offset, void *data, UInt32 length)> replyHandler = [mapping, outputConnection, readRequest](UInt32 status, UInt32 offset, void *data, UInt32 length){
+                outputConnection->Link()->SendMessage([readRequest, status, offset, data, length](void *context){
                     ReadResponse *response = (ReadResponse*)context;
                     response->Fill(readRequest);
                     response->status = status;
-                    response->readOffset = 0;
+                    response->readOffset = offset;
                     response->readLength = length;
                     if (status == Interface_Response::Success)
-                        CopyMemory(response->data(), data, length);
+                        CopyMemory(response->rawData(), data, length);
                     else
                         response->readLength = 0;
                     return true;
@@ -735,7 +735,7 @@ void FileSystem_ISO9660::OutputConnectionMessage(OutputConnection *connection, K
             ISO9660Driver::FileEntry *entry = outputConnection->FileForHandle(readRequest->handle);
             if (entry == NULL) {
                 // No file?
-                replyHandler(NodeResponse::InvalidHandle, NULL, 0);
+                replyHandler(NodeResponse::InvalidHandle, 0, NULL, 0);
             } else {
                 // Read file
                 _tasks->PerformTask(Input()->Link(), [entry, readRequest](Interface_Request *request){
@@ -748,9 +748,9 @@ void FileSystem_ISO9660::OutputConnectionMessage(OutputConnection *connection, K
                     if (baseSizeRemainder != 0)
                         blockRequest->length += SECTOR_SIZE - baseSizeRemainder;
                     return 0;
-                }, [replyHandler](Interface_Response *response){
+                }, [entry, replyHandler](Interface_Response *response){
                     BlockResponseRead *readResponse = (BlockResponseRead*)response;
-                    replyHandler(readResponse->status, readResponse->data(), readResponse->requestedLength);
+                    replyHandler(readResponse->status, readResponse->requestedOffset - entry->start, readResponse->data(), readResponse->requestedLength);
                     return 0;
                 });
             }
