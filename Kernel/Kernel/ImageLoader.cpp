@@ -96,6 +96,8 @@ class ImageLoader_Symbol : public KernelObject
 {
 public:
     virtual UInt64 Address(void) = 0;
+    
+    virtual void Encode(FlatDictionary *output) = 0;
 };
 
 class ImageLoader_Symbol_Main : public ImageLoader_Symbol
@@ -109,6 +111,63 @@ public:
     {
         return _main;
     }
+    
+    void Encode(FlatDictionary *output)
+    {
+        {
+            // Save address
+            FlatString *key = (FlatString*)output->GetNextAddress();
+            key->Initialise(Symbol_Address_Virtual);
+            output->CompleteNextItem();
+            FlatInteger *value = (FlatInteger*)output->GetNextAddress();
+            value->Initialise(_main);
+            output->CompleteNextItem();
+        }
+        
+        {
+            // Save "launch" flag
+            FlatString *key = (FlatString*)output->GetNextAddress();
+            key->Initialise(Symbol_Launch);
+            output->CompleteNextItem();
+            FlatInteger *value = (FlatInteger*)output->GetNextAddress();
+            value->Initialise(1);
+            output->CompleteNextItem();
+        }
+    }
+};
+
+class ImageLoader_Symbol_EntryPoint : public ImageLoader_Symbol_Main
+{
+public:
+    ImageLoader_Symbol_EntryPoint(UInt64 address, KernelString *name)
+    :ImageLoader_Symbol_Main(address)
+    {
+        _name = name;
+        _name->AddRef();
+    }
+    
+    void Encode(FlatDictionary *output)
+    {
+        ImageLoader_Symbol_Main::Encode(output);
+        {
+            // Save name
+            FlatString *key = (FlatString*)output->GetNextAddress();
+            key->Initialise(Symbol_Name);
+            output->CompleteNextItem();
+            FlatString *value = (FlatString*)output->GetNextAddress();
+            value->Initialise(_name->CString());
+            output->CompleteNextItem();
+        }
+    }
+    
+protected:
+    ~ImageLoader_Symbol_EntryPoint()
+    {
+        _name->Release();
+    }
+    
+private:
+    KernelString *_name;
 };
 
 // Segment object
@@ -359,6 +418,22 @@ void ImageLoader::OutputConnectionMessage(OutputConnection *connection, KernelBu
                 }
             }
         }
+            break;
+        case Interface_BinaryImage::Request::GetSymbols:
+            connection->Link()->SendMessage([request, this](void *context){
+                Interface_BinaryImage::GotSymbols *symbolsResponse = (Interface_BinaryImage::GotSymbols*)context;
+                symbolsResponse->Fill(request);
+                symbolsResponse->symbols.Initialise();
+                _symbols->Enumerate([symbolsResponse](KernelObject *object){
+                    ImageLoader_Symbol *symbol = (ImageLoader_Symbol*)object;
+                    FlatDictionary *entry = (FlatDictionary*)symbolsResponse->symbols.GetNextAddress();
+                    entry->Initialise();
+                    symbol->Encode(entry);
+                    symbolsResponse->symbols.CompleteNextItem();
+                    return (void*)NULL;
+                });
+                return true;
+            });
             break;
         default:
             onError(Interface_Response::Unsupported);
