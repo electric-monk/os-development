@@ -407,8 +407,20 @@ void GenericProvider::Stash::Unregister(Factory *factory)
 
 class InterfaceHelper_Handler : public KernelFunction<int(Interface_Response*)>
 {
+private:
+    IpcEndpoint *_connection;
 public:
-    InterfaceHelper_Handler(bicycle::function<int(Interface_Response*)> callback) : KernelFunction<int(Interface_Response*)>(callback) {}
+    InterfaceHelper_Handler(IpcEndpoint *connection, bicycle::function<int(Interface_Response*)> callback) : KernelFunction<int(Interface_Response*)>(callback)
+    {
+        _connection = connection;
+        _connection->AddRef();
+    }
+    
+protected:
+    ~InterfaceHelper_Handler()
+    {
+        _connection->Release();
+    }
 };
 
 InterfaceHelper::InterfaceHelper()
@@ -430,7 +442,7 @@ void InterfaceHelper::PerformTask(IpcEndpoint *destination, bicycle::function<in
         number->Reset(_identifier++);
     UInt32 identifier = number->Value();
     // Save handler
-    InterfaceHelper_Handler *handler = new InterfaceHelper_Handler(response);
+    InterfaceHelper_Handler *handler = new InterfaceHelper_Handler(destination, response);
     _tasks->Set(number, handler);
     handler->Release();
     number->Release();
