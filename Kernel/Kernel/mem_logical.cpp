@@ -316,6 +316,12 @@ void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer ph
         newDirectoryEntry.PageSize = 0; // 4Kb
         newDirectoryEntry.Global = 0;   // Not global
         tablesPhysical[dirEntry] = newDirectoryEntry;
+        
+        // Make sure it's mapped, if necessary
+        if (this != currentAddressSpace) {
+            currentAddressSpace->tables[dirEntry] = tables[dirEntry];
+            currentAddressSpace->tablesPhysical[dirEntry] = tablesPhysical[dirEntry];
+        }
     }
     
     SPage newPageInfo;
