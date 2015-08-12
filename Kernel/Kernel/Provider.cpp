@@ -130,9 +130,9 @@ protected:
         }
         
     protected:
-        void SignalChanged(BlockableObject *source) // On message
+        void SignalChanged(BlockableObject *watching, bool active) // On message
         {
-            if (source) {
+            if (active) {
 //            while (source && source->Signalled()) { // TODO: Some runloop thing
                 KernelBufferMemory *message = _connection->Link()->Read(false);
                 DispatchQueue::Task *task;
@@ -150,9 +150,9 @@ protected:
         GenericProvider::OutputConnection *_connection;
     };
     
-    void SignalChanged(BlockableObject *source) // On output connection
+    void SignalChanged(BlockableObject *watching, bool active) // On output connection
     {
-        if (source) {
+        if (active) {
 //            while (source && source->Signalled()) { // TODO: Some runloop thing
             // Get the new connection
             IpcEndpoint *link = _service->ServiceObject()->NextConnection(false);
@@ -248,9 +248,9 @@ private:
         }
         
     protected:
-        void SignalChanged(BlockableObject *source) // On input message
+        void SignalChanged(BlockableObject *watching, bool active) // On input message
         {
-            if (source) {
+            if (active) {
 //            while (source && source->Signalled()) { // TODO: Some runloop thing
                 KernelBufferMemory *message = _connection->Link()->Read(false);
                 DispatchQueue::Task *task;

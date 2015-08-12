@@ -2,7 +2,7 @@
 #include "Collections.h"
 #include "Thread.h"
 
-typedef KernelFunction<int(BlockableObject *signal, BlockableObject *trigger)> RunloopFunction;
+typedef KernelFunction<int(BlockableObject *watching, KernelArray *signals)> RunloopFunction;
 
 Runloop::Runloop()
 {
@@ -24,13 +24,13 @@ Runloop::~Runloop()
 
 void Runloop::AddSource(SelfHandlingBlockableObject *blocker)
 {
-    AddSource(blocker, [this, blocker](BlockableObject *signal, BlockableObject *trigger){
-        blocker->ProcessSignal(this, signal, trigger);
+    AddSource(blocker, [this, blocker](BlockableObject *watching, KernelArray *signals){
+        blocker->ProcessSignal(this, watching, signals);
         return 0;
     });
 }
 
-void Runloop::AddSource(BlockableObject *blocker, bicycle::function<int(BlockableObject *signal, BlockableObject *trigger)> handler)
+void Runloop::AddSource(BlockableObject *blocker, bicycle::function<int(BlockableObject *watching, KernelArray *signals)> handler)
 {
     RunloopFunction *function = new RunloopFunction(handler);
     _sourceMap->Set(blocker, function);
@@ -51,11 +51,19 @@ void Runloop::Run(void)
     AddRef();
     while (true) {
         pool.Flush();
-        BlockableObject *result = Thread::Active->BlockOn(_sourceList);
-        if (result == _stop)
+        KernelArray *result = Thread::Active->BlockOn(_sourceList);
+        if (result && result->Contains(_stop))
             break;
-        RunloopFunction *function = (RunloopFunction*)_sourceMap->ObjectFor(result);
-        function->Pointer()(result, result->Signalled());
+        BlockableObject *blocker = NULL;
+        RunloopFunction *function = (RunloopFunction*)result->Enumerate([this, &blocker](KernelObject *blockerObject){
+            blocker = (BlockableObject*)blockerObject;
+            return _sourceMap->ObjectFor(blocker);
+        });
+        if (function == NULL) {
+            kprintf("%.8x: Failed to find function\n", this);
+            continue;
+        }
+        function->Pointer()(blocker, result);
     }
     _stop->Reset();
     Release();
@@ -85,18 +93,17 @@ void TaskQueue::AddTask(bicycle::function<int(void)> task)
     {
         GenericLock::Autolock locker(&_taskLock);
         _tasks->Push(function);
-        if (!Signalled())
-            SignalFor(this);
+        SetSignalled(this, true);
     }
     function->Release();
 }
 
-void TaskQueue::ProcessSignal(Runloop *runloop, BlockableObject *root, BlockableObject *source)
+void TaskQueue::ProcessSignal(Runloop *runloop, BlockableObject *watching, KernelArray *signals)
 {
     GenericLock::Autolock locker(&_taskLock);
     TaskQueueFunction *task = (TaskQueueFunction*)_tasks->Pop();
     if (task == NULL)
-        SignalFor(NULL);
+        SetSignalled(this, false);
     else
         task->Pointer()();
 }

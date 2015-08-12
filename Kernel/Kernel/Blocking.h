@@ -17,34 +17,35 @@ public:
     virtual void UnregisterObserver(SignalWatcher *watcher);
     
     // Current state
-    virtual BlockableObject* Signalled(void);
+    virtual bool IsSignalled(void);
+    virtual KernelArray* CurrentSignals(void);  // Default implementation - all signals, plus their signals
     
 protected:
     ~BlockableObject();
     
-    void SignalFor(BlockableObject *sender);
+    KernelArray* ThisCurrentSignals(void);  // Current signals only for this object
+    virtual bool CheckSignal(void); // Override this to implement custom signalling logic - default is "any signals mean signalled"
+    
+    void SetSignalled(BlockableObject *sender, bool active);
     
     HardcoreSpinLock _locker;
     
 private:
     KernelArray *_watchers;
-    BlockableObject *_currentSignal;
+    KernelArray *_signals;
+    bool _selfSignal;   // Don't add "this" to _signals
+    bool _signalled;
+    
+    void DoSignal(bool active);
 };
 
 // The signal watcher is derived from a blockable object to allow objects that do both - many objects (e.g. interrupts, timers) won't ever watch anything, but plenty (e.g. threads and processes) will do both
 class SignalWatcher : public BlockableObject
 {
 public:
-    // Actually sensible entry point, that indicates both the root of the tree and the branch that triggered it
-    virtual void SignalChanged(BlockableObject *root, BlockableObject *source)
+    virtual void SignalChanged(BlockableObject *watching, bool active)
     {
-        SignalChanged(source);
-    }
-protected:
-    // TODO: Deprecate this
-    virtual void SignalChanged(BlockableObject *source)
-    {
-        // Legacy implementation, so overrisers of SignalChanged(,) don't need to worry about this
+        // Nothing by default
     }
 };
 
@@ -56,14 +57,12 @@ public:
     virtual void AddSource(BlockableObject *source);
     virtual void RemoveSource(BlockableObject *source);
     
-    void SignalChanged(BlockableObject *source);
+    void SignalChanged(BlockableObject *watching, bool active);
     
 protected:
     ~ListSignalWatcher();
     
     KernelArray* Sources(void) { return _sources; }
-    
-    UInt32 Count(void) { return _triggerCount; }
     
 private:
     KernelArray *_sources;
@@ -74,8 +73,9 @@ class SignalOr : public ListSignalWatcher
 {
 public:
     SignalOr();
-    
-    void SignalChanged(BlockableObject *source);
+
+protected:
+    bool CheckSignal(void);
 };
 
 class SignalAnd : public ListSignalWatcher
@@ -83,7 +83,8 @@ class SignalAnd : public ListSignalWatcher
 public:
     SignalAnd();
     
-    void SignalChanged(BlockableObject *source);
+protected:
+    bool CheckSignal(void);
 };
 
 #define MICROSECONDS(x)         (x)
@@ -118,8 +119,6 @@ class SimpleSignal : public BlockableObject
 public:
     SimpleSignal(bool activeLow);
     
-    BlockableObject* Signalled(void);
-    
     void Pulse(void) { Set(); Reset(); }
     void Set(void);
     void Reset(void);
@@ -127,6 +126,7 @@ public:
 private:
     bool _activeLow;
     UInt32 _count;
+    bool CurrentlySignalled(void);
 };
 
 #endif // __BLOCKING_H__

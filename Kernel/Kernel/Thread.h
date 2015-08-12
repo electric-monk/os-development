@@ -45,7 +45,7 @@ public:
     static Thread *Active asm("%gs:8");
     
     void Kill(void);
-    BlockableObject* BlockOn(BlockableObject *source);
+    KernelArray* BlockOn(BlockableObject *source);
     void Sleep(UInt32 microseconds);
     
     void Select(CPU::Context **scheduler);
@@ -62,10 +62,11 @@ public:
 protected:
     ~Thread();
     
-    void SignalChanged(BlockableObject *source);
+    void SignalChanged(BlockableObject *watching, bool active);
     
 private:
-    BlockableObject *_blockingObject, *_blockingResult;
+    BlockableObject *_blockingObject;
+    KernelArray *_blockingResult;
     
     // The stack used in the kernel
     char *_kernelStack;

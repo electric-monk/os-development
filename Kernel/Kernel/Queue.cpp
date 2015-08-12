@@ -25,14 +25,14 @@ public:
             return NULL;
         SignalAnd *allBefore = new SignalAnd();
         for (DispatchGroupHolder *holder = _last; holder != NULL; holder = holder->_last)
-            if (!holder->Signalled())
+            if (!holder->IsSignalled())
                 allBefore->AddSource(holder);
         return allBefore;
     }
     
     void Completed(void)
     {
-        SignalFor(this);
+        SetSignalled(this, true);
         Release();
     }
     
@@ -97,8 +97,8 @@ void* DispatchGroup::EnterOrTimeout(UInt32 microsecondsPassed)
             waiting = waitFor;
         }
         // Our own block is now running
-        BlockableObject *result = Thread::Active->BlockOn(waiting);
-        if (result != waitFor) {
+        KernelArray *result = Thread::Active->BlockOn(waiting);
+        if ((result == NULL) || !result->Contains(waitFor)) {
             GenericLock::Autolock locker(&_lock);
             // If we're here, we failed to wait
             holder->Completed();    // Just in case - someone may already have started waiting on us
@@ -135,7 +135,7 @@ void DispatchQueue::Task::Run(void)
     // Run the actual task
     Execute();
     // Signal that we're done
-    SignalFor(this);
+    SetSignalled(this, true);
 }
 
 DispatchQueue::DispatchQueue()
@@ -161,8 +161,7 @@ void DispatchQueue::AddTask(Task *task)
 //    kprintf("Queue 0x%.8x adding task 0x%.8x\n", this, task);
     GenericLock::Autolock locker(&_taskLock);
     _tasks->Push(task);
-    if (!Signalled())
-        SignalFor(task);
+    SetSignalled(task, true);
 }
 
 class DispatchQueue_LlambdaTask : public DispatchQueue::Task
@@ -202,7 +201,7 @@ void DispatchQueue::WorkThread(void *context)
     watching->AddSource(that);
     
 //    kprintf("Starting queue 0x%.8x\n", that);
-    while (Thread::Active->BlockOn(watching) != that->_threadEnd) {
+    while (!Thread::Active->BlockOn(watching)->Contains(that->_threadEnd)) {
 //        kprintf("Waking up queue 0x%.8x\n", that);
         // Get the next task
         {
@@ -210,9 +209,9 @@ void DispatchQueue::WorkThread(void *context)
             task = (Task*)that->_tasks->Pop();
             if (task == NULL) {
 //                kprintf("Sleeping queue 0x%.8x\n", that);
-                that->SignalFor(NULL);
                 continue;
             }
+            that->SetSignalled(task, false);
         }
         // Run it
 //        kprintf("Running task on 0x%.8x: 0x%.8x\n", that, task);

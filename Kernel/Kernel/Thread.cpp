@@ -124,7 +124,7 @@ void Thread::Kill(void)
     }
 }
 
-BlockableObject* Thread::BlockOn(BlockableObject *source)
+KernelArray* Thread::BlockOn(BlockableObject *source)
 {
 //    kprintf("Thread %.8x blocking on %.8x\n", this, source);
     // Release any previous object
@@ -141,9 +141,8 @@ BlockableObject* Thread::BlockOn(BlockableObject *source)
     // If the new object is signalled, don't do anything
     if (!source)
         return NULL;
-    BlockableObject *signalled = source->Signalled();
-    if (signalled)
-        return signalled;
+    if (source->IsSignalled())
+        return source->CurrentSignals();
     // Start blocking
     _blockingObject = source;
     _blockingObject->AddRef();
@@ -156,7 +155,7 @@ BlockableObject* Thread::BlockOn(BlockableObject *source)
             InterruptDisabler disabler;
             Scheduler::EnterFromInterrupt();
         }
-        BlockableObject *result = _blockingResult;
+        KernelArray *result = _blockingResult;
         if (result) {
             _blockingResult = NULL;
             result->Autorelease();
@@ -166,13 +165,13 @@ BlockableObject* Thread::BlockOn(BlockableObject *source)
     return NULL;
 }
 
-void Thread::SignalChanged(BlockableObject *signal)
+void Thread::SignalChanged(BlockableObject *watching, bool active)
 {
 //    kprintf("Thread %.8x got signal %.8x\n", this, signal);
-    if (signal) {
+    if (active) {
         // Make a note of who set us off again
-        signal->AddRef();
-        _blockingResult = signal;
+        _blockingResult = watching->CurrentSignals();
+        _blockingResult->AddRef();
         // Stop blocking
         _blockingObject->UnregisterObserver(this);
         _blockingObject->Release();

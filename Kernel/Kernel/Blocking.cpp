@@ -6,11 +6,14 @@ BlockableObject::BlockableObject()
 :_locker(NULL)
 {
     _watchers = new KernelArray();
-    _currentSignal = NULL;
+    _signals = new KernelArray();
+    _signalled = false;
+    _selfSignal = false;
 }
 
 BlockableObject::~BlockableObject()
 {
+    _signals->Release();
     _watchers->Release();
 }
 
@@ -27,23 +30,79 @@ void BlockableObject::UnregisterObserver(SignalWatcher *watcher)
     _watchers->Remove(watcher);
 }
 
-BlockableObject* BlockableObject::Signalled(void)
-{
-    return _currentSignal;
-}
-
-void BlockableObject::SignalFor(BlockableObject *sender)
+void BlockableObject::SetSignalled(BlockableObject *sender, bool active)
 {
     GenericLock::Autolock locker(&_locker);
-    _currentSignal = sender;    // weak ref
-    for (UInt32 i = 0; i < _watchers->Count(); i++)
-        ((SignalWatcher*)_watchers->ObjectAt(i))->SignalChanged(this, sender);
+    if (sender == this) {
+        // "this" is sadly a special case, to avoid retain loops
+        if (_selfSignal == active)
+            return;
+        _selfSignal = active;
+    } else {
+        bool contains = _signals->Contains(sender);
+        if (active) {
+            if (contains)
+                return;
+            _signals->Add(sender);
+        } else {
+            if (!contains)
+                return;
+            _signals->Remove(sender);
+        }
+    }
+    DoSignal(CheckSignal());
+}
+
+void BlockableObject::DoSignal(bool active)
+{
+    if (active == _signalled)
+        return;
+    AutoreleasePool pool;
+    _signalled = active;
+    _watchers->Enumerate([this, active](KernelObject *object){
+        SignalWatcher *watcher = (SignalWatcher*)object;
+        watcher->SignalChanged(this, active);
+        return (void*)NULL;
+    });
+}
+
+KernelArray* BlockableObject::CurrentSignals(void)
+{
+    KernelArray *output = new KernelArray();
+    output->Add(this);  // We're signalled, so we should include ourselves, even if we're not in the list
+    _signals->Enumerate([this, output](KernelObject *signal){
+        BlockableObject *blockingSignal = (BlockableObject*)signal;
+        if (blockingSignal != this)
+            output->AddArray(blockingSignal->CurrentSignals());
+        return (BlockableObject*)NULL;
+    });
+    output->Autorelease();
+    return output;
+}
+
+bool BlockableObject::IsSignalled(void)
+{
+    return _signalled;
+}
+
+KernelArray* BlockableObject::ThisCurrentSignals(void)
+{
+    KernelArray *result = new KernelArray();
+    result->AddArray(_signals);
+    if (_selfSignal)
+        result->Add(this);
+    result->Autorelease();
+    return result;
+}
+
+bool BlockableObject::CheckSignal(void)
+{
+    return (_signals->Count() + (_selfSignal ? 1 : 0)) != 0;
 }
 
 ListSignalWatcher::ListSignalWatcher()
 {
     _sources = new KernelArray();
-    _triggerCount = 0;
 }
 
 ListSignalWatcher::~ListSignalWatcher()
@@ -57,11 +116,7 @@ void ListSignalWatcher::AddSource(BlockableObject *source)
     if (!Sources()->Contains(source)) {
         Sources()->Add(source);
         source->RegisterObserver(this);
-        if (source->Signalled()) {
-            _triggerCount++;
-            if (_triggerCount == 1)
-                SignalFor(source);
-        }
+        SetSignalled(source, source->IsSignalled());
     }
 }
 
@@ -69,53 +124,34 @@ void ListSignalWatcher::RemoveSource(BlockableObject *source)
 {
     GenericLock::Autolock locker(&_locker);
     if (Sources()->Contains(source)) {
-        if (source->Signalled()) {
-            _triggerCount--;
-            if (_triggerCount == 0)
-                SignalFor(NULL);
-        }
+        SetSignalled(source, false);
         source->UnregisterObserver(this);
         Sources()->Remove(source);
     }
 }
 
-void ListSignalWatcher::SignalChanged(BlockableObject *source)
+void ListSignalWatcher::SignalChanged(BlockableObject *watching, bool active)
 {
-    if (source)
-        _triggerCount++;
-    else
-        _triggerCount--;
-    // Derived class should do something
+    // Base class provides empty implementation for convenience, no need to call it
+    SetSignalled(watching, active);
 }
 
 SignalOr::SignalOr()
 {
 }
 
-void SignalOr::SignalChanged(BlockableObject *source)
+bool SignalOr::CheckSignal(void)
 {
-    bool wasIdle = Count() == 0;
-    ListSignalWatcher::SignalChanged(source);
-    bool isIdle = Count() == 0;
-    if (wasIdle && !isIdle)
-        SignalFor(source);
-    else if (!wasIdle && isIdle)
-        SignalFor(NULL);
+    return ThisCurrentSignals()->Count() != 0;
 }
 
 SignalAnd::SignalAnd()
 {
 }
 
-void SignalAnd::SignalChanged(BlockableObject *source)
+bool SignalAnd::CheckSignal(void)
 {
-    bool wasActive = Count() == Sources()->Count();
-    ListSignalWatcher::SignalChanged(source);
-    bool isActive = Count() == Sources()->Count();
-    if (!wasActive && isActive)
-        SignalFor(this);
-    else if (wasActive && !isActive)
-        SignalFor(NULL);
+    return ThisCurrentSignals()->Count() == Sources()->Count();
 }
 
 HardcoreSpinLock s_lock(NULL);
@@ -129,9 +165,9 @@ void Timer::TimerTick(UInt32 microsecondsPassed)
             continue;
         if (microsecondsPassed > timer->_remainder) {
             // Firing timer
-            timer->SignalFor(timer);
+            timer->SetSignalled(timer, true);
             if (timer->_repeats) {
-                timer->SignalFor(NULL);
+                timer->SetSignalled(timer, false);
                 timer->_remainder = timer->_totalTime;
             } else {
                 timer->_running = false;
@@ -182,8 +218,8 @@ void Timer::Reset(UInt32 delay, bool repeats)
 void Timer::Cancel(void)
 {
     _running = false;
-    if (Signalled())
-        SignalFor(NULL);
+    if (IsSignalled())
+        SetSignalled(this, false);
 }
 
 SimpleSignal::SimpleSignal(bool activeLow)
@@ -195,7 +231,7 @@ SimpleSignal::SimpleSignal(bool activeLow)
 void SimpleSignal::Set(void)
 {
     if (!(_count++))
-        SignalFor(Signalled());
+        SetSignalled(this, CurrentlySignalled());
 }
 
 void SimpleSignal::Reset(void)
@@ -203,13 +239,13 @@ void SimpleSignal::Reset(void)
     if (_count == 0)
         return;
     if (!(--_count))
-        SignalFor(Signalled());
+        SetSignalled(this, CurrentlySignalled());
 }
 
-BlockableObject* SimpleSignal::Signalled(void)
+bool SimpleSignal::CurrentlySignalled(void)
 {
     if (_activeLow)
-        return _count ? NULL : this;
+        return _count == 0;
     else
-        return _count ? this : NULL;
+        return _count != 0;
 }

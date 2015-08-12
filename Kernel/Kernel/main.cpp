@@ -88,9 +88,9 @@ protected:
     {
         _ourEnd->Release();
     }
-    void SignalChanged(BlockableObject *source)
+    void SignalChanged(BlockableObject *watching, bool active)
     {
-        if (source) {
+        if (active) {
             KernelBufferMemory *response = _ourEnd->Read(false);
             KernelBufferMemory::Map *output = new KernelBufferMemory::Map(NULL, response, true);
             BlockResponseRead *readResponse = (BlockResponseRead*)output->LinearBase();
@@ -287,9 +287,9 @@ protected:
         
     }
     
-    void SignalChanged(BlockableObject *source)
+    void SignalChanged(BlockableObject *watching, bool active)
     {
-        if (source) {
+        if (active) {
             KernelBufferMemory *response = _ourEnd->Read(false);
             KernelBufferMemory::Map *output = new KernelBufferMemory::Map(NULL, response, true);
             HandleTest((Interface_Response*)output->LinearBase());
@@ -355,7 +355,7 @@ private:
             _ourEnd->RegisterObserver(this);
         }
         
-        void SignalChanged(BlockableObject *source)
+        void SignalChanged(BlockableObject *watching, bool active)
         {
             if (!_ourEnd->IsConnected()) {
                 _ourEnd->UnregisterObserver(this);
@@ -388,9 +388,9 @@ public:
         _serviceList->AddService(_service);
     }
     
-    void SignalChanged(BlockableObject *source)
+    void SignalChanged(BlockableObject *watching, bool active)
     {
-        if (source) {
+        if (active) {
             kprintf("TestService got new connection\n");
             new Handler(_service->NextConnection(false));
         }
@@ -429,9 +429,9 @@ public:
         request->Release();
     }
     
-    void SignalChanged(BlockableObject *source)
+    void SignalChanged(BlockableObject *watching, bool active)
     {
-        if (source) {
+        if (active) {
             KernelBufferMemory *response = _ourEnd->Read(false);
             KernelBufferMemory::Map *output = new KernelBufferMemory::Map(NULL, response, true);
             char *outputBuf = (char*)output->LinearBase();

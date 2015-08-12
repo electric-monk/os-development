@@ -163,9 +163,9 @@ private:
     public:
         ConnectionHandler(ATADriverDrive *owner) : GenericHandler(owner) { }
         
-        void SignalChanged(BlockableObject *source)
+        void SignalChanged(BlockableObject *watching, bool active)
         {
-            if (source != NULL)
+            if (active)
                 _owner->IncomingConnection();
         }
     };
@@ -178,9 +178,9 @@ private:
             _sender = sender;
         }
         
-        void SignalChanged(BlockableObject *source)
+        void SignalChanged(BlockableObject *watching, bool active)
         {
-            if (source != NULL)
+            if (active)
                 _owner->ReceivedRequest(_sender);
         }
         
@@ -660,7 +660,7 @@ bool ATADriver::Reset(UInt32 deviceReturn)
             UInt8 status = IOPort()->inByte(CB_STAT);
             if (!(status & CB_STAT_BSY))
                 break;
-            if (_timer->Signalled()) {
+            if (_timer->IsSignalled()) {
                 _regCommandInfo.timeOutError = true;
                 _regCommandInfo.errorCode = 1;
                 break;
@@ -677,7 +677,7 @@ bool ATADriver::Reset(UInt32 deviceReturn)
             UInt8 sn = IOPort()->inByte(CB_SN);
             if ((sc == 0x01) && (sn == 0x01))
                 break;
-            if (_timer->Signalled()) {
+            if (_timer->IsSignalled()) {
                 _regCommandInfo.timeOutError = true;
                 _regCommandInfo.errorCode = 2;
                 break;
@@ -743,7 +743,8 @@ void ATADriver::_SetupCommand(void)
 void ATADriver::_Wait(UInt8 we, UInt8 pe)
 {
     if (we && _useInterrupts) {
-        if (Thread::Active->BlockOn(_waitObject) == _timer) {
+        KernelArray *result = Thread::Active->BlockOn(_waitObject);
+        if ((result != NULL) && result->Contains(_timer)) {
             _regCommandInfo.timeOutError = true;
             _regCommandInfo.errorCode = we;
         }
@@ -752,7 +753,7 @@ void ATADriver::_Wait(UInt8 we, UInt8 pe)
             UInt8 status = IOPort()->inByte(CB_STAT);
             if (!(status & CB_STAT_BSY))
                 break;
-            if (_timer->Signalled()) {
+            if (_timer->IsSignalled()) {
                 _regCommandInfo.timeOutError = true;
                 _regCommandInfo.errorCode = pe;
                 break;
@@ -780,7 +781,7 @@ bool ATADriver::_Select(UInt8 device)
         UInt8 status = IOPort()->inByte(CB_STAT);
         if (!(status & (CB_STAT_BSY | CB_STAT_DRQ)))
             break;
-        if (_timer->Signalled()) {
+        if (_timer->IsSignalled()) {
             _regCommandInfo.timeOutError = true;
             _regCommandInfo.errorCode = 11;
             _regCommandInfo.regStatus.raw = status;
@@ -795,7 +796,7 @@ bool ATADriver::_Select(UInt8 device)
         UInt8 status = IOPort()->inByte(CB_STAT);
         if (!(status & (CB_STAT_BSY | CB_STAT_DRQ)))
             break;
-        if (_timer->Signalled()) {
+        if (_timer->IsSignalled()) {
             _regCommandInfo.timeOutError = true;
             _regCommandInfo.errorCode = 12;
             _regCommandInfo.regStatus.raw = status;
@@ -837,7 +838,7 @@ bool ATADriver::_ExecNonDataCommand(UInt32 device)
             UInt8 secNum = IOPort()->inByte(CB_SN);
             if ((secCount == 0x01) && (secNum == 0x01))
                 break;
-            if (_timer->Signalled()) {
+            if (_timer->IsSignalled()) {
                 _regCommandInfo.timeOutError = true;
                 _regCommandInfo.errorCode = 24;
                 break;
@@ -1056,7 +1057,7 @@ bool ATADriver::_ExecDataCommandOut(UInt32 device, UInt8 *buffer, UInt32 numSect
         status = IOPort()->inByte(CB_ASTAT);
         if (!(status & CB_STAT_BSY))
             break;
-        if (_timer->Signalled()) {
+        if (_timer->IsSignalled()) {
             _regCommandInfo.timeOutError = true;
             _regCommandInfo.errorCode = 47;
             runLoop = false;
@@ -1208,7 +1209,7 @@ bool ATADriver::Packet(UInt8 device, char *controlBuffer, UInt32 controlBufferLe
         UInt8 status = IOPort()->inByte(CB_ASTAT);
         if (!(status & CB_STAT_BSY))
             break;
-        if (_timer->Signalled()) {
+        if (_timer->IsSignalled()) {
             _regCommandInfo.timeOutError = true;
             _regCommandInfo.errorCode = 51;
             dir = -1;

@@ -14,14 +14,14 @@ public:
     class SelfHandlingBlockableObject : public BlockableObject
     {
     public:
-        virtual void ProcessSignal(Runloop *runloop, BlockableObject *root, BlockableObject *source) = 0;
+        virtual void ProcessSignal(Runloop *runloop, BlockableObject *watching, KernelArray *signals) = 0;
     };
     
 public:
     Runloop();
     
     void AddSource(SelfHandlingBlockableObject *blocker);
-    void AddSource(BlockableObject *blocker, bicycle::function<int(BlockableObject *signal, BlockableObject *trigger)> handler);
+    void AddSource(BlockableObject *blocker, bicycle::function<int(BlockableObject *watching, KernelArray *signals)> handler);
     void RemoveSource(BlockableObject *blocker);
     
     void Run(void);     // Blocks until stopped
@@ -48,7 +48,7 @@ public:
 protected:
     ~TaskQueue();
 
-    void ProcessSignal(Runloop *runloop, BlockableObject *root, BlockableObject *source);
+    void ProcessSignal(Runloop *runloop, BlockableObject *watching, KernelArray *signals);
     
 private:
     HardcoreSpinLock _taskLock;

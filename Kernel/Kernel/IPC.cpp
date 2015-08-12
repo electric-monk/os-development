@@ -79,15 +79,19 @@ IpcEndpoint::IpcEndpoint()
 
 IpcEndpoint::~IpcEndpoint()
 {
+    InterruptDisabler temp; // TODO: clever lock
     if (_remote) {
-        _remote->_remote = NULL;
-        _remote->SignalFor(_remote);
+        IpcEndpoint *remote = _remote;
+        _remote = NULL;
+        remote->_remote = NULL;
+        remote->SetSignalled(remote, true);
     }
     _fifo->Release();
 }
 
 void IpcEndpoint::Connect(IpcEndpoint *remote)
 {
+    InterruptDisabler temp; // TODO: clever lock
     ASSERT(_remote == NULL);
     ASSERT(remote->_remote == NULL);
     _remote = remote;
@@ -106,11 +110,12 @@ KernelBufferMemory* IpcEndpoint::CreateSendBuffer(UInt64 size)
 
 void IpcEndpoint::SendBuffer(KernelBufferMemory *buffer)
 {
+    InterruptDisabler temp; // TODO: clever lock
     bool unSignalled = _remote->_fifoCount == 0;
     _remote->_fifo->Push(buffer);
     _remote->_fifoCount++;
     if (unSignalled)
-        _remote->SignalFor(this);
+        _remote->SetSignalled(_remote, true);
 }
 
 void IpcEndpoint::SendMessage(bicycle::function<bool(void*)> generator, UInt64 maximumSize)
@@ -137,7 +142,7 @@ KernelBufferMemory* IpcEndpoint::Read(bool wait)
         return NULL;
     _fifoCount--;
     if ((_fifoCount == 0) && (_remote != NULL))
-        SignalFor(NULL);
+        SetSignalled(this, false);
     return result;
 }
 
@@ -168,7 +173,7 @@ IpcEndpoint* IpcService::RequestConnection(void)
     _fifo->Push(local);
     _fifoCount++;
     if (unSignalled)
-        SignalFor(this);
+        SetSignalled(this, true);
     
     local->Release();
     remote->Autorelease();
@@ -186,7 +191,7 @@ IpcEndpoint* IpcService::NextConnection(bool wait)
         return NULL;
     _fifoCount--;
     if (_fifoCount == 0)
-        SignalFor(NULL);
+        SetSignalled(this, false);
     return local;
 }
 
