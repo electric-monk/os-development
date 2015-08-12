@@ -305,9 +305,12 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
                     newResponse->Fill((BlockRequestRead*)request);
                     newResponse->status = fileReadResponse->status;
                     if (fileReadResponse->status == Interface_Response::Success) {
-                        newResponse->requestedOffset = newResponse->readOffset = fileReadResponse->readOffset;
-                        newResponse->requestedLength = newResponse->readLength = fileReadResponse->readLength;
-                        CopyMemory(newResponse->rawData(), fileReadResponse->data(), fileReadResponse->readLength);
+                        UInt64 length = fileReadResponse->requestedLength;
+                        if (length < fileReadResponse->readLength)
+                            length = fileReadResponse->readLength;
+                        newResponse->requestedOffset = newResponse->readOffset = fileReadResponse->requestedOffset;
+                        newResponse->requestedLength = newResponse->readLength = length;
+                        CopyMemory(newResponse->rawData(), fileReadResponse->data(), length);
                     }
                     return true;
                 });
