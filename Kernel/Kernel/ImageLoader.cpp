@@ -239,10 +239,11 @@ GenericProvider::InputConnection* ImageLoader::InputConnectionStart(KernelString
             BlockResponseRead *blockResponse = (BlockResponseRead*)response;
             // Check it succeeded
             if (blockResponse->status != Interface_Response::Success)
-                return /* TODO: Error state: I/O error */;
+                return 0/* TODO: Error state: I/O error */;
             // Check we got at least the required sector
-            if (blockResponse->length() < sizeof(Elf32_Ehdr))
-                return /* TODO: Error state: read failure */;
+            if (blockResponse->length() < sizeof(Elf32_Ehdr)) {
+                return 0/* TODO: Error state: read failure */;
+            }
             Elf32_Ehdr *header = (Elf32_Ehdr*)blockResponse->data();
             if ((header->e_ident[EI_MAG0] != ELFMAG0) || (header->e_ident[EI_MAG1] != ELFMAG1) || (header->e_ident[EI_MAG2] != ELFMAG2) || (header->e_ident[EI_MAG3] != ELFMAG3)) {
                 // TODO: Invalid start
@@ -277,7 +278,7 @@ GenericProvider::InputConnection* ImageLoader::InputConnectionStart(KernelString
                 // Read each header
                 Elf32_Phdr *programHeader = (Elf32_Phdr*)blockResponse->data();
                 for (UInt32 i = 0; i < header->e_phnum; i++) {
-                    if (programHeader->p_type & PT_LOAD) {
+                    if (programHeader->p_type == PT_LOAD) {
                         ImageLoader_Segment *segment = new ImageLoader_Segment(programHeader);
                         _segments->Add(segment);
                         segment->Release();
@@ -392,8 +393,8 @@ void ImageLoader::OutputConnectionMessage(OutputConnection *connection, KernelBu
                     });
                     return 0;
                 };
+                mapping->AddRef();
                 if (segment->FileLength() > readChunk->offset) {
-                    mapping->AddRef();  // Needed for onRead
                     // Read file required
                     _tasks->PerformTask(Input()->Link(), [segment, readChunk](Interface_Request *request){
                         BlockRequestRead *read = (BlockRequestRead*)request;
@@ -415,6 +416,7 @@ void ImageLoader::OutputConnectionMessage(OutputConnection *connection, KernelBu
                 } else {
                     // It's just empty space
                     onRead(NULL, 0);
+                    mapping->Release();
                 }
             }
         }
