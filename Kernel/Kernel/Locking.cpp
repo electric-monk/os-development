@@ -89,6 +89,26 @@ bool HardcoreSpinLock::Holding(void)
     return _locked && (_cpu == CPU::Active);
 }
 
+UninterruptableSpinLock::UninterruptableSpinLock()
+{
+    _locked = 0;
+}
+
+void UninterruptableSpinLock::Lock(void)
+{
+    UInt32 flag = GetEflag();
+    CPU_Interrupt_Disable();
+    _was = flag & FL_IF;
+    while (xchg((UInt32*)&_locked, 1) != 0);
+}
+
+void UninterruptableSpinLock::Unlock(void)
+{
+    xchg((UInt32*)&_locked, 0);
+    if (_was)
+        CPU_Interrupt_Enable();
+}
+
 InterruptableSpinLock::InterruptableSpinLock()
 {
     _locked = 0;

@@ -25,6 +25,12 @@
 #define TEST_AFTER  0xDEADF00D
 #define TEST_END    0xA110DEAD
 
+#ifdef TESTING
+#define HEAP_LOCK
+#else
+#define HEAP_LOCK   UninterruptableSpinLock::Autolock lock(&_lock)
+#endif
+
 // This method takes an amount and a granularity, and returns the minimum number of granules to hold the amount
 static inline BasicHeap::h_size ROUNDUP(BasicHeap::h_size amount, BasicHeap::h_size granularity)
 {
@@ -114,9 +120,7 @@ BasicHeap::~BasicHeap()
 
 void BasicHeap::AddBlock(void *offset, BasicHeap::h_size length)
 {
-#ifndef TESTING
-    InterruptableSpinLock::Autolock lock(&_lock);
-#endif
+    HEAP_LOCK;
     _total += length;
     BasicHeap_Heap *heap = (BasicHeap_Heap*)offset;
     heap->size = length;
@@ -131,9 +135,7 @@ void BasicHeap::AddBlock(void *offset, BasicHeap::h_size length)
 
 void* BasicHeap::Alloc(BasicHeap::h_size amount)
 {
-#ifndef TESTING
-    InterruptableSpinLock::Autolock lock(&_lock);
-#endif
+    HEAP_LOCK;
 //    kprintf("Allocating %i\n", amount);
 //    Test();
     h_size required = amount + sizeof(BasicHeap_Block);
@@ -182,9 +184,7 @@ static void HeapDebug(const char *error)
 
 void BasicHeap::Release(void *buffer)
 {
-#ifndef TESTING
-    InterruptableSpinLock::Autolock lock(&_lock);
-#endif
+    HEAP_LOCK;
     BasicHeap_Block *block = ((BasicHeap_Block*)buffer) - 1;
 #ifdef CHECK_UNDERRUN
     if (block->_before != TEST_BEFORE)

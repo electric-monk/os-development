@@ -55,6 +55,35 @@ private:
     LockInt32 _depth;
 };
 
+class UninterruptableSpinLock
+{
+public:
+    UninterruptableSpinLock();
+    
+    void Lock(void);
+    void Unlock(void);
+
+    class Autolock
+    {
+    private:
+        UninterruptableSpinLock *_lock;
+    public:
+        Autolock(UninterruptableSpinLock *lock)
+        {
+            _lock = lock;
+            _lock->Lock();
+        }
+        ~Autolock()
+        {
+            _lock->Unlock();
+        }
+    };
+
+private:
+    LockInt32 _locked;
+    bool _was;
+};
+
 class InterruptableSpinLock
 {
 private:
