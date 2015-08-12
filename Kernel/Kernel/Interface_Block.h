@@ -49,7 +49,7 @@ public:
     UInt64 requestedLength, readLength;
     char* rawData(void) { return ((char*)this) + sizeof(*this); }
     char* data(void) { return rawData() + (requestedOffset - readOffset); }
-    UInt64 length(void) { return readLength - readOffset; }
+    UInt64 length(void) { return requestedLength; }
     
     void Fill(BlockRequestRead *request)
     {
