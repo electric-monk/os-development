@@ -285,9 +285,11 @@ void KernelArray::Add(KernelObject *object)
 void KernelArray::Remove(KernelObject *object)
 {
     UInt32 index = Find(object);
+    if (index == KernelArray::InvalidIndex)
+        return;
     _index[index]->Release();
     _count--;
-    CopyMemory(_index + index, _index + index + 1, _count - index);
+    CopyMemory(_index + index, _index + index + 1, sizeof(KernelObject*) * (_count - index));
 }
 
 void KernelArray::AddArray(KernelArray *other)
