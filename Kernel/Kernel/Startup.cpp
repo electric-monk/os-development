@@ -23,6 +23,14 @@
 #include "Process.h"
 #include "debug.h"
 
+#define DEBUG_STARTUP
+
+#ifdef DEBUG_STARTUP
+#define START_LOG(...) kprintf(__VA_ARGS__)
+#else
+#define START_LOG(...)
+#endif
+
 class RunloopWatcher : public IpcServiceWatcher
 {
 public:
@@ -193,9 +201,14 @@ static void ConvertPath(FlatArray *output, ...)
 class StartupHandler : public KernelObject
 {
 private:
+    // To make it work
     RunloopThread *_runloop;
     RunloopWatcher *_watcher;
     InterfaceHelper *_helper;
+    // For launching the startup process
+    bool _starting;
+    // For managing a list of services
+    KernelDictionary *_providerList;
     
     void FoundPotentialDiskDrive(IpcService *service)
     {
@@ -216,7 +229,6 @@ private:
         // Tell the nubbin what file to open
         IpcEndpoint *nubbinControl = service->RequestConnection();
         _helper->PerformTask(nubbinControl, [](Interface_Request *request){
-            kprintf("Requesting nubbin\n");
             Interface_File_Nubbin::Expose *exposeRequest = (Interface_File_Nubbin::Expose*)request;
             exposeRequest->type = Interface_File_Nubbin::Expose::ExposeFile;
             exposeRequest->exclusive = true;
@@ -233,7 +245,6 @@ private:
             return 0;
         }, [](Interface_Response *response){
             Interface_File_Nubbin::ExposeResponse *exposeResponse = (Interface_File_Nubbin::ExposeResponse*)response;
-            kprintf("Nubbin response: %i\n", exposeResponse->status);
             // TODO: thing?
             return 0;
         });
@@ -250,7 +261,17 @@ private:
     {
         Process *process = new Process("Conductor");
         process->AttachImage(service);
+        _starting = false;
     }
+    
+    class ProviderContainer : public KernelObject
+    {
+    public:
+        ProviderContainer(KernelObject *provider)
+        {
+            
+        }
+    };
     
 public:
     StartupHandler()
@@ -261,29 +282,78 @@ public:
         _watcher = new RunloopWatcher();
         _watcher->SetQueue(_runloop->Queue());
         _helper = new InterfaceHelper();
+        _starting = true;
         
-        // Add a watcher for disk drives appearing
+        _providerList = new KernelDictionary();
+
+        _watcher->AddTaskForProvider([this](RunloopWatcher::State state, KernelObject *provider){
+            switch (state) {
+                case RunloopWatcher::Appear:
+                {
+                    ProviderContainer *container = new ProviderContainer(provider);
+                    _providerList->Set(provider, container);
+                    container->Release();
+                    // TODO: Generate message to anybody listening
+                }
+                    break;
+                case RunloopWatcher::Change:
+                {
+                    ProviderContainer *container = (ProviderContainer*)_providerList->ObjectFor(provider);
+                    // TODO: Generate message to anybody listening
+                }
+                    break;
+                case RunloopWatcher::Disappear:
+                    _providerList->Set(provider, NULL);
+                    // TODO: Generate message to anybody listening
+                    break;
+            }
+            return 0;
+        });
+        
         _watcher->AddTaskForService([this](RunloopWatcher::State state, KernelObject *provider, IpcService *service){
-            if (state == RunloopWatcher::Appear) {
+            // Make a note of any changes, for clients
+            switch(state) {
+                case RunloopWatcher::Appear:
+                {
+                    ProviderContainer *container = (ProviderContainer*)_providerList->ObjectFor(provider);
+//                    container->AddService(service);
+                    // TODO: Generate message to anybody listening
+                }
+                    break;  // Fall through to startup logic
+                case RunloopWatcher::Change:
+                {
+                    ProviderContainer *container = (ProviderContainer*)_providerList->ObjectFor(provider);
+                    // TODO: Generate message to anybody listening
+                }
+                    return 0;
+                case RunloopWatcher::Disappear:
+                {
+                    ProviderContainer *container = (ProviderContainer*)_providerList->ObjectFor(provider);
+                    // TODO: Generate message to anybody listening
+                }
+                    return 0;
+            }
+            // Start up process, if necessary
+            if (_starting) {
                 if (service->ServiceType()->IsEqualTo(SERVICE_TYPE_BLOCK)) {
                     if (service->Name()->IsEqualTo("0"_ko)) {
-                        kprintf("STARTUP: Found file %x\n", service);
+                        START_LOG("STARTUP: Found file %x\n", service);
                         FoundPotentialFile(service);
                     } else {
-                        kprintf("STARTUP: Found block service %x\n", service);
+                        START_LOG("STARTUP: Found block service %x\n", service);
                         // New disk drive appeared
                         FoundPotentialDiskDrive(service);
                     }
                 } else if (service->ServiceType()->IsEqualTo("filesystem"_ko)) {
-                    kprintf("STARTUP: Found filesystem %x\n", service);
+                    START_LOG("STARTUP: Found filesystem %x\n", service);
                     // New filesystem appeared
                     FoundPotentialFileSystem(service);
                 } else if (service->ServiceType()->IsEqualTo("binaryImage"_ko)) {
-                    kprintf("STARTUP: Found binary %x\n", service);
+                    START_LOG("STARTUP: Found binary %x\n", service);
                     // New binary image!
                     FoundImage(service);
                 } else if (service->ServiceType()->IsEqualTo("nubbin"_ko)) {
-                    kprintf("STARTUP: Found nubbin %x\n", service);
+                    START_LOG("STARTUP: Found nubbin %x\n", service);
                     // New nubbin!
                     FoundPotentialNubbin(service);
                 }
@@ -298,6 +368,7 @@ protected:
     ~StartupHandler()
     {
         IpcServiceList::Unregister(_watcher);
+        _providerList->Release();
         _helper->Release();
         _runloop->Release();
         _watcher->Release();
