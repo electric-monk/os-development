@@ -22,6 +22,9 @@ kernel.elf: $(OBJS)
 clean:
 	rm *.o *.so kernel.elf
 
+documentation:
+	doxys DoxySfile
+
 depend: .depend
 .depend: $(SRC)
 	rm -rf ./.depend
