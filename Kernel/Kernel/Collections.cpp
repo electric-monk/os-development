@@ -60,11 +60,11 @@ void KernelFIFO::Push(KernelObject *object)
 
 KernelObject* KernelFIFO::Pop(void)
 {
-    if (_end == NULL)
+    if (_start == NULL)
         return NULL;
-    KernelObject *result = _end->item;
+    KernelObject *result = _start->item;
     result->AddRef();
-    delete _end;
+    delete _start;
     result->Autorelease();
     return result;
 }
