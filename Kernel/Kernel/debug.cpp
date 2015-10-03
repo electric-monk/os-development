@@ -1,6 +1,7 @@
 #include "tools.h"
 #include "debug.h"
 #include "mem_logical.h"
+#include "Console.h"
 
 #define FORMAT_PLAIN		0x07
 
@@ -104,9 +105,13 @@ public:
 
 void test(int x, int y, char c)
 {
-    CathodeRayTube crt;
-    
-    crt.FrameBuffer()[crt.XyToOffset(x, y) * 2] = c;
+    if (activeConsole) {
+        activeConsole->Set(c, x, y);
+    } else {
+        CathodeRayTube crt;
+        
+        crt.FrameBuffer()[crt.XyToOffset(x, y) * 2] = c;
+    }
 }
 
 class ScreenPrinter : public CStringPrint
@@ -122,6 +127,45 @@ protected:
 		}
 	}
 private:
+    int Width(void)
+    {
+        if (activeConsole)
+            return activeConsole->Width();
+        else {
+            CathodeRayTube tube;
+            return tube.Width();
+        }
+    }
+    int Height(void)
+    {
+        if (activeConsole)
+            return activeConsole->Height();
+        else {
+            CathodeRayTube tube;
+            return tube.Height();
+        }
+    }
+    void GetCursor(int *x, int *y)
+    {
+        if (activeConsole)
+            activeConsole->GetCursor(x, y);
+        else {
+            CathodeRayTube tube;
+            int cursor = tube.GetCursorOffset();
+            int width = tube.Width();
+            *x = cursor % width;
+            *y = cursor / width;
+        }
+    }
+    void SetCursor(int x, int y)
+    {
+        if (activeConsole)
+            activeConsole->SetCursor(x, y);
+        else {
+            CathodeRayTube tube;
+            tube.SetCursorOffset(x + (y * tube.Width()));
+        }
+    }
 	void HandleChar(char c)
 	{
 		switch (c)
@@ -132,27 +176,35 @@ private:
 				break;
 			case '\r':
 				{
-					CathodeRayTube tube;
-					int cursor = tube.GetCursorOffset();
-					cursor -= cursor % tube.Width();
-					PrintChar(0, cursor);
+                    int x, y;
+                    GetCursor(&x, &y);
+                    x = 0;
+                    SetCursor(x, y);
 				}
 				break;
 			case '\f':
 				{
-					CathodeRayTube tube;
-					int cursor = tube.GetCursorOffset();
-					cursor += tube.Width();
-					PrintChar(0, cursor);
+                    int x, y;
+                    GetCursor(&x, &y);
+                    y++;
+                    if (y >= Height()) {
+                        ShiftLine();
+                        y--;
+                    }
+                    SetCursor(x, y);
 				}
 				break;
 			case '\n':
 				{
-					CathodeRayTube tube;
-					int cursor = tube.GetCursorOffset();
-					cursor += tube.Width();
-					cursor -= cursor % tube.Width();
-					PrintChar(0, cursor);
+                    int x, y;
+                    GetCursor(&x, &y);
+                    y++;
+                    x = 0;
+                    if (y >= Height()) {
+                        ShiftLine();
+                        y--;
+                    }
+                    SetCursor(x, y);
 				}
 				break;
             case '\0':
@@ -162,40 +214,73 @@ private:
 				break;
 		}
 	}
+    void ShiftLine(void)
+    {
+        if (activeConsole) {
+            activeConsole->Copy(0, 1, 0, 0, activeConsole->Width(), activeConsole->Height() - 1);
+            activeConsole->Clear(0, activeConsole->Height() - 1, activeConsole->Width(), 1);
+        } else {
+            CathodeRayTube tube;
+            int i;
+            int len = tube.Width() * (tube.Height() - 1) * 2;
+            char *data = tube.FrameBuffer();
+            for (i = 0; i < len; i++)
+                data[i] = data[i + (tube.Width() * 2)];
+            len += tube.Width() * 2;
+            for (; i < len;)
+            {
+                data[i++] = ' ';
+                data[i++] = FORMAT_PLAIN;
+            }
+        }
+    }
 	void PrintChar(char c, int f)
 	{
-		CathodeRayTube tube;
-		char *data;
-		int cursor;
+        if (activeConsole) {
+            int x, y;
+            activeConsole->GetCursor(&x, &y);
+            if (c == 0x00) {
+                // set cursor
+                x = f % activeConsole->Width();
+                y = f / activeConsole->Width();
+            } else {
+                // Set character
+                activeConsole->Set(c, x, y);
+                x++;
+                if (x >= activeConsole->Width()) {
+                    x = 0;
+                    y++;
+                    if (y >= activeConsole->Height()) {
+                        ShiftLine();
+                        y--;
+                    }
+                }
+            }
+            activeConsole->SetCursor(x, y);
+        } else {
+            CathodeRayTube tube;
+            char *data;
+            int cursor;
 
-		data = tube.FrameBuffer();
-		if (c != 0x00)
-		{
-			cursor = tube.GetCursorOffset();
-			data[(cursor * 2) + 0] = c;
-			data[(cursor * 2) + 1] = f;
-			cursor++;
-		}
-		else
-		{
-			cursor = f;
-		}
-		while (cursor >= (tube.Width() * tube.Height()))
-		{
-			int i, len;
-
-			cursor -= tube.Width();
-			len = tube.Width() * (tube.Height() - 1) * 2;
-			for (i = 0; i < len; i++)
-				data[i] = data[i + (tube.Width() * 2)];
-			len += tube.Width() * 2;
-			for (; i < len;)
-			{
-				data[i++] = ' ';
-				data[i++] = FORMAT_PLAIN;
-			}
-		}
-		tube.SetCursorOffset(cursor);
+            data = tube.FrameBuffer();
+            if (c != 0x00)
+            {
+                cursor = tube.GetCursorOffset();
+                data[(cursor * 2) + 0] = c;
+                data[(cursor * 2) + 1] = f;
+                cursor++;
+            }
+            else
+            {
+                cursor = f;
+            }
+            while (cursor >= (tube.Width() * tube.Height()))
+            {
+                cursor -= tube.Width();
+                ShiftLine();
+            }
+            tube.SetCursorOffset(cursor);
+        }
 	}
 };
 
