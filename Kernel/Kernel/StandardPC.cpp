@@ -11,6 +11,7 @@
 #include "Scheduler.h"
 #include "Collections.h"
 #include "mem_virtual.h"
+#include "GenericKeyboard.h"
 #include "pci.h"
 
 static bool s_schedulerEnabled = false;
@@ -349,6 +350,42 @@ private:
     }
 };
 
+class StandardPC_Keyboard : public GenericKeyboard
+{
+public:
+    StandardPC_Keyboard()
+    :GenericKeyboard("PS/2 Keyboard")
+    {
+    }
+    
+    bool Start(Driver *parent)
+    {
+        _keyboardInterrupt = InterruptSource()->RegisterHandler(PIC_IRQ_OFFSET + 1, [this](void *state)->bool{
+            bool processed = false;
+            while (true) {
+                UInt8 c = inb(0x60);
+                kprintf("%.2x ", (int)c);
+                if (c == 0)
+                    break;
+                processed = true;
+                if (!HandleKey(c))
+                    break;
+            }
+            return processed;
+        });
+        return GenericKeyboard::Start(parent);
+    }
+    
+    void Stop(void)
+    {
+        InterruptSource()->UnregisterHandler(_keyboardInterrupt);
+        GenericKeyboard::Stop();
+    }
+    
+private:
+    InterruptHandlerHandle _keyboardInterrupt;
+};
+
 class StandardPC_Factory : public DriverFactory
 {
 private:
@@ -394,7 +431,25 @@ private:
         {
             return true;
         }
+    };
+    class Match_Keyboard : public DriverFactory::Match
+    {
+    public:
+        Match_Keyboard(){}
         
+        int MatchValue(void)
+        {
+            return 1000000;
+        }
+        Driver* Instantiate(void)
+        {
+            return new StandardPC_Keyboard();
+        }
+        bool MatchMultiple(void)
+        {
+            return true;
+        }
+    };
     class Match_PCI : public DriverFactory::Match
     {
     public:
@@ -426,6 +481,10 @@ public:
         Match_Timer *timer = new Match_Timer();
         result->Add(timer);
         timer->Release();
+        // Add keyboard
+        Match_Keyboard *keyboard = new Match_Keyboard();
+        result->Add(keyboard);
+        keyboard->Release();
         // Try PCI?
         if (PCI::Available()) {
             // Add PCI device
