@@ -15,6 +15,8 @@ class KernelDictionary;
 
 #define kDriver_Property_PCI_ManufacturerID "pci.manufacturer"_ko
 #define kDriver_Property_PCI_ProductID      "pci.product"_ko
+#define kDriver_Property_PCI_Class          "pci.class"_ko
+#define kDriver_Property_PCI_Subclass       "pci.subclass"_ko
 
 //#define kDriver_Processor_Interrupts        KS("x86.interrupt")
 //#define kDriver_PCI_Interrupts              KS("pci.interrupt")
@@ -52,13 +54,13 @@ Interrupts* Test(void){return InterruptSource();}
     
     KernelArray* PropertyList(void);
     KernelObject* PropertyFor(KernelObject *property);
+
+    virtual Interrupts* InterruptSource(void);
 protected:
     ~Driver();
     
     virtual bool ConnectChild(Driver *child);
     virtual void DetachChild(Driver *child);
-
-    virtual Interrupts* InterruptSource(void);
     
     void SetProperty(KernelObject *property, KernelObject *value);
     
