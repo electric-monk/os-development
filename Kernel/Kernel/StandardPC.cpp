@@ -11,6 +11,7 @@
 #include "Scheduler.h"
 #include "Collections.h"
 #include "mem_virtual.h"
+#include "pci.h"
 
 static bool s_schedulerEnabled = false;
 
@@ -394,6 +395,23 @@ private:
             return true;
         }
         
+    class Match_PCI : public DriverFactory::Match
+    {
+    public:
+        Match_PCI(){}
+        
+        int MatchValue(void)
+        {
+            return 1000000;
+        }
+        Driver* Instantiate(void)
+        {
+            return new PCI::Root();
+        }
+        bool MatchMultiple(void)
+        {
+            return true;
+        }
     };
 public:
     KernelArray* MatchForParent(Driver *parent)
@@ -404,14 +422,16 @@ public:
         if (!propertyBus->IsEqualTo(kDriver_Bus_System))
             return NULL;
         KernelArray *result = new KernelArray();
-        bool hasPCI = false;
         // Add timer
         Match_Timer *timer = new Match_Timer();
         result->Add(timer);
         timer->Release();
         // Try PCI?
-        if (hasPCI) {
+        if (PCI::Available()) {
             // Add PCI device
+            Match_PCI *pci = new Match_PCI();
+            result->Add(pci);
+            pci->Release();
         } else {
             // Add legacy (non-PCI) devices that we would otherwise have found via PCI
             Match_IDE *primary = new Match_IDE(0x1F0, 14);
