@@ -25,9 +25,10 @@ STACKSIZE equ 0x4000                  ; that's 16k.
 
     MULTIBOOT_PAGE_ALIGN   equ 1<<0
     MULTIBOOT_MEMORY_INFO  equ 1<<1
+    MULTIBOOT_VIDEO_MODE   equ 1<<2
 
     MULTIBOOT_HEADER_MAGIC equ 0x1BADB002
-    MULTIBOOT_HEADER_FLAGS equ MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO
+    MULTIBOOT_HEADER_FLAGS equ MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_VIDEO_MODE
     CHECKSUM equ -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
 
 SECTION mb-header ALIGN=4
@@ -35,6 +36,17 @@ SECTION mb-header ALIGN=4
         dd MULTIBOOT_HEADER_MAGIC
         dd MULTIBOOT_HEADER_FLAGS
         dd CHECKSUM
+    ; a.out info we dont need
+        dd 0
+        dd 0
+        dd 0
+        dd 0
+        dd 0
+    ; Multiboot graphics fields
+        dd 0    ; mode_type (0 = linear)
+        dd 0    ; width (0 = don't care)
+        dd 0    ; height (0 = don't care)
+        dd 32    ; depth (0 = don't care)
 
 SECTION bootpagedir ALIGN=4096
 

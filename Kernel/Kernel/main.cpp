@@ -11,6 +11,7 @@
 #include "Interface.h"
 #include "fs_iso9660.h"
 #include "Startup.h"
+#include "Video_Multiboot.h"
 
 extern UInt32 kern_start, kern_end;
 
@@ -548,13 +549,11 @@ extern UInt32 stack;
 extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
 {
     BasicHeap mainHeap(128);
-	memory_map_t *map;
+	multiboot_mmap_entry *map;
 
     s_coreHeap = &mainHeap;
     mainHeap.AddBlock(s_coreMemory, sizeof(s_coreMemory));
 
-	test('A');
-	kprintf("Munro Systems\nCosmOS 1.0\nCopyright (C) 2008-2015 Colin Munro\n\n");
 	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
 	{
 		kprintf("Multiboot: magic number incorrect\n");
@@ -565,21 +564,27 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
 	CPhysicalMemory::Init();
     rootAddressSpace.InitKernel();
     
-    // Parse memory from boot description
+    // Process Multiboot information
 	mbd = (multiboot_info_t*)FixAddress(mbd);
+    // Add memory
 	for (
-		map = (memory_map_t*)FixAddress((void*)mbd->mmap_addr);
-		map < (memory_map_t*)(((char*)FixAddress((void*)mbd->mmap_addr)) + mbd->mmap_length);
-		map = (memory_map_t*)(((char*)map) + map->size + sizeof(map->size)))
+		map = (multiboot_mmap_entry*)FixAddress((void*)mbd->mmap_addr);
+		map < (multiboot_mmap_entry*)(((char*)FixAddress((void*)mbd->mmap_addr)) + mbd->mmap_length);
+		map = (multiboot_mmap_entry*)(((char*)map) + map->size + sizeof(map->size)))
 	{
-		if (map->type == 0x01)
+		if (map->type == MULTIBOOT_MEMORY_AVAILABLE)
 		{
 			// Usable RAM
-			CPhysicalMemory::AddChunk((PhysicalPointer)map->base_addr_low, map->length_low);
+			CPhysicalMemory::AddChunk((PhysicalPointer)map->addr, map->len);
 		}
 	}
 	CPhysicalMemory::AddReserved((void*)(((UInt32)&phys) & 0xFFC00000), 0x00400000);
+    // Initialise video (after memory - it may be required to allocate pages even for just a graphical console)
+    Init_Video_Multiboot(FixAddress((void*)mbd->vbe_control_info), FixAddress((void*)mbd->vbe_mode_info), mbd->vbe_mode);
 
+    // Splash
+	kprintf("Munro Systems\nCosmOS 1.0\nCopyright (C) 2008-2015 Colin Munro\n\n");
+    
     TestServiceWatcher *watcher = new TestServiceWatcher();
     IpcServiceList::Register(watcher);
     

@@ -1,8 +1,9 @@
+// Partially from https://github.com/evilbinary/evilos/blob/9c65efcc40a317725afbc6bd93280e9bb4c0bf2f/evilos/vbe.h
 #ifndef VBE_H
 #define VBE_H
 
 /* VBE controller information.  */
-struct vbe_controller_t{
+typedef struct {
   unsigned char signature[4];
   unsigned short version;
   unsigned long oem_string;
@@ -15,12 +16,10 @@ struct vbe_controller_t{
   unsigned long oem_product_rev;
   unsigned char reserved[222];
   unsigned char oem_data[256];
-} __attribute__ ((packed));
-typedef struct vbe_controller_t vbe_controller_t;
+} __attribute__ ((packed)) vbe_controller_t;
 
 /* VBE mode information.  */
-struct vbe_mode_t
-{
+typedef struct {
   unsigned short mode_attributes;
   unsigned char  win_a_attributes;
   unsigned char  win_b_attributes;
@@ -75,14 +74,7 @@ struct vbe_mode_t
   unsigned long max_pixel_clock;
 
   unsigned char reserved3[189];
-} __attribute__ ((packed));
-
-typedef struct vbe_mode_t vbe_mode_t;
-
-
-vbe_mode_t* get_vbe_mode_info();
-int get_vbe_mode();
-vbe_controller_t * get_vbe_controller_info();
+} __attribute__ ((packed)) vbe_mode_t;
 
 #endif
 
