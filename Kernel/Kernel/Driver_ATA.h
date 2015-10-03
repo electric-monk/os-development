@@ -47,7 +47,7 @@ public:
     virtual void writeBusMasterStatus(UInt8 x) = 0;
     
 protected:
-    void UpdateForInterrupt(void);
+    bool UpdateForInterrupt(void);
     
 private:
     UInt8 _interruptStatus;

@@ -6,6 +6,9 @@
 #include "IPC.h"
 #include "Queue.h"
 #include "debug.h"
+#include "Interrupts.h"
+#include "pci.h"
+#include "StandardPC.h"
 
 #include "Interface_Block.h"
 
@@ -133,16 +136,257 @@ private:
     int _allocatedPages;
 };
 
-void ATADriverNode::UpdateForInterrupt(void)
+bool ATADriverNode::UpdateForInterrupt(void)
 {
-    _interruptStatus = inByte(CB_STAT);
+    _interruptStatus = inByte(CB_STAT); // This acknowledges the interrupt for the channel
     _bmStatus = readBusMasterStatus();
+    return _bmStatus & BM_SR_MASK_INT;
 }
 
 void ATADriverNode::UpdateBMIDEState(void)
 {
     _bmStatus = readBusMasterStatus() & 0x60;
 }
+
+class ATADriverNode_PCI : public ATADriverNode
+{
+private:
+    bool _primary;
+    UInt32 _ioPort, _controlPort, _bmPort;
+    SimpleSignal *_interrupt;
+    InterruptHandlerHandle _interruptToken;
+    
+    UInt16 GetPort(UInt32 address)
+    {
+        if (address <= 7)
+            return _ioPort + address;
+        else if (address == 8)
+            return _controlPort;
+        else
+            return -1;   // Error!
+    }
+
+protected:
+    ~ATADriverNode_PCI()
+    {
+        _interrupt->Release();
+    }
+    
+public:
+    class Factory : public DriverFactory
+    {
+    private:
+        class Match : public DriverFactory::Match
+        {
+        private:
+            bool _primary;
+            
+        public:
+            Match(bool primary)
+            {
+                _primary = primary;
+            }
+            int MatchValue(void)
+            {
+                return 1000000 - (_primary ? 0 : 1);
+            }
+            Driver* Instantiate(void)
+            {
+                return new ATADriverNode_PCI(_primary);
+            }
+            bool MatchMultiple(void)
+            {
+                return _primary;
+            }
+        };
+    public:
+        KernelArray* MatchForParent(Driver *parent)
+        {
+            KernelString *propertyBus = (KernelString*)parent->PropertyFor(kDriver_Property_Bus);
+            if (propertyBus == NULL)
+                return NULL;
+            if (!propertyBus->IsEqualTo(kDriver_Bus_PCI))
+                return NULL;
+            KernelNumber *propertyClass = (KernelNumber*)parent->PropertyFor(kDriver_Property_PCI_Class);
+            if (propertyClass == NULL)
+                return NULL;
+            if (propertyClass->Value() != 0x01)
+                return NULL;
+            KernelNumber *propertySubclass = (KernelNumber*)parent->PropertyFor(kDriver_Property_PCI_Subclass);
+            if (propertySubclass == NULL)
+                return NULL;
+            UInt32 subclass = propertySubclass->Value();
+            if ((subclass != 0x01) && (subclass != 0x05) && (subclass != 0x06))
+                return NULL;
+            KernelArray *output = new KernelArray();
+            Match *primary = new Match(true);
+            output->Add(primary);
+            primary->Release();
+            Match *secondary = new Match(false);
+            output->Add(secondary);
+            secondary->Release();
+            output->Autorelease();
+            return output;
+        }
+    };
+    
+    ATADriverNode_PCI(bool primary)
+    :ATADriverNode("PCI ATA device")
+    {
+        _primary = primary;
+        _interrupt = new SimpleSignal(false);
+        SetProperty(kDriver_Property_Bus, kDriver_Bus_SystemATA);
+    }
+
+    bool Start(Driver *parent)
+    {
+        // Discover the configuration of the device
+        UInt32 classInfo = ((PCI::Device*)parent)->ReadPCIRegister(0x08);
+        UInt8 programmingInterface = (classInfo & 0x0000FF00) >> 8;
+        bool nativeMode = programmingInterface & (_primary ? 0x01 : 0x04);
+        bool configurable = programmingInterface & (_primary ? 0x02 : 0x08);
+        kprintf("PCI %.8x device %i: native %s configurable %s\n", parent, _primary ? 0 : 1, nativeMode ? "true" : "false", configurable ? "true" : "false");
+        // Can it be set to PCI native mode?
+        if (configurable && !nativeMode) {
+            nativeMode = true;
+            classInfo |= _primary ? 0x01 : 0x04;
+            ((PCI::Device*)parent)->WritePCIRegister(0x08, classInfo);
+        }
+        // Get the device I/O ports
+        int irq;
+        _bmPort = ((PCI::Device*)parent)->ReadBAR(4) + (_primary ? 0 : (8 * sizeof(UInt32)));
+        if (!PCI::BAR::IsIOMapped(_bmPort))
+            /* Handle error? */;
+        _bmPort = PCI::BAR::GetIOAddress(_bmPort);
+        if (nativeMode) {
+            _ioPort = ((PCI::Device*)parent)->ReadBAR(_primary ? 0 : 2);
+            if (!PCI::BAR::IsIOMapped(_ioPort))
+                /* Handle error? */;
+            _ioPort = PCI::BAR::GetIOAddress(_ioPort);
+            _controlPort = ((PCI::Device*)parent)->ReadBAR(_primary ? 1 : 3);
+            if (!PCI::BAR::IsIOMapped(_controlPort))
+                /* Handle error? */;
+            _controlPort = PCI::BAR::GetIOAddress(_controlPort);
+            irq = -1;
+        } else {
+            _ioPort = _primary ? 0x1F0 : 0x170;
+            _controlPort = _primary ? 0x3F6 : 0x376;
+            irq = PIC_IRQ_OFFSET + (_primary ? 14 : 15);
+        }
+        kprintf("Selected I/O %.3x control %.3x bm %.3x IRQ %i\n", _ioPort, _controlPort, _bmPort, irq);
+        // Hook up the interrupt
+        Interrupts *interruptSource;
+        if (irq == -1) {
+            // Just use our parent's interrupt source. The interrupt number will be ignored and it'll pick the correct interrupt automatically.
+            interruptSource = InterruptSource();
+        } else {
+            // We need to search for a non-PCI parent to get access to the real system IRQs to support the legacy mode
+            Driver *driver = parent;
+            do {
+                KernelString *bus = (KernelString*)driver->PropertyFor(kDriver_Property_Bus);
+                if (bus == NULL)
+                    break;
+                if (!bus->IsEqualTo(kDriver_Bus_PCI))
+                    break;
+                driver = driver->Parent();
+            } while (driver != NULL);
+            if (driver == NULL) {
+                // TODO: Serious error
+            }
+            interruptSource = driver->InterruptSource();
+        }
+        _interruptToken = interruptSource->RegisterHandler(irq, [this](void *state){
+            if (!UpdateForInterrupt())
+                /*return false*/;
+            if (!_interrupt->IsSignalled())
+                _interrupt->Set();
+            return true;
+        });
+        return ATADriverNode::Start(parent);
+    }
+    
+    void Stop(void)
+    {
+        InterruptSource()->UnregisterHandler(_interruptToken);
+        ATADriverNode::Stop();
+    }
+    
+    UInt8 inByte(UInt32 address)
+    {
+        return inb(GetPort(address));
+    }
+    UInt16 inShort(UInt32 address)
+    {
+        return inw(GetPort(address));
+    }
+    UInt32 inLong(UInt32 address)
+    {
+        return inl(GetPort(address));
+    }
+    void outByte(UInt32 address, UInt8 byte)
+    {
+        outb(GetPort(address), byte);
+    }
+    void outShort(UInt32 address, UInt16 byte)
+    {
+        outw(GetPort(address), byte);
+    }
+    void outLong(UInt32 address, UInt32 byte)
+    {
+        outl(GetPort(address), byte);
+    }
+    
+    void inByteRep(UInt32 address, void *buffer, UInt32 length)
+    {
+        asm("rep insb"::"c"(length / sizeof(UInt8)), "d"(GetPort(address)), "D"(buffer));
+    }
+    void inShortRep(UInt32 address, void *buffer, UInt32 length)
+    {
+        asm("rep insw"::"c"(length / sizeof(UInt16)), "d"(GetPort(address)), "D"(buffer));
+    }
+    void inLongRep(UInt32 address, void *buffer, UInt32 length)
+    {
+//        asm("rep insd"::"c"(length / sizeof(UInt32)), "d"(GetPort(address)), "D"(buffer));
+        inShortRep(address, buffer, length);
+    }
+    void outByteRep(UInt32 address, void *buffer, UInt32 length)
+    {
+        asm("rep outsb"::"c"(length / sizeof(UInt8)), "d"(GetPort(address)), "S"(buffer));
+    }
+    void outShortRep(UInt32 address, void *buffer, UInt32 length)
+    {
+        asm("rep outsw"::"c"(length / sizeof(UInt16)), "d"(GetPort(address)), "S"(buffer));
+    }
+    void outLongRep(UInt32 address, void *buffer, UInt32 length)
+    {
+//        asm("rep outsd"::"c"(length / sizeof(UInt32)), "d"(GetPort(address)), "S"(buffer));
+        outShortRep(address, buffer, length);
+    }
+    
+    BlockableObject* Interrupt(void)
+    {
+        return _interrupt;
+    }
+    void ResetInterrupt(void)
+    {
+        if (_interrupt->IsSignalled())
+            _interrupt->Reset();
+    }
+    
+    bool DMAAvailable(void)
+    {
+        return false;
+        return _bmPort != 0;
+    }
+    UInt8 readBusMasterStatus(void)
+    {
+        return 0;//inb(_bmPort + 0x02);
+    }
+    void writeBusMasterStatus(UInt8 x)
+    {
+//        outb(_bmPort + 0x02, x);
+    }
+};
 
 class ATADriverDrive : public KernelObject
 {
@@ -507,6 +751,9 @@ void ATADriver::Install(void)
     ATADriver_Factory *factory = new ATADriver_Factory();
     Driver::RegisterFactory(factory);
     factory->Release();
+    ATADriverNode_PCI::Factory *pciFactory = new ATADriverNode_PCI::Factory();
+    Driver::RegisterFactory(pciFactory);
+    pciFactory->Release();
 }
 
 bool ATADriver::Start(Driver *parent)
