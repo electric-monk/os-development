@@ -214,7 +214,7 @@ private:
     class HandlerHandle
     {
     public:
-        HandlerHandle(HandlerHandle **root, InterruptHandler handler, void *context, UInt16 irq)
+        HandlerHandle(HandlerHandle **root, InterruptHandlerBlock handler, UInt16 irq)
         {
             _irq = irq;
             _root = root;
@@ -222,7 +222,6 @@ private:
             _next = *root;
             (*_root) = this;
             _handler = handler;
-            _context = context;
         }
         ~HandlerHandle()
         {
@@ -237,7 +236,7 @@ private:
         static void Trigger(HandlerHandle *that, TrapFrame *frame)
         {
             while (that != NULL) {
-                if (that->_handler(that->_context, frame))
+                if (that->_handler(frame))
                     return;
                 that = that->_next;
             };
@@ -248,8 +247,7 @@ private:
     private:
         HandlerHandle **_root;
         HandlerHandle *_last, *_next;
-        InterruptHandler _handler;
-        void *_context;
+        InterruptHandlerBlock _handler;
     };
 private:
     idt_entry entries[256];
@@ -279,10 +277,10 @@ public:
     }
 
     // External API
-    InterruptHandlerHandle RegisterHandler(int irq, InterruptHandler handler, void *context)
+    InterruptHandlerHandle RegisterHandler(int irq, InterruptHandlerBlock handler)
     {
         bool wasUsed = handlers[irq] != NULL;
-        InterruptHandlerHandle handle = new HandlerHandle(handlers + irq, handler, context, irq);
+        InterruptHandlerHandle handle = new HandlerHandle(handlers + irq, handler, irq);
         if (!wasUsed) {
             // Any initialisation necessary?
             if ((irq >= PIC_IRQ_OFFSET) && (irq < (PIC_IRQ_OFFSET + 16)))
