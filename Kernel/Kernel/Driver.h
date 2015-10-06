@@ -6,6 +6,11 @@
 class Interrupts;
 class Driver;
 class KernelDictionary;
+class IpcServiceList;
+class RunloopThread;
+class IpcService;
+class IpcEndpoint;
+class KernelBufferMemory;
 
 #define kDriver_Property_Name               "name"_ko
 #define kDriver_Property_Bus                "bus"_ko
@@ -69,6 +74,64 @@ private:
     Driver *_start, *_end;          // Children
     Driver *_previous, *_next;      // Siblings
     Driver *_parent;                // Parent
+};
+
+// A driver that exports an IPC interface
+class ProviderDriver : public Driver
+{
+public:
+    ProviderDriver(const char *name);
+
+    /* The services that this provider has detected and is vending */
+    class Service : public KernelObject
+    {
+    public:
+        Service(ProviderDriver *owner, IpcService *service);
+        
+        IpcService* ServiceObject(void) { return _service; }
+        
+    protected:
+        ~Service();
+        
+        ProviderDriver* Owner(void) { return _owner; }
+        
+    private:
+        ProviderDriver *_owner;
+        IpcService *_service;
+    };
+    
+    /* Active clients that this provider currently has */
+    class Connection : public KernelObject
+    {
+    public:
+        Service* BaseService(void) { return _service; }
+        IpcEndpoint* Link(void) { return _connection; }
+        
+    protected:
+        Connection(ProviderDriver *owner, Service *service, IpcEndpoint *connection);
+        ~Connection();
+        
+    private:
+        ProviderDriver *_owner;
+        Service *_service;
+        IpcEndpoint *_connection;
+    };
+    
+protected:
+    ~ProviderDriver();
+    
+    void Launch(Service *service);
+    void Terminate(Service *service);
+    
+    virtual Connection* ConnectionStart(Service *service, IpcEndpoint *endpoint) = 0;
+    virtual void ConnectionReceive(Connection *connection, KernelBufferMemory *message) = 0;
+    virtual void ConnectionStop(Connection *connection) = 0;
+
+    IpcServiceList *_serviceList;
+    RunloopThread *_runloop;
+
+    KernelArray *_services;
+    KernelArray *_connections;
 };
 
 #endif // __DRIVER_H__

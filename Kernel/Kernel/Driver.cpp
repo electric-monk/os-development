@@ -1,6 +1,8 @@
 #include "Driver.h"
 #include "runtime.h"
 #include "Collections.h"
+#include "IPC.h"
+#include "Runloop.h"
 
 static KernelArray *s_factories = NULL;
 
@@ -154,4 +156,107 @@ KernelObject* Driver::PropertyFor(KernelObject *property)
 void Driver::SetProperty(KernelObject *property, KernelObject *value)
 {
     _properties->Set(property, value);
+}
+
+ProviderDriver::ProviderDriver(const char *name)
+:Driver(name)
+{
+    _serviceList = new IpcServiceList(this);
+    _runloop = new RunloopThread(NULL);
+    _services = new KernelArray();
+    _connections = new KernelArray();
+}
+
+ProviderDriver::~ProviderDriver()
+{
+    _runloop->Release();
+    _serviceList->Release();
+    _connections->Release();
+    _services->Release();
+}
+
+void ProviderDriver::Launch(Service *service)
+{
+    service->AddRef();
+    _runloop->AddTask([this, service]{
+        _services->Add(service);
+        _serviceList->AddService(service->ServiceObject());
+        _runloop->AddSource(service->ServiceObject(), [this, service](BlockableObject *watching, KernelArray *signals){
+            IpcEndpoint *endpoint = service->ServiceObject()->NextConnection(false);
+            if (endpoint == NULL)
+                return 0;
+            Connection *connection = ConnectionStart(service, endpoint);
+            if (connection == NULL)
+                return 0;
+            _connections->Add(connection);
+            _runloop->AddSource(connection->Link(), [this, connection](BlockableObject *watching, KernelArray *signals){
+                KernelBufferMemory *buffer = connection->Link()->Read(false);
+                if (buffer == NULL) {
+                    _runloop->RemoveSource(connection->Link());
+                    ConnectionStop(connection);
+                    _connections->Remove(connection);
+                } else
+                    ConnectionReceive(connection, buffer);
+                return 0;
+            });
+            return 0;
+        });
+        service->Release();
+        return 0;
+    });
+}
+
+void ProviderDriver::Terminate(Service *service)
+{
+    _runloop->AddTask([this, service]{
+        // Remove as a service
+        _serviceList->RemoveService(service->ServiceObject());
+        // Remove as a source for connections
+        _runloop->RemoveSource(service->ServiceObject());
+        // Remove any connections using this object
+        for (UInt32 i = 0; i < _connections->Count();) {
+            Connection *connection = (Connection*)_connections->ObjectAt(i);
+            if (connection->BaseService() == service) {
+                // Tell ourselves it disconnected, and remove it from the list
+                _runloop->RemoveSource(connection->Link());
+                ConnectionStop(connection);
+                _connections->Remove(connection);
+            } else
+                i++;
+        }
+        // Finally, dump the service object
+        _services->Remove(service);
+        return 0;
+    });
+}
+
+ProviderDriver::Service::Service(ProviderDriver *owner, IpcService *service)
+{
+    _owner = owner;
+    _owner->AddRef();
+    _service = service;
+    _service->AddRef();
+}
+
+ProviderDriver::Service::~Service()
+{
+    _service->Release();
+    _owner->Release();
+}
+
+ProviderDriver::Connection::Connection(ProviderDriver *owner, Service *service, IpcEndpoint *connection)
+{
+    _owner = owner;
+    _owner->AddRef();
+    _service = service;
+    _service->AddRef();
+    _connection = connection;
+    _connection->AddRef();
+}
+
+ProviderDriver::Connection::~Connection()
+{
+    _connection->Release();
+    _service->Release();
+    _owner->Release();
 }
