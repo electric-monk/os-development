@@ -96,7 +96,7 @@ static void MakeMap(KernelDictionary *dictionary, bool extended, UInt8 code, Int
 }
 
 GenericKeyboard::GenericKeyboard(const char *name)
-:Driver(name)
+:ProviderDriver(name)
 {
     _serviceList = new IpcServiceList(this);
     _mapping = new KernelDictionary();
@@ -120,11 +120,18 @@ bool GenericKeyboard::Start(Driver *parent)
 {
     _thread = new RunloopThread(NULL);
     _extended = false;
+    IpcService *ipcService = new IpcService("keyboard"_ko, "keyboard"_ko);
+    Service *service = new Service(this, ipcService);
+    ipcService->Release();
+    Launch(service);
+    service->Release();
+    _identifierCount = 0;
     return Driver::Start(parent);
 }
 
 void GenericKeyboard::Stop(void)
 {
+    Terminate((Service*)_serviceList->ServiceList()->ObjectAt(0));
     _thread->Release();
     Driver::Stop();
 }
@@ -146,16 +153,57 @@ bool GenericKeyboard::HandleKey(UInt8 event)
             bool contains = _pressed->Contains(key);
             if (contains && keyUp) {
                 _pressed->Remove(key);
-                // TODO: Key up event
-                kprintf("Key up: %c [%.8x]\n", (char)value->Value(), value);
+                SendEvent(value->Value(), false);
             } else if (!contains && !keyUp) {
                 _pressed->Add(key);
-                // TODO: Key down event
-                kprintf("Key down: %c [%.8x]\n", (char)value->Value(), value);
+                SendEvent(value->Value(), true);
             }
         }
         key->Release();
         return 0;
     });
     return false;
+}
+
+void GenericKeyboard::SendEvent(int key, bool down)
+{
+    int currentIdentifier = _identifierCount++;
+    _connections->Enumerate([currentIdentifier, key, down](KernelObject *object){
+        Connection *connection = (Connection*)object;
+        connection->Link()->SendMessage([currentIdentifier, key, down](void *buffer)->bool{
+            Interface_Keyboard::Event *event = (Interface_Keyboard::Event*)buffer;
+            event->packetClass = Interface_Packet::Event;
+            event->identifier = currentIdentifier;
+            event->type = 0/*todo*/;
+            event->keyDown = down;
+            event->keyValue = (Interface_Keyboard::KEY)key;
+            return true;
+        });
+        return (void*)NULL;
+    });
+//    kprintf("Key %s: %c\n", down ? "down" : "up", (char)key);
+}
+
+class GenericKeyboard_Connection : public ProviderDriver::Connection
+{
+public:
+    GenericKeyboard_Connection(GenericKeyboard *owner, ProviderDriver::Service *service, IpcEndpoint *endpoint)
+    :ProviderDriver::Connection(owner, service, endpoint)
+    {
+    }
+};
+
+ProviderDriver::Connection* GenericKeyboard::ConnectionStart(Service *service, IpcEndpoint *endpoint)
+{
+    return new GenericKeyboard_Connection(this, service, endpoint);
+}
+
+void GenericKeyboard::ConnectionReceive(Connection *connection, KernelBufferMemory *message)
+{
+    // TODO
+}
+
+void GenericKeyboard::ConnectionStop(Connection *connection)
+{
+    connection->Release();
 }
