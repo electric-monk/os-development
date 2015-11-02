@@ -230,6 +230,21 @@ void ProviderDriver::Terminate(Service *service)
     });
 }
 
+ProviderDriver::Connection* ProviderDriver::ConnectionStart(Service *service, IpcEndpoint *endpoint)
+{
+    return service->start(endpoint);
+}
+
+void ProviderDriver::ConnectionReceive(Connection *connection, KernelBufferMemory *message)
+{
+    connection->message(message);
+}
+
+void ProviderDriver::ConnectionStop(Connection *connection)
+{
+    connection->stop();
+}
+
 ProviderDriver::Service::Service(ProviderDriver *owner, IpcService *service)
 {
     _owner = owner;

@@ -82,6 +82,8 @@ class ProviderDriver : public Driver
 public:
     ProviderDriver(const char *name);
 
+    class Connection;
+    
     /* The services that this provider has detected and is vending */
     class Service : public KernelObject
     {
@@ -89,6 +91,9 @@ public:
         Service(ProviderDriver *owner, IpcService *service);
         
         IpcService* ServiceObject(void) { return _service; }
+        
+        // If you don't override ConnectionStart/ConnectionReceive/ConnectionStop, these blocks can get called.
+        bicycle::function<Connection*(IpcEndpoint *endpoint)> start;
         
     protected:
         ~Service();
@@ -104,11 +109,16 @@ public:
     class Connection : public KernelObject
     {
     public:
+        Connection(ProviderDriver *owner, Service *service, IpcEndpoint *connection);
+
         Service* BaseService(void) { return _service; }
         IpcEndpoint* Link(void) { return _connection; }
+
+        // If you don't override ConnectionStart/ConnectionReceive/ConnectionStop, these blocks can get called.
+        bicycle::function<int(KernelBufferMemory*)> message;
+        bicycle::function<int(void)> stop;
         
     protected:
-        Connection(ProviderDriver *owner, Service *service, IpcEndpoint *connection);
         ~Connection();
         
     private:
@@ -123,9 +133,9 @@ protected:
     void Launch(Service *service);
     void Terminate(Service *service);
     
-    virtual Connection* ConnectionStart(Service *service, IpcEndpoint *endpoint) = 0;
-    virtual void ConnectionReceive(Connection *connection, KernelBufferMemory *message) = 0;
-    virtual void ConnectionStop(Connection *connection) = 0;
+    virtual Connection* ConnectionStart(Service *service, IpcEndpoint *endpoint);
+    virtual void ConnectionReceive(Connection *connection, KernelBufferMemory *message);
+    virtual void ConnectionStop(Connection *connection);
 
     IpcServiceList *_serviceList;
     RunloopThread *_runloop;
