@@ -120,7 +120,7 @@ bool GenericKeyboard::Start(Driver *parent)
 {
     _thread = new RunloopThread(NULL);
     _extended = false;
-    IpcService *ipcService = new IpcService("keyboard"_ko, "keyboard"_ko);
+    IpcService *ipcService = new IpcService("keyboard"_ko, SERVICE_TYPE_KEYBOARD);
     Service *service = new Service(this, ipcService);
     ipcService->Release();
     Launch(service);

@@ -3,6 +3,8 @@
 
 #include "Interface.h"
 
+#define SERVICE_TYPE_KEYBOARD           "core.provider.keyboard"_ko
+
 namespace Interface_Keyboard {
     
     /* REQUESTS - requests that can be sent to these services */
