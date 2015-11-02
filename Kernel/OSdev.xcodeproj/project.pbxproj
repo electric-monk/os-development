@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3B493E0C1B8DA07D00AE972F /* pci.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B493E0A1B8DA07D00AE972F /* pci.cpp */; };
+		3B4A92961BB059A20063E5CA /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B4A92931BB059A20063E5CA /* Console.cpp */; };
 		3B762FFF1B12A9AD00C41D62 /* test.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3B762FFE1B12A9AD00C41D62 /* test.1 */; };
 		3B7630031B12A9D600C41D62 /* Provider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2706881AD8FE3C00C2178E /* Provider.cpp */; };
 		3B7630041B12A9D600C41D62 /* Driver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F6019B1B95A009B16F3 /* Driver.cpp */; };
@@ -38,6 +40,9 @@
 		3B7630211B12A9D600C41D62 /* CPU_PICIRQ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F7B19B6FB1B009B16F3 /* CPU_PICIRQ.cpp */; };
 		3B7630231B13AFFA00C41D62 /* Startup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7630221B13AFFA00C41D62 /* Startup.cpp */; };
 		3B7630241B144E6800C41D62 /* Runloop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B27068A1ADA30B400C2178E /* Runloop.cpp */; };
+		3B99C3F31B7C72A800C6DD38 /* GenericKeyboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B99C3F11B7C72A800C6DD38 /* GenericKeyboard.cpp */; };
+		3BB523FA1BB1B29B008344C8 /* Video_Multiboot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BB523F81BB1B29B008344C8 /* Video_Multiboot.cpp */; };
+		3BB523FF1BC1D08D008344C8 /* GenericVideo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BB523FD1BC1D08D008344C8 /* GenericVideo.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -92,8 +97,15 @@
 		3B3FE3431AC8F42D008BE6D8 /* Interface_File.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface_File.h; path = Kernel/Interface_File.h; sourceTree = "<group>"; };
 		3B3FE3481AC8F5CA008BE6D8 /* Interface_Partition.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface_Partition.h; path = Kernel/Interface_Partition.h; sourceTree = "<group>"; };
 		3B3FE3491AC8FE72008BE6D8 /* Interface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface.h; path = Kernel/Interface.h; sourceTree = "<group>"; };
+		3B493E0A1B8DA07D00AE972F /* pci.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pci.cpp; path = Kernel/pci.cpp; sourceTree = "<group>"; };
+		3B493E0B1B8DA07D00AE972F /* pci.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pci.h; path = Kernel/pci.h; sourceTree = "<group>"; };
+		3B4A92931BB059A20063E5CA /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Console.cpp; path = Kernel/Console.cpp; sourceTree = "<group>"; };
+		3B4A92941BB059A20063E5CA /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Console.h; path = Kernel/Console.h; sourceTree = "<group>"; };
+		3B4A92951BB059A20063E5CA /* kernel.font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kernel.font.h; path = Kernel/kernel.font.h; sourceTree = "<group>"; };
+		3B5420E91B943BDF00C37954 /* Interface_Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Interface_Console.h; path = Kernel/Interface_Console.h; sourceTree = "<group>"; };
 		3B5E06BE1AD265B900280BDD /* fs_iso9660.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fs_iso9660.cpp; path = Kernel/fs_iso9660.cpp; sourceTree = "<group>"; };
 		3B5E06BF1AD265B900280BDD /* fs_iso9660.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fs_iso9660.h; path = Kernel/fs_iso9660.h; sourceTree = "<group>"; };
+		3B6830871B8ADAE800C2B55B /* Interface_Keyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Interface_Keyboard.h; path = Kernel/Interface_Keyboard.h; sourceTree = "<group>"; };
 		3B762FF41B12A9AD00C41D62 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B762FF71B12A9AD00C41D62 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		3B762FFA1B12A9AD00C41D62 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -101,6 +113,15 @@
 		3B762FFE1B12A9AD00C41D62 /* test.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = test.1; sourceTree = "<group>"; };
 		3B7630221B13AFFA00C41D62 /* Startup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Startup.cpp; path = Kernel/Startup.cpp; sourceTree = "<group>"; };
 		3B7713361A6C353500556361 /* KernelObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = KernelObject.cpp; path = Kernel/KernelObject.cpp; sourceTree = "<group>"; };
+		3B99C3F11B7C72A800C6DD38 /* GenericKeyboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GenericKeyboard.cpp; path = Kernel/GenericKeyboard.cpp; sourceTree = "<group>"; };
+		3B99C3F21B7C72A800C6DD38 /* GenericKeyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GenericKeyboard.h; path = Kernel/GenericKeyboard.h; sourceTree = "<group>"; };
+		3BB3A0B01BC4F0210093C195 /* Interface_VideoMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Interface_VideoMode.h; path = Kernel/Interface_VideoMode.h; sourceTree = "<group>"; };
+		3BB523F81BB1B29B008344C8 /* Video_Multiboot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Video_Multiboot.cpp; path = Kernel/Video_Multiboot.cpp; sourceTree = "<group>"; };
+		3BB523F91BB1B29B008344C8 /* Video_Multiboot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Video_Multiboot.h; path = Kernel/Video_Multiboot.h; sourceTree = "<group>"; };
+		3BB523FB1BB1B4A4008344C8 /* vbe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vbe.h; path = Kernel/vbe.h; sourceTree = "<group>"; };
+		3BB523FC1BC1A5A8008344C8 /* Interface_Video.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Interface_Video.h; path = Kernel/Interface_Video.h; sourceTree = "<group>"; };
+		3BB523FD1BC1D08D008344C8 /* GenericVideo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GenericVideo.cpp; path = Kernel/GenericVideo.cpp; sourceTree = "<group>"; };
+		3BB523FE1BC1D08D008344C8 /* GenericVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GenericVideo.h; path = Kernel/GenericVideo.h; sourceTree = "<group>"; };
 		3BE18B391A911A6E0028B70A /* IPC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IPC.cpp; path = Kernel/IPC.cpp; sourceTree = "<group>"; };
 		3BE18B3A1A911A6E0028B70A /* IPC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPC.h; path = Kernel/IPC.h; sourceTree = "<group>"; };
 		3BE43F5919B1B95A009B16F3 /* BasicHeap.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicHeap.cpp; path = Kernel/BasicHeap.cpp; sourceTree = "<group>"; };
@@ -168,6 +189,10 @@
 				3B3FE3431AC8F42D008BE6D8 /* Interface_File.h */,
 				3B2706C71B02699300C2178E /* Interface_File_Nubbin.h */,
 				3B2706C41AF7D9F200C2178E /* Interface_BinaryImage.h */,
+				3B6830871B8ADAE800C2B55B /* Interface_Keyboard.h */,
+				3B5420E91B943BDF00C37954 /* Interface_Console.h */,
+				3BB523FC1BC1A5A8008344C8 /* Interface_Video.h */,
+				3BB3A0B01BC4F0210093C195 /* Interface_VideoMode.h */,
 			);
 			name = "System Interfaces";
 			sourceTree = "<group>";
@@ -228,12 +253,17 @@
 		3B3FE3461AC8F519008BE6D8 /* Drivers */ = {
 			isa = PBXGroup;
 			children = (
+				3B493E0A1B8DA07D00AE972F /* pci.cpp */,
+				3B493E0B1B8DA07D00AE972F /* pci.h */,
+				3B99C3F11B7C72A800C6DD38 /* GenericKeyboard.cpp */,
+				3B99C3F21B7C72A800C6DD38 /* GenericKeyboard.h */,
 				3B2706881AD8FE3C00C2178E /* Provider.cpp */,
 				3B2706891AD8FE3C00C2178E /* Provider.h */,
 				3BE43F6019B1B95A009B16F3 /* Driver.cpp */,
 				3BE43F6119B1B95A009B16F3 /* Driver.h */,
 				3BE43F6D19B1B95A009B16F3 /* StandardPC.cpp */,
 				3BE43F6E19B1B95A009B16F3 /* StandardPC.h */,
+				3BB523F71BB1B289008344C8 /* Graphics */,
 				3B3FE3471AC8F51F008BE6D8 /* Filesystem */,
 			);
 			name = Drivers;
@@ -284,6 +314,21 @@
 				3B762FFD1B12A9AD00C41D62 /* test-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		3BB523F71BB1B289008344C8 /* Graphics */ = {
+			isa = PBXGroup;
+			children = (
+				3BB523FD1BC1D08D008344C8 /* GenericVideo.cpp */,
+				3BB523FE1BC1D08D008344C8 /* GenericVideo.h */,
+				3B4A92931BB059A20063E5CA /* Console.cpp */,
+				3B4A92941BB059A20063E5CA /* Console.h */,
+				3B4A92951BB059A20063E5CA /* kernel.font.h */,
+				3BB523FB1BB1B4A4008344C8 /* vbe.h */,
+				3BB523F81BB1B29B008344C8 /* Video_Multiboot.cpp */,
+				3BB523F91BB1B29B008344C8 /* Video_Multiboot.h */,
+			);
+			name = Graphics;
 			sourceTree = "<group>";
 		};
 		3BE43F5219B1B915009B16F3 = {
@@ -374,9 +419,11 @@
 				3B7630051B12A9D600C41D62 /* StandardPC.cpp in Sources */,
 				3B7630061B12A9D600C41D62 /* FileNubbin.cpp in Sources */,
 				3B7630071B12A9D600C41D62 /* fs_iso9660.cpp in Sources */,
+				3B99C3F31B7C72A800C6DD38 /* GenericKeyboard.cpp in Sources */,
 				3B7630081B12A9D600C41D62 /* Driver_ATA.cpp in Sources */,
 				3B76300A1B12A9D600C41D62 /* Queue.cpp in Sources */,
 				3B7630231B13AFFA00C41D62 /* Startup.cpp in Sources */,
+				3B4A92961BB059A20063E5CA /* Console.cpp in Sources */,
 				3B76300B1B12A9D600C41D62 /* IPC.cpp in Sources */,
 				3B76300C1B12A9D600C41D62 /* Blocking.cpp in Sources */,
 				3B76300D1B12A9D600C41D62 /* Locking.cpp in Sources */,
@@ -388,8 +435,11 @@
 				3B7630131B12A9D600C41D62 /* mem_virtual.cpp in Sources */,
 				3B7630141B12A9D600C41D62 /* runtime.cpp in Sources */,
 				3B7630151B12A9D600C41D62 /* Scheduler.cpp in Sources */,
+				3BB523FA1BB1B29B008344C8 /* Video_Multiboot.cpp in Sources */,
+				3B493E0C1B8DA07D00AE972F /* pci.cpp in Sources */,
 				3B7630161B12A9D600C41D62 /* BasicHeap.cpp in Sources */,
 				3B7630171B12A9D600C41D62 /* descript.cpp in Sources */,
+				3BB523FF1BC1D08D008344C8 /* GenericVideo.cpp in Sources */,
 				3B7630181B12A9D600C41D62 /* tools.cpp in Sources */,
 				3B7630191B12A9D600C41D62 /* debug.cpp in Sources */,
 				3B76301A1B12A9D600C41D62 /* KernelObject.cpp in Sources */,
