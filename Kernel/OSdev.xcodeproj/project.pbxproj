@@ -40,6 +40,9 @@
 		3B7630211B12A9D600C41D62 /* CPU_PICIRQ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F7B19B6FB1B009B16F3 /* CPU_PICIRQ.cpp */; };
 		3B7630231B13AFFA00C41D62 /* Startup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7630221B13AFFA00C41D62 /* Startup.cpp */; };
 		3B7630241B144E6800C41D62 /* Runloop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B27068A1ADA30B400C2178E /* Runloop.cpp */; };
+		3B7D1B7F1BF0786900C380C9 /* KernelObject_Service.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7D1B7E1BF0786900C380C9 /* KernelObject_Service.cpp */; };
+		3B7D1B831BF0993C00C380C9 /* Blocking_Service.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7D1B811BF0993C00C380C9 /* Blocking_Service.cpp */; };
+		3B7D1B861BF0A4FF00C380C9 /* Collections_Service.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7D1B841BF0A4FF00C380C9 /* Collections_Service.cpp */; };
 		3B99C3F31B7C72A800C6DD38 /* GenericKeyboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B99C3F11B7C72A800C6DD38 /* GenericKeyboard.cpp */; };
 		3BB523FA1BB1B29B008344C8 /* Video_Multiboot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BB523F81BB1B29B008344C8 /* Video_Multiboot.cpp */; };
 		3BB523FF1BC1D08D008344C8 /* GenericVideo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BB523FD1BC1D08D008344C8 /* GenericVideo.cpp */; };
@@ -113,6 +116,12 @@
 		3B762FFE1B12A9AD00C41D62 /* test.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = test.1; sourceTree = "<group>"; };
 		3B7630221B13AFFA00C41D62 /* Startup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Startup.cpp; path = Kernel/Startup.cpp; sourceTree = "<group>"; };
 		3B7713361A6C353500556361 /* KernelObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = KernelObject.cpp; path = Kernel/KernelObject.cpp; sourceTree = "<group>"; };
+		3B7D1B7E1BF0786900C380C9 /* KernelObject_Service.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KernelObject_Service.cpp; path = Kernel/KernelObject_Service.cpp; sourceTree = "<group>"; };
+		3B7D1B801BF0942B00C380C9 /* KernelObject_Service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KernelObject_Service.h; path = Kernel/KernelObject_Service.h; sourceTree = "<group>"; };
+		3B7D1B811BF0993C00C380C9 /* Blocking_Service.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Blocking_Service.cpp; path = Kernel/Blocking_Service.cpp; sourceTree = "<group>"; };
+		3B7D1B821BF0993C00C380C9 /* Blocking_Service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Blocking_Service.h; path = Kernel/Blocking_Service.h; sourceTree = "<group>"; };
+		3B7D1B841BF0A4FF00C380C9 /* Collections_Service.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Collections_Service.cpp; path = Kernel/Collections_Service.cpp; sourceTree = "<group>"; };
+		3B7D1B851BF0A4FF00C380C9 /* Collections_Service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Collections_Service.h; path = Kernel/Collections_Service.h; sourceTree = "<group>"; };
 		3B99C3F11B7C72A800C6DD38 /* GenericKeyboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GenericKeyboard.cpp; path = Kernel/GenericKeyboard.cpp; sourceTree = "<group>"; };
 		3B99C3F21B7C72A800C6DD38 /* GenericKeyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GenericKeyboard.h; path = Kernel/GenericKeyboard.h; sourceTree = "<group>"; };
 		3BB3A0B01BC4F0210093C195 /* Interface_VideoMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Interface_VideoMode.h; path = Kernel/Interface_VideoMode.h; sourceTree = "<group>"; };
@@ -200,6 +209,7 @@
 		3B3FE3441AC8F441008BE6D8 /* Core system */ = {
 			isa = PBXGroup;
 			children = (
+				3B7D1B7D1BF0784100C380C9 /* Userspace services */,
 				3B2706A71AEDEAF500C2178E /* Image loading */,
 				3BE43F6A19B1B95A009B16F3 /* multiboot.h */,
 				3BE43F6619B1B95A009B16F3 /* mem_logical.cpp */,
@@ -316,6 +326,19 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		3B7D1B7D1BF0784100C380C9 /* Userspace services */ = {
+			isa = PBXGroup;
+			children = (
+				3B7D1B841BF0A4FF00C380C9 /* Collections_Service.cpp */,
+				3B7D1B851BF0A4FF00C380C9 /* Collections_Service.h */,
+				3B7D1B811BF0993C00C380C9 /* Blocking_Service.cpp */,
+				3B7D1B821BF0993C00C380C9 /* Blocking_Service.h */,
+				3B7D1B7E1BF0786900C380C9 /* KernelObject_Service.cpp */,
+				3B7D1B801BF0942B00C380C9 /* KernelObject_Service.h */,
+			);
+			name = "Userspace services";
+			sourceTree = "<group>";
+		};
 		3BB523F71BB1B289008344C8 /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
@@ -415,6 +438,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3B7630031B12A9D600C41D62 /* Provider.cpp in Sources */,
+				3B7D1B7F1BF0786900C380C9 /* KernelObject_Service.cpp in Sources */,
 				3B7630041B12A9D600C41D62 /* Driver.cpp in Sources */,
 				3B7630051B12A9D600C41D62 /* StandardPC.cpp in Sources */,
 				3B7630061B12A9D600C41D62 /* FileNubbin.cpp in Sources */,
@@ -432,10 +456,12 @@
 				3B7630101B12A9D600C41D62 /* ImageLoader.cpp in Sources */,
 				3B7630111B12A9D600C41D62 /* mem_logical.cpp in Sources */,
 				3B7630121B12A9D600C41D62 /* mem_physical.cpp in Sources */,
+				3B7D1B861BF0A4FF00C380C9 /* Collections_Service.cpp in Sources */,
 				3B7630131B12A9D600C41D62 /* mem_virtual.cpp in Sources */,
 				3B7630141B12A9D600C41D62 /* runtime.cpp in Sources */,
 				3B7630151B12A9D600C41D62 /* Scheduler.cpp in Sources */,
 				3BB523FA1BB1B29B008344C8 /* Video_Multiboot.cpp in Sources */,
+				3B7D1B831BF0993C00C380C9 /* Blocking_Service.cpp in Sources */,
 				3B493E0C1B8DA07D00AE972F /* pci.cpp in Sources */,
 				3B7630161B12A9D600C41D62 /* BasicHeap.cpp in Sources */,
 				3B7630171B12A9D600C41D62 /* descript.cpp in Sources */,
