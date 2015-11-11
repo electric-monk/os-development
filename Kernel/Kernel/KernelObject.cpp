@@ -119,7 +119,181 @@ void AutoreleasePool::AddObject(KernelObject *object)
     // That way, when we're cleaned up, all the objects will be automatically released once.
     object->Release();
 }
-KernelObject::~KernelObject()
-{
+
+namespace KernelObject_Internal {
+    class DestructionWatcherHandle : public KernelObject::DestructionWatcherHandle
+    {
+    public:
+        DestructionWatcherHandle(KernelObject::DestructionWatcherHandle **start, KernelObject::DestructionWatcherHandle **end, bicycle::function<int(void)> onDestroy)
+        {
+            _destroy = onDestroy;
+            
+            // Link to linked list
+            _start = start;
+            _end = end;
+            _next = NULL;
+            _last = *_end;
+            if (_last == NULL)
+                *_start = this;
+            else
+                ((DestructionWatcherHandle*)_last)->_next = this;
+            *_end = this;
+        }
+        
+        ~DestructionWatcherHandle()
+        {
+            if (_last)
+                ((DestructionWatcherHandle*)_last)->_next = _next;
+            if (_next)
+                ((DestructionWatcherHandle*)_next)->_last = _last;
+            if (*_start == this)
+                *_start = _next;
+            if (*_end == this)
+                *_end = _last;
+        }
+        
+        void Run(void)
+        {
+            _destroy();
+        }
+        
+    private:
+        KernelObject::DestructionWatcherHandle **_start, **_end, *_last, *_next;
+        bicycle::function<int(void)> _destroy;
+    };
+    
+    class HandledObject : public KernelObject
+    {
+    public:
+        CLASSNAME(KernelObject, KernelObject_Internal::HandledObject);
+        
+        Handle GetHandle(void)
+        {
+            return _handle;
+        }
+        KernelObject* Object(void)
+        {
+            return _object;
+        }
+        
+        HandledObject(int handle, KernelObject *object, bicycle::function<int(void)> onDestroy)
+        {
+            _handle = handle;
+            _object = object;
+            _watcher = object->Watch([this, onDestroy]{
+                _watcher = NULL;    // Remove our own reference, as it'll now be released
+                onDestroy();        // Call the real handler
+                return 0;
+            });
+        }
+        
+        ~HandledObject()
+        {
+            if (_watcher)
+                delete _watcher;
+        }
+        
+    private:
+        Handle _handle;
+        KernelObject *_object;
+        DestructionWatcherHandle *_watcher;
+    };
 }
 
+KernelObject::DestructionWatcherHandle* KernelObject::Watch(bicycle::function<int(void)> onDestroy)
+{
+    return new KernelObject_Internal::DestructionWatcherHandle(&_watchStart, &_watchEnd, onDestroy);
+}
+
+KernelObject::~KernelObject()
+{
+    while (_watchStart) {
+        ((KernelObject_Internal::DestructionWatcherHandle*)_watchStart)->Run();
+        delete _watchStart;
+    }
+}
+
+ObjectMapper::ObjectMapper()
+{
+    _handleMap = new KernelDictionary();
+    _objectMap = new KernelDictionary();
+    _nextHandle = 0;
+}
+
+ObjectMapper::~ObjectMapper()
+{
+    _handleMap->Release();
+    _objectMap->Release();
+}
+
+Handle ObjectMapper::Map(KernelObject *object)
+{
+    // Do we already have it?
+    KernelNumber *handleObject = new KernelNumber((UInt32)object);
+    KernelObject_Internal::HandledObject *entry = (KernelObject_Internal::HandledObject*)_objectMap->ObjectFor(handleObject);
+    if (entry) {
+        handleObject->Release();
+        return entry->GetHandle();
+    }
+    // Find a handle number
+    KernelNumber *handleNumber = new KernelNumber(_nextHandle);
+    while (_handleMap->ObjectFor(handleNumber)) {
+        _nextHandle++;
+        handleNumber->Reset(_nextHandle);
+    }
+    _nextHandle++;  // Prepare for next time
+    // Create new item
+    entry = new KernelObject_Internal::HandledObject(handleNumber->Value(), object, [entry, this]{
+        // TODO: a queue - who knows where this will be running
+        KernelNumber *number = new KernelNumber(entry->GetHandle());
+        _handleMap->Set(number, NULL);
+        number->Release();
+        KernelNumber *object = new KernelNumber((UInt32)entry->Object());
+        _objectMap->Set(object, NULL);
+        object->Release();
+        return 0;
+    });
+    _handleMap->Set(handleNumber, entry);
+    _objectMap->Set(handleObject, entry);
+    entry->Release();
+    handleNumber->Release();
+    handleObject->Release();
+    // Return new handle
+    return entry->GetHandle();
+}
+
+void ObjectMapper::Unmap(Handle object)
+{
+    KernelNumber *number = new KernelNumber(object);
+    KernelObject_Internal::HandledObject *entry = (KernelObject_Internal::HandledObject*)_handleMap->ObjectFor(number);
+    if (entry) {
+        _handleMap->Set(number, NULL);
+        KernelNumber *objectNumber = new KernelNumber((UInt32)entry->Object());
+        _objectMap->Set(objectNumber, NULL);
+        objectNumber->Release();
+    }
+    number->Release();
+}
+
+void ObjectMapper::Unmap(KernelObject *object)
+{
+    KernelNumber *number = new KernelNumber((UInt32)object);
+    KernelObject_Internal::HandledObject *entry = (KernelObject_Internal::HandledObject*)_objectMap->ObjectFor(number);
+    if (entry) {
+        _objectMap->Set(number, NULL);
+        KernelNumber *handleNumber = new KernelNumber(entry->GetHandle());
+        _handleMap->Set(handleNumber, NULL);
+        handleNumber->Release();
+    }
+    number->Release();
+}
+
+KernelObject* ObjectMapper::Find(Handle object)
+{
+    KernelNumber *number = new KernelNumber(object);
+    KernelObject_Internal::HandledObject *entry = (KernelObject_Internal::HandledObject*)_handleMap->ObjectFor(number);
+    number->Release();
+    if (entry == NULL)
+        return NULL;
+    return entry->Object();
+}

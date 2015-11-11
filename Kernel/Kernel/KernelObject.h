@@ -4,6 +4,10 @@
 #include "tools.h"
 #include "KernelFunction.h"
 
+typedef UInt32 Handle;  // Used to represent a KernelObject in userspace
+
+class KernelDictionary;
+
 #define CLASSNAME(super,name)         const char* GetClassName(int level) { if (level == 0) return #name; return super::GetClassName(level - 1); }
 
 class KernelObject
@@ -48,11 +52,20 @@ public:
     bool IsDerivedFromClass(const char *name);
     bool IsInstanceOfClass(const char *name);
     
+public:
+    class DestructionWatcherHandle
+    {
+    public:
+        virtual ~DestructionWatcherHandle() {}
+    };
+    DestructionWatcherHandle* Watch(bicycle::function<int(void)> onDestroy);
+    
 protected:
     virtual ~KernelObject();
     
 private:
     UInt32 _count;
+    DestructionWatcherHandle *_watchStart, *_watchEnd;
 };
 
 class KernelArray;
@@ -83,6 +96,29 @@ public:
     
 private:
     bicycle::function<func> m_function;
+};
+
+// This class allows a process (or the kernel itself) to map between actual kernel pointers, and per process handle. This provides
+// security as each process can only see objects it's been told about. Note that this does not save a reference, the userspace
+// process should manage objects itself. Released objects will be automatically removed (hence this class is closely tied to KernelObject).
+class ObjectMapper : public KernelObject
+{
+public:
+    CLASSNAME(KernelObject, ObjectMapper);
+    
+    ObjectMapper();
+    
+    Handle Map(KernelObject *object);
+    void Unmap(Handle object);
+    void Unmap(KernelObject *object);
+    KernelObject* Find(Handle object);
+    
+protected:
+    ~ObjectMapper();
+
+private:
+    Handle _nextHandle;
+    KernelDictionary *_handleMap, *_objectMap;
 };
 
 #endif // __KERNELOBJECT_H__
