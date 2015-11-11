@@ -7,6 +7,8 @@
 class GenericVideo : public ProviderDriver
 {
 public:
+    CLASSNAME(ProviderDriver, GenericVideo);
+    
     typedef enum {
         Match_Specialised = 10000,    // A device-specific driver, like an accelerated driver for some ATI card
         Match_Default = 1000,         // A driver like the multiboot one, where the system has given us a video mode

@@ -14,6 +14,8 @@ class Thread;
 class VirtualMemory : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, VirtualMemory);
+    
     static void ConfigureService(Interrupts *interruptSource);
     
     VirtualMemory(Process *process, UInt32 length);                     // Find pages to map
@@ -61,6 +63,8 @@ private:
 class GrowableStack : public VirtualMemory
 {
 public:
+    CLASSNAME(VirtualMemory, GrowableStack);
+    
     GrowableStack(Process *process, UInt32 maximumPages);
     
     void* StackTop(void) { return ((char*)LinearBase()) + LinearLength(); }

@@ -20,6 +20,8 @@ class IpcServiceList;
 class ATADriverNode : public Driver
 {
 public:
+    CLASSNAME(Driver, ATADriverNode);
+    
     ATADriverNode(const char *name):Driver(name){}
     
     virtual UInt8 inByte(UInt32 address) = 0;
@@ -58,6 +60,8 @@ private:
 class ATADriver : public Driver
 {
 public:
+    CLASSNAME(Driver, ATADriver);
+    
     static void Install(void);
     
     bool Start(Driver *parent);

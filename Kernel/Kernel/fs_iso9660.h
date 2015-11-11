@@ -19,6 +19,8 @@ class Interface_Response;
 class FileSystem_ISO9660 : public GenericProvider
 {
 public:
+    CLASSNAME(GenericProvider, FileSystem_ISO9660);
+    
     FileSystem_ISO9660();
 
     UInt32 InputCount(void);

@@ -31,6 +31,8 @@ KernelDictionary* FileNubbin::Input(UInt32 index)
 class NubbinConnection : public GenericProvider::OutputConnection
 {
 public:
+    CLASSNAME(GenericProvider::OutputConnection, NubbinConnection);
+    
     NubbinConnection(FileNubbin *owner, GenericProvider::Service *service, IpcEndpoint *connection)
     :GenericProvider::OutputConnection(owner, service, connection)
     {
@@ -44,6 +46,8 @@ class NubbinService : public GenericProvider::Service
 {
 private:
 public:
+    CLASSNAME(GenericProvider::Service, NubbinService);
+    
     NubbinService(FileNubbin *owner, IpcService *service)
     :GenericProvider::Service(owner, service)
     {
@@ -59,6 +63,8 @@ public:
 class NubbinHandle : public NubbinService
 {
 public:
+    CLASSNAME(NubbinService, NubbinHandle);
+    
     typedef bicycle::function<int(bicycle::function<int(Interface_Request*)>, bicycle::function<int(Interface_Response*)>)> RequesterFunction;
 private:
     RequesterFunction _requester;

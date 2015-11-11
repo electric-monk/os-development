@@ -12,6 +12,8 @@ class BlockableObject : public KernelObject
 public:
     BlockableObject();
     
+    CLASSNAME(KernelObject, BlockableObject);
+    
     // Register/unregister state
     virtual void RegisterObserver(SignalWatcher *watcher);
     virtual void UnregisterObserver(SignalWatcher *watcher);
@@ -43,6 +45,8 @@ private:
 class SignalWatcher : public BlockableObject
 {
 public:
+    CLASSNAME(BlockableObject, SignalWatcher);
+    
     virtual void SignalChanged(BlockableObject *watching, bool active)
     {
         // Nothing by default
@@ -52,6 +56,8 @@ public:
 class ListSignalWatcher : public SignalWatcher
 {
 public:
+    CLASSNAME(SignalWatcher, ListSignalWatcher);
+    
     ListSignalWatcher();
     
     virtual void AddSource(BlockableObject *source);
@@ -72,6 +78,8 @@ private:
 class SignalOr : public ListSignalWatcher
 {
 public:
+    CLASSNAME(ListSignalWatcher, SignalOr);
+    
     SignalOr();
 
 protected:
@@ -81,6 +89,8 @@ protected:
 class SignalAnd : public ListSignalWatcher
 {
 public:
+    CLASSNAME(ListSignalWatcher, SignalAnd);
+    
     SignalAnd();
     
 protected:
@@ -94,6 +104,8 @@ protected:
 class Timer : public BlockableObject
 {
 public:
+    CLASSNAME(BlockableObject, Timer);
+    
     static void TimerTick(UInt32 microsecondsPassed);
     Timer();
     
@@ -117,6 +129,8 @@ private:
 class SimpleSignal : public BlockableObject
 {
 public:
+    CLASSNAME(BlockableObject, SimpleSignal);
+    
     SimpleSignal(bool activeLow);
     
     void Pulse(void) { Set(); Reset(); }

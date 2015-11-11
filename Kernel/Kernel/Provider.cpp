@@ -65,10 +65,15 @@ GenericProvider::~GenericProvider()
 
 class GenericProvider_Output_Watch : public SignalWatcher
 {
+public:
+    CLASSNAME(SignalWatcher, GenericProvider_Output_Watch);
+    
 private:
     class MessageHandler : public DispatchQueue::Task
     {
     public:
+        CLASSNAME(DispatchQueue::Task, GenericProvider_Output_Watch::MessageHandler);
+        
         MessageHandler(GenericProvider *provider, GenericProvider::OutputConnection *connection, KernelBufferMemory *message)
         {
             _provider = provider;
@@ -96,6 +101,8 @@ private:
     class DisconnectionHandler : public DispatchQueue::Task
     {
     public:
+        CLASSNAME(DispatchQueue::Task, GenericProvider_Output_Watch::DisconnectionHandler);
+        
         DisconnectionHandler(GenericProvider *provider, GenericProvider::OutputConnection *connection)
         {
             _provider = provider;
@@ -123,6 +130,8 @@ protected:
     class Message : public SignalWatcher
     {
     public:
+        CLASSNAME(SignalWatcher, GenericProvider_Output_Watch::Message);
+        
         Message(GenericProvider *provider, GenericProvider::OutputConnection *connection)
         {
             _provider = provider;
@@ -191,9 +200,13 @@ void GenericProvider::Kill(Service *service)
 class GenericProvider_Input_Connect : public DispatchQueue::Task
 {
 public:
+    CLASSNAME(DispatchQueue::Task, GenericProvider_Input_Connect);
+    
     class DisconnectionHandler : public DispatchQueue::Task
     {
     public:
+        CLASSNAME(DispatchQueue::Task, GenericProvider_Input_Connect::DisconnectionHandler);
+        
         DisconnectionHandler(GenericProvider *owner, GenericProvider::InputConnection *connection)
         {
             _owner = owner;
@@ -214,6 +227,8 @@ private:
     class MessageHandler : public DispatchQueue::Task
     {
     public:
+        CLASSNAME(DispatchQueue::Task, GenericProvider_Input_Connect::MessageHandler);
+        
         MessageHandler(GenericProvider *owner, GenericProvider::InputConnection *connection, KernelBufferMemory *message)
         {
             _provider = owner;
@@ -241,6 +256,8 @@ private:
     class MessageWatcher : public SignalWatcher
     {
     public:
+        CLASSNAME(SignalWatcher, GenericProvider_Input_Connect::MessageWatcher);
+        
         MessageWatcher(GenericProvider *owner, GenericProvider::InputConnection *connection)
         {
             _provider = owner;
@@ -410,6 +427,8 @@ class InterfaceHelper_Handler : public KernelFunction<int(Interface_Response*)>
 private:
     IpcEndpoint *_connection;
 public:
+    CLASSNAME(KernelFunction, InterfaceHelper_Handler);
+    
     InterfaceHelper_Handler(IpcEndpoint *connection, bicycle::function<int(Interface_Response*)> callback) : KernelFunction<int(Interface_Response*)>(callback)
     {
         _connection = connection;

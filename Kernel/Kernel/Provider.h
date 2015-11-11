@@ -16,6 +16,8 @@ class Interface_Response;
 class GenericProvider : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, GenericProvider);
+    
     GenericProvider();
 
     // Hooking up inputs
@@ -29,6 +31,8 @@ public:
     class Factory : public KernelObject
     {
     public:
+        CLASSNAME(KernelObject, GenericProvider::Factory);
+        
         // Information about this provider
         virtual KernelDictionary* Information(void) = 0;
         virtual UInt32 ExpectedInput(void) = 0;
@@ -43,6 +47,8 @@ public:
     class Service : public KernelObject
     {
     public:
+        CLASSNAME(KernelObject, GenericProvider::Service);
+        
         Service(GenericProvider *owner, IpcService *service);
         
         IpcService* ServiceObject(void) { return _service; }
@@ -61,6 +67,8 @@ public:
     class Connection : public KernelObject
     {
     public:
+        CLASSNAME(KernelObject, GenericProvider::Connection);
+        
         IpcEndpoint* Link(void) { return _connection; }
         
     protected:
@@ -76,6 +84,8 @@ public:
     class InputConnection : public Connection
     {
     public:
+        CLASSNAME(Connection, GenericProvider::InputConnection);
+        
         InputConnection(GenericProvider *owner, KernelString *input, IpcEndpoint *connection);
         
         KernelString* Source(void) { return _source; }
@@ -91,6 +101,8 @@ public:
     class OutputConnection : public Connection
     {
     public:
+        CLASSNAME(Connection, GenericProvider::OutputConnection);
+        
         OutputConnection(GenericProvider *owner, Service *source, IpcEndpoint *connection);
 
         Service* Source(void) { return _source; }
@@ -149,6 +161,8 @@ public:
 class InterfaceHelper : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, InterfaceHelper);
+    
     InterfaceHelper();
     
     void PerformTask(IpcEndpoint *destination, bicycle::function<int(Interface_Request*)> generate, bicycle::function<int(Interface_Response*)> response);

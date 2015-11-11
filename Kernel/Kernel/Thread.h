@@ -28,6 +28,8 @@ typedef enum {
 class Thread : public SignalWatcher // TODO: Implement SignalWatcher mechanisms
 {
 public:
+    CLASSNAME(SignalWatcher, Thread);
+    
     typedef enum {
         tmAuto = 0,     // Automatically select user or kernel mode
         tmKernel,
@@ -90,6 +92,8 @@ private:
 class KernelThread : public Thread
 {
 public:
+    CLASSNAME(Thread, KernelThread);
+    
     KernelThread(UInt32 stackSize = 8192);
     
 protected:

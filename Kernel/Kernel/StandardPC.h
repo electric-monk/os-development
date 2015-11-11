@@ -34,6 +34,8 @@ typedef enum {  /* 0x00 to 0x1F */
 class StandardPC : public Driver
 {
 public:
+    CLASSNAME(Driver, StandardPC);
+    
     StandardPC();
     
     bool Start(Driver *parent);

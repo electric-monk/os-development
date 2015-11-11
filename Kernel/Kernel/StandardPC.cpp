@@ -53,6 +53,9 @@ const char* StandardPC::NameForTrap(unsigned int trap)
 
 class StandardPC_LegacyATA : public ATADriverNode
 {
+public:
+    CLASSNAME(ATADriverNode, StandardPC_LegacyATA);
+    
 private:
     class SimplerSignal : public SimpleSignal
     {
@@ -60,6 +63,8 @@ private:
         bool _set;
         
     public:
+        CLASSNAME(SimplerSignal, StandardPC_LegacyATA::SimplerSignal);
+        
         SimplerSignal()
         :SimpleSignal(false)
         {
@@ -210,6 +215,9 @@ public:
 
 class StandardPC_Interrupts : public Interrupts
 {
+public:
+    CLASSNAME(Interrupts, StandardPC_Interrupts);
+    
 private:
     class HandlerHandle
     {
@@ -315,6 +323,8 @@ public:
 class StandardPC_Timer : public Driver
 {
 public:
+    CLASSNAME(Driver, StandardPC_Timer);
+    
     StandardPC_Timer()
     :Driver("PC Timer")
     {
@@ -351,6 +361,8 @@ private:
 class StandardPC_Keyboard : public GenericKeyboard
 {
 public:
+    CLASSNAME(GenericKeyboard, StandardPC_Keyboard);
+    
     StandardPC_Keyboard()
     :GenericKeyboard("PS/2 Keyboard")
     {
@@ -386,10 +398,15 @@ private:
 
 class StandardPC_Factory : public DriverFactory
 {
+public:
+    CLASSNAME(DriverFactory, StandardPC_Factory);
+    
 private:
     class Match_IDE : public DriverFactory::Match
     {
     public:
+        CLASSNAME(DriverFactory::Match, StandardPC_Factory::Match_IDE);
+        
         Match_IDE(UInt16 port, UInt16 irq)
         {
             _port = port;
@@ -415,6 +432,8 @@ private:
     class Match_Timer : public DriverFactory::Match
     {
     public:
+        CLASSNAME(DriverFactory::Match, StandardPC_Factory::Match_Timer);
+        
         Match_Timer(){}
         
         int MatchValue(void)
@@ -433,6 +452,8 @@ private:
     class Match_Keyboard : public DriverFactory::Match
     {
     public:
+        CLASSNAME(DriverFactory::Match, StandardPC_Factory::Match_Keyboard);
+        
         Match_Keyboard(){}
         
         int MatchValue(void)
@@ -451,6 +472,8 @@ private:
     class Match_PCI : public DriverFactory::Match
     {
     public:
+        CLASSNAME(DriverFactory::Match, StandardPC_Factory::Match_PCI);
+        
         Match_PCI(){}
         
         int MatchValue(void)

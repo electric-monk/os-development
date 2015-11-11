@@ -150,6 +150,9 @@ void ATADriverNode::UpdateBMIDEState(void)
 
 class ATADriverNode_PCI : public ATADriverNode
 {
+public:
+    CLASSNAME(ATADriverNode, ATADriverNode_PCI);
+    
 private:
     bool _primary;
     UInt32 _ioPort, _controlPort, _bmPort;
@@ -175,6 +178,9 @@ protected:
 public:
     class Factory : public DriverFactory
     {
+    public:
+        CLASSNAME(DriverFactory, ATADriverNode_PCI::Factory);
+        
     private:
         class Match : public DriverFactory::Match
         {
@@ -182,6 +188,8 @@ public:
             bool _primary;
             
         public:
+            CLASSNAME(DriverFactory::Match, ATADriverNode_PCI::Factory::Match);
+            
             Match(bool primary)
             {
                 _primary = primary;
@@ -390,10 +398,15 @@ public:
 
 class ATADriverDrive : public KernelObject
 {
+public:
+    CLASSNAME(KernelObject, ATADriverDrive);
+    
 private:
     class GenericHandler : public SignalWatcher
     {
     public:
+        CLASSNAME(SignalWatcher, ATADriverDrive::GenericHandler);
+        
         GenericHandler(ATADriverDrive *owner)
         {
             _owner = owner;
@@ -405,6 +418,8 @@ private:
     class ConnectionHandler : public GenericHandler
     {
     public:
+        CLASSNAME(GenericHandler, ATADriverDrive::ConnectionHandler);
+        
         ConnectionHandler(ATADriverDrive *owner) : GenericHandler(owner) { }
         
         void SignalChanged(BlockableObject *watching, bool active)
@@ -416,6 +431,8 @@ private:
     class RequestHandler : public GenericHandler
     {
     public:
+        CLASSNAME(GenericHandler, ATADriverDrive::RequestHandler);
+        
         RequestHandler(ATADriverDrive *owner, IpcEndpoint *sender)
         :GenericHandler(owner)
         {
@@ -434,6 +451,8 @@ private:
     class Request : public DispatchQueue::Task
     {
     public:
+        CLASSNAME(DispatchQueue::Task, ATADriverDrive::Request);
+        
         Request(ATADriverDrive *owner, IpcEndpoint *sender, KernelBufferMemory *request)
         {
             _owner = owner;
@@ -552,6 +571,8 @@ protected:
 class ATADriverDrive_ATA : public ATADriverDrive
 {
 public:
+    CLASSNAME(ATADriverDrive, ATADriverDrive_ATA);
+    
     ATADriverDrive_ATA(ATADriver *driver, int index, DispatchQueue *queue)
     :ATADriverDrive(driver, "ata", index, queue)
     {
@@ -574,6 +595,8 @@ public:
 class ATADriverDrive_ATAPI : public ATADriverDrive
 {
 public:
+    CLASSNAME(ATADriverDrive, ATADriverDrive_ATAPI);
+    
     ATADriverDrive_ATAPI(ATADriver *driver, int index, DispatchQueue *queue)
     :ATADriverDrive(driver, "atapi", index, queue)
     {
@@ -642,6 +665,8 @@ private:
     class ATADriver_Match : public DriverFactory::Match
     {
     public:
+        CLASSNAME(DriverFactory::Match, ATADriver_Match);
+        
         int MatchValue(void)
         {
             return 1000;
@@ -652,6 +677,8 @@ private:
         }
     };
 public:
+    CLASSNAME(DriverFactory, ATADriver_Factory);
+    
     KernelArray* MatchForParent(Driver *parent)
     {
         KernelString *propertyBus = (KernelString*)parent->PropertyFor(kDriver_Property_Bus);
@@ -693,6 +720,8 @@ static ATADriverDrive* Instantiate(ATADriver *driver, IpcServiceList *service, D
 class ConfigureATA : public DispatchQueue::Task
 {
 public:
+    CLASSNAME(DispatchQueue::Task, ConfigureATA);
+    
     ConfigureATA(ATADriver *driver, bool useDMA)
     {
         _owner = driver;

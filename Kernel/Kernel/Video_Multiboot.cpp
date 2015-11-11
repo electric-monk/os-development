@@ -17,6 +17,8 @@ static UInt16 s_mode;
 class MultibootVideo : public GenericVideo
 {
 public:
+    CLASSNAME(GenericVideo, MultibootVideo);
+    
     MultibootVideo();
     
     bool Start(Driver *parent);
@@ -139,6 +141,8 @@ private:
     class Match : public DriverFactory::Match
     {
     public:
+        CLASSNAME(DriverFactory::Match, MultibootVideo_Factory::Match);
+        
         int MatchValue(void)
         {
             return GenericVideo::Match_Default;
@@ -149,6 +153,8 @@ private:
         }
     };
 public:
+    CLASSNAME(DriverFactory, MultibootVideo_Factory);
+    
     KernelArray* MatchForParent(Driver *parent)
     {
         // s_hasVBE should be true here

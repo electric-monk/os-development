@@ -11,9 +11,13 @@ class Process;
 class Runloop : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, Runloop);
+    
     class SelfHandlingBlockableObject : public BlockableObject
     {
     public:
+        CLASSNAME(BlockableObject, Runloop::SelfHandlingBlockableObject);
+        
         virtual void ProcessSignal(Runloop *runloop, BlockableObject *watching, KernelArray *signals) = 0;
     };
     
@@ -41,6 +45,8 @@ private:
 class TaskQueue : public Runloop::SelfHandlingBlockableObject
 {
 public:
+    CLASSNAME(Runloop::SelfHandlingBlockableObject, TaskQueue);
+    
     TaskQueue();
     
     void AddTask(bicycle::function<int(void)> task);
@@ -59,6 +65,8 @@ private:
 class RunloopThread : public Runloop
 {
 public:
+    CLASSNAME(Runloop, RunloopThread);
+    
     RunloopThread(Process *owner = NULL);
     
     // For convenience, a task queue is also provided

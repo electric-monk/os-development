@@ -4,6 +4,8 @@
 #include "tools.h"
 #include "KernelFunction.h"
 
+#define CLASSNAME(super,name)         const char* GetClassName(int level) { if (level == 0) return #name; return super::GetClassName(level - 1); }
+
 class KernelObject
 {
 public:
@@ -35,11 +37,19 @@ public:
         return Hash() == other->Hash();
     }
     
-protected:
-    virtual ~KernelObject()
+    // Anybody wanting to use a class with some home-made RTTI needs to make sure the relevant classes implement this method
+    virtual const char* GetClassName(int level)
     {
-        // Nothing to do
+        if (level != 0)
+            return NULL;
+        return "KernelObject";
     }
+    
+    bool IsDerivedFromClass(const char *name);
+    bool IsInstanceOfClass(const char *name);
+    
+protected:
+    virtual ~KernelObject();
     
 private:
     UInt32 _count;
@@ -65,6 +75,8 @@ private:
 template<typename func> class KernelFunction : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, KernelFunction);
+    
     KernelFunction(bicycle::function<func> callback) { m_function = callback; }
     
     bicycle::function<func> Pointer(void) { return m_function; }

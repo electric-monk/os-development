@@ -6,6 +6,8 @@
 class DispatchGroupHolder : public BlockableObject
 {
 public:
+    CLASSNAME(BlockableObject, DispatchGroupHolder);
+    
     DispatchGroupHolder(DispatchGroupHolder **start, DispatchGroupHolder **end)
     {
         _start = start;
@@ -167,6 +169,8 @@ void DispatchQueue::AddTask(Task *task)
 class DispatchQueue_LlambdaTask : public DispatchQueue::Task
 {
 public:
+    CLASSNAME(DispatchQueue::Task, DispatchQueue_LlambdaTask);
+    
     DispatchQueue_LlambdaTask(bicycle::function<int(void)> task)
     {
         _function = task;

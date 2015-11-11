@@ -34,6 +34,8 @@
 class RunloopWatcher : public IpcServiceWatcher
 {
 public:
+    CLASSNAME(IpcServiceWatcher, RunloopWatcher);
+    
     typedef enum {
         Appear,
         Change,
@@ -200,6 +202,9 @@ static void ConvertPath(FlatArray *output, ...)
 
 class StartupHandler : public KernelObject
 {
+public:
+    CLASSNAME(KernelObject, StartupHandler);
+    
 private:
     // To make it work
     RunloopThread *_runloop;
@@ -267,6 +272,8 @@ private:
     class ProviderContainer : public KernelObject
     {
     public:
+        CLASSNAME(KernelObject, StartupHandler::ProviderContainer);
+        
         ProviderContainer(KernelObject *provider)
         {
             

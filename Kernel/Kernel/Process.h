@@ -12,6 +12,8 @@ class InterfaceHelper;
 class Process : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, Process);
+    
     Process(const char *name);
     
     static Process *Active asm("%gs:4");

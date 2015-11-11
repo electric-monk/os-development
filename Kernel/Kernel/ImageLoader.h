@@ -6,6 +6,8 @@
 class ImageLoader : public GenericProvider
 {
 public:
+    CLASSNAME(GenericProvider, ImageLoader);
+    
     ImageLoader();
     
     UInt32 InputCount(void);

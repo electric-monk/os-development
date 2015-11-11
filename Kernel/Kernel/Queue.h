@@ -16,6 +16,8 @@ class DispatchGroupHolder;
 class DispatchGroup : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, DispatchGroup);
+    
     DispatchGroup();
     
     void* EnterOrTimeout(UInt32 microsecondsPassed = 0);    // If successful, returns a token
@@ -61,10 +63,14 @@ private:
 class DispatchQueue : public BlockableObject
 {
 public:
+    CLASSNAME(BlockableObject, DispatchQueue);
+    
     // You may block on these tasks to wait until they're completed
     class Task : public BlockableObject
     {
     public:
+        CLASSNAME(BlockableObject, DispatchQueue::Task);
+        
         Task();
         
         void Run(void);

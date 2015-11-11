@@ -213,6 +213,8 @@ void GrowableStack::HandlePageFault(void *linearAddress)
 class GrowableStackMapping : public VirtualMemory
 {
 public:
+    CLASSNAME(VirtualMemory, GrowableStackMapping);
+    
     GrowableStackMapping(GrowableStack *stack)
     :VirtualMemory(NULL, stack->LinearLength())
     {

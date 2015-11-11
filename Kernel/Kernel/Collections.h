@@ -13,6 +13,8 @@ class KernelFIFO : public KernelObject
 public:
     KernelFIFO();
     
+    CLASSNAME(KernelObject, KernelFIFO);
+    
     void Push(KernelObject *object);
     KernelObject* Pop(void);
     
@@ -27,6 +29,8 @@ class KernelDictionary : public KernelObject
 {
 public:
     KernelDictionary();
+    
+    CLASSNAME(KernelObject, KernelDictionary);
     
     void Set(KernelObject *key, KernelObject *value);
     KernelObject* ObjectFor(KernelObject *key);
@@ -52,6 +56,8 @@ public:
 	static const UInt32 InvalidIndex;
     
     KernelArray();
+    
+    CLASSNAME(KernelObject, KernelArray);
     
     void Add(KernelObject *object);
     void Remove(KernelObject *object);
@@ -93,6 +99,8 @@ public:
     KernelString(const char *input);
     KernelString(const char *input, UInt32 length, BUFFER_DISPOSITION disposition = ksbfCopy);
     
+    CLASSNAME(KernelObject, KernelString);
+    
     const char *CString(void);
     UInt32 Length(void);
     
@@ -111,6 +119,8 @@ class KernelNumber : public KernelObject
 {
 public:
     KernelNumber(UInt32 value) { _value = value; }
+    
+    CLASSNAME(KernelObject, KernelNumber);
     
     UInt32 Value(void) { return _value; }
     

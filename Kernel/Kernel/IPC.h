@@ -9,9 +9,13 @@ class KernelFIFO;
 class KernelBufferMemory : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, KernelBufferMemory);
+    
     class Map : public VirtualMemory
     {
     public:
+        CLASSNAME(VirtualMemory, KernelBufferMemory::Map);
+        
         Map(Process *process, KernelBufferMemory *memory, bool readonly);
         
     protected:
@@ -45,6 +49,8 @@ private:
 class IpcEndpoint : public BlockableObject
 {
 public:
+    CLASSNAME(BlockableObject, IpcEndpoint);
+    
     IpcEndpoint();
     
     /* Remote end */
@@ -75,6 +81,8 @@ private:
 class IpcService : public BlockableObject
 {
 public:
+    CLASSNAME(BlockableObject, IpcService);
+    
     IpcService(KernelString *name, KernelString *service);
 
     KernelString* Name(void) { return _name; }
@@ -98,6 +106,8 @@ private:
 class IpcServiceWatcher : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, IpcServiceWatcher);
+    
     virtual void ServiceProviderAppeared(KernelObject *provider) = 0;
     virtual void ServiceAppeared(KernelObject *provider, IpcService *service) = 0;
     virtual void ServiceRemoved(KernelObject *provider, IpcService *service) = 0;
@@ -107,6 +117,8 @@ public:
 class IpcServiceList : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, IpcServiceList);
+    
     static void Register(IpcServiceWatcher *watcher);
     static void Unregister(IpcServiceWatcher *watcher);
     

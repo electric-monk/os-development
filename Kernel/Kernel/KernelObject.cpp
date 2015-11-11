@@ -21,6 +21,8 @@ static void Kernel_Autorelease_Leak(void)
 class AutoreleasePoolWrapper : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, AutoreleasePoolWrapper);
+    
     AutoreleasePoolWrapper(AutoreleasePool *pool)
     {
         _pool = pool;
@@ -49,6 +51,33 @@ static AutoreleasePool* GetPool(void)
         AutoreleasePoolWrapper *wrapper = (AutoreleasePoolWrapper*)Thread::Active->KernelThreadLocalStorage()->ObjectFor(KernelPoolName());
         return wrapper ? wrapper->_pool : NULL;
     }
+}
+
+static bool CompareStrings(const char *x, const char *y)
+{
+    while ((*x == *y) && (*x != '\0') && (*y != '\0')) {
+        x++;
+        y++;
+    }
+    return *x == *y;
+}
+
+bool KernelObject::IsDerivedFromClass(const char *name)
+{
+    const char *className;
+    int count = 0;
+    
+    while ((className = GetClassName(count)) != NULL) {
+        if (CompareStrings(className, name))
+            return true;
+        count++;
+    }
+    return false;
+}
+
+bool KernelObject::IsInstanceOfClass(const char *name)
+{
+    return CompareStrings(GetClassName(0), name);
 }
 
 void KernelObject::Autorelease(void)
@@ -90,3 +119,7 @@ void AutoreleasePool::AddObject(KernelObject *object)
     // That way, when we're cleaned up, all the objects will be automatically released once.
     object->Release();
 }
+KernelObject::~KernelObject()
+{
+}
+

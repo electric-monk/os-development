@@ -110,6 +110,9 @@ namespace ISO9660Driver {
     
     class GenericEntry : public KernelObject
     {
+    public:
+        CLASSNAME(KernelObject, ISO9660Driver::GenericEntry);
+        
     private:
         class InterimDate
         {
@@ -224,6 +227,8 @@ namespace ISO9660Driver {
     class FileEntry : public GenericEntry
     {
     public:
+        CLASSNAME(GenericEntry, ISO9660Driver::FileEntry);
+        
         FileEntry(DirectoryRecord *record)
         :GenericEntry(record)
         {
@@ -245,6 +250,8 @@ namespace ISO9660Driver {
             return result;
         }
     public:
+        CLASSNAME(GenericEntry, ISO9660Driver::DirectoryEntry);
+        
         DirectoryEntry(DirectoryRecord *record)
         :GenericEntry(record)
         {
@@ -356,6 +363,8 @@ namespace ISO9660Driver {
     class Interface_File_Output : public GenericProvider::OutputConnection
     {
     public:
+        CLASSNAME(GenericProvider::OutputConnection, ISO9660Driver::Interface_File_Output);
+        
         Interface_File_Output(FileSystem_ISO9660 *owner, GenericProvider::Service *service, IpcEndpoint *endpoint)
         :GenericProvider::OutputConnection(owner, service, endpoint)
         {

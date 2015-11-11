@@ -63,6 +63,8 @@ namespace PCI {
     class Controller : public Device
     {
     public:
+        CLASSNAME(Device, PCI::Controller);
+        
         Controller(const char *name, UInt8 bus)
         :Device(name, bus, 0, 0)
         {
@@ -172,6 +174,8 @@ void PCI::Device::WritePCIRegister(UInt8 reg, UInt32 value)
 class Interrupts_PCI : public Interrupts
 {
 public:
+    CLASSNAME(Interrupts, Interrupts_PCI);
+    
     Interrupts_PCI(Interrupts *original, PCI::Device *owner)
     {
         _interrupts = original;

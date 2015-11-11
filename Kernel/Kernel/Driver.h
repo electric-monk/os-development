@@ -30,9 +30,13 @@ class KernelBufferMemory;
 class DriverFactory : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, DriverFactory);
+    
     class Match : public KernelObject
     {
     public:
+        CLASSNAME(KernelObject, DriverFactory::Match);
+        
         virtual int MatchValue(void) = 0;
         virtual Driver* Instantiate(void) = 0;
         virtual bool MatchMultiple(void) { return false; }  // Allow drivers to match multiple children simultaneously
@@ -49,6 +53,8 @@ public:
     static void UnregisterFactory(DriverFactory *factory);
     
     Driver(const char *name);
+    
+    CLASSNAME(KernelObject, Driver);
     
     virtual bool Start(Driver *parent);   // Trigger matching of child drivers, so only call if you're successful
     virtual void Stop(void);
@@ -82,12 +88,16 @@ class ProviderDriver : public Driver
 public:
     ProviderDriver(const char *name);
 
+    CLASSNAME(Driver, ProviderDriver);
+    
     class Connection;
     
     /* The services that this provider has detected and is vending */
     class Service : public KernelObject
     {
     public:
+        CLASSNAME(KernelObject, ProviderDriver::Service);
+        
         Service(ProviderDriver *owner, IpcService *service);
         
         IpcService* ServiceObject(void) { return _service; }
@@ -111,6 +121,8 @@ public:
     public:
         Connection(ProviderDriver *owner, Service *service, IpcEndpoint *connection);
 
+        CLASSNAME(KernelObject, ProviderDriver::Connection);
+        
         Service* BaseService(void) { return _service; }
         IpcEndpoint* Link(void) { return _connection; }
 

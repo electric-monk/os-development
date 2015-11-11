@@ -95,6 +95,8 @@ typedef struct {
 class ImageLoader_Symbol : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, ImageLoader_Symbol);
+    
     virtual UInt64 Address(void) = 0;
     
     virtual void Encode(FlatDictionary *output) = 0;
@@ -105,6 +107,8 @@ class ImageLoader_Symbol_Main : public ImageLoader_Symbol
 private:
     UInt64 _main;
 public:
+    CLASSNAME(ImageLoader_Symbol, ImageLoader_Symbol_Main);
+    
     ImageLoader_Symbol_Main(UInt64 main) : _main(main) {}
     
     UInt64 Address(void)
@@ -139,6 +143,8 @@ public:
 class ImageLoader_Symbol_EntryPoint : public ImageLoader_Symbol_Main
 {
 public:
+    CLASSNAME(ImageLoader_Symbol_Main, ImageLoader_Symbol_EntryPoint);
+    
     ImageLoader_Symbol_EntryPoint(UInt64 address, KernelString *name)
     :ImageLoader_Symbol_Main(address)
     {
@@ -177,6 +183,8 @@ class ImageLoader_Segment : public KernelObject
 private:
     UInt64 _address, _length, _flags, _offset, _fileLength;
 public:
+    CLASSNAME(KernelObject, ImageLoader_Segment);
+    
     ImageLoader_Segment(Elf32_Phdr *header)
     {
         _address = header->p_vaddr;

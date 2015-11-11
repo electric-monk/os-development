@@ -11,6 +11,8 @@ namespace GenericVideo_Internal {
     class VideoBufferMemory : public KernelBufferMemory
     {
     public:
+        CLASSNAME(KernelBufferMemory, GenericVideo_Internal::VideoBufferMemory);
+        
         VideoBufferMemory(PhysicalPointer physical, UInt64 length)
         :KernelBufferMemory(PAGE_SIZE + length)
         {

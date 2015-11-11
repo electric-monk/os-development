@@ -6,6 +6,8 @@
 class FileNubbin : public GenericProvider
 {
 public:
+    CLASSNAME(GenericProvider, FileNubbin);
+    
     FileNubbin();
     
     // Hooking up inputs

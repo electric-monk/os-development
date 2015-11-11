@@ -10,6 +10,8 @@
 class BinaryMap : public VirtualMemory
 {
 public:
+    CLASSNAME(VirtualMemory, BinaryMap);
+    
     BinaryMap(Process *process, InterfaceHelper *helper, IpcEndpoint *connection, UInt32 chunk, UInt32 length)
     :VirtualMemory(process, length)
     {

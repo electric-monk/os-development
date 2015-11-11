@@ -13,6 +13,8 @@ typedef bicycle::function<bool(void *state)> InterruptHandlerBlock;
 class Interrupts : public KernelObject
 {
 public:
+    CLASSNAME(KernelObject, Interrupts);
+    
     virtual InterruptHandlerHandle RegisterHandler(int irq, InterruptHandler handler, void *context)
     {
         // Convenience implementation

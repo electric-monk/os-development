@@ -187,6 +187,8 @@ void GenericKeyboard::SendEvent(int key, bool down)
 class GenericKeyboard_Connection : public ProviderDriver::Connection
 {
 public:
+    CLASSNAME(ProviderDriver::Connection, GenericKeyboard_Connection);
+    
     GenericKeyboard_Connection(GenericKeyboard *owner, ProviderDriver::Service *service, IpcEndpoint *endpoint)
     :ProviderDriver::Connection(owner, service, endpoint)
     {

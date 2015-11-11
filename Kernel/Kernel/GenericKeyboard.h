@@ -10,6 +10,8 @@ class RunloopThread;
 class GenericKeyboard : public ProviderDriver
 {
 public:
+    CLASSNAME(ProviderDriver, GenericKeyboard);
+    
     GenericKeyboard(const char *name);
     
     bool Start(Driver *parent);

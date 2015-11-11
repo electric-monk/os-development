@@ -8,6 +8,8 @@ namespace PCI {
     class Device : public Driver
     {
     public:
+        CLASSNAME(Driver, PCI::Device);
+        
         Device(const char *name, UInt8 bus, UInt8 device, UInt8 function);
         
         UInt8 Bus(void) { return _bus; }
@@ -32,6 +34,8 @@ namespace PCI {
     class Root : public Driver
     {
     public:
+        CLASSNAME(Driver, PCI::Root);
+        
         Root();
         
         bool Start(Driver *parent);
