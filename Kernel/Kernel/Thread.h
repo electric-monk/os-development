@@ -12,10 +12,6 @@ class Process;
 class KernelDictionary;
 class GrowableStack;
 
-#define SERVICE_THREAD          0x70            // interrupt
-// EAX parameters
-#define SERVICE_THREAD_END      0x00000001      // EBX = ending thread
-
 typedef void (*ThreadCallback)(void *context);
 
 typedef enum {
@@ -36,7 +32,7 @@ public:
         tmUserspace,
     } ThreadMode;
     
-    static void ConfigureService(Interrupts *interruptSource);
+    static void ConfigureService(void);
     
     Thread(Process *process, void (*entryPoint)(void*), void *context, ThreadMode mode = tmAuto, UInt32 stackSize = 8192);
     

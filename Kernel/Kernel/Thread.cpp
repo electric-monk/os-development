@@ -207,25 +207,6 @@ void Thread::Select(CPU::Context **scheduler)
     Thread::Active = NULL;
 }
 
-static bool ThreadInterruptHandler(void *context, void *state)
-{
-    // x86-specific
-    TrapFrame *tf = (TrapFrame*)state;
-    switch (tf->EAX) {
-        case SERVICE_THREAD_END:
-            ((Thread*)tf->EBX)->Kill();
-            return true;
-        default:
-            return false;
-    }
-}
-
-void Thread::ConfigureService(Interrupts *interruptSource)
-{
-    interruptSource->RegisterHandler(SERVICE_THREAD, ThreadInterruptHandler, NULL);
-    interruptSource->ConfigureSyscall(SERVICE_THREAD);
-}
-
 // Thread list
 Thread* Thread::ThreadCursor(void)
 {
