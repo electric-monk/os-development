@@ -13,6 +13,8 @@ class KernelDictionary;
 class KernelObject
 {
 public:
+    static void ConfigureService(void);
+    
     KernelObject()
     {
         _count = 1;

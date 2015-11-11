@@ -8,6 +8,7 @@ class IpcService;
 class RunloopThread;
 class KernelDictionary;
 class InterfaceHelper;
+class ObjectMapper;
 
 class Process : public KernelObject
 {
@@ -17,6 +18,9 @@ public:
     Process(const char *name);
     
     static Process *Active asm("%gs:4");
+    
+    ObjectMapper* ActiveMapper(void);
+    static ObjectMapper* Mapper(void);
     
     SPageDirectoryInfo pageDirectory;
     
@@ -30,6 +34,7 @@ protected:
 private:
     KernelDictionary *_binaries;
     InterfaceHelper *_helper;
+    ObjectMapper *_mapper;
 };
 
 #endif // __PROCESS_H__

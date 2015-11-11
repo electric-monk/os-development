@@ -66,6 +66,7 @@ Process::Process(const char *name)
     
     _binaries = new KernelDictionary();
     _helper = new InterfaceHelper();
+    _mapper = new ObjectMapper();
     
     // Runloop thread for this process - allows serialised access to resources like images. Since multiple threads might try and map the same pages in, accesses must be serialised.
     _runloop = new RunloopThread(this);
@@ -73,6 +74,7 @@ Process::Process(const char *name)
 
 Process::~Process()
 {
+    _mapper->Release();
     _runloop->Release();
     _binaries->Release();
     _helper->Release();
@@ -81,6 +83,24 @@ Process::~Process()
     // TODO: Should this be somewhere more sane?
     if (Process::Active == this)
         rootAddressSpace.Select();
+}
+
+ObjectMapper* Process::ActiveMapper(void)
+{
+    return _mapper;
+}
+
+static ObjectMapper *kernelMapper;  // Though it's not necessary, give the kernel one just in case
+
+ObjectMapper* Process::Mapper(void)
+{
+    if (Process::Active)
+        return Process::Active->ActiveMapper();
+    else {
+        if (!kernelMapper)
+            kernelMapper = new ObjectMapper();
+        return kernelMapper;
+    }
 }
 
 void Process::AttachImage(IpcService *binaryImageService)

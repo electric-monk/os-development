@@ -5,7 +5,7 @@
 #include "Thread.h"
 #include "Collections.h"
 
-namespace Blocking_Internal {
+namespace Collections_Internal {
     class Service : public SystemService
     {
     protected:
@@ -294,4 +294,11 @@ namespace Blocking_Internal {
             return COLLECTIONS_SYSCALL;
         }
     };
+}
+
+static Collections_Internal::Service service;
+
+void Collections::ConfigureService(void)
+{
+    service.Register();
 }

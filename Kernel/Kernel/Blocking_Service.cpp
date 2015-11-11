@@ -156,3 +156,10 @@ namespace Blocking_Internal {
         }
     };
 }
+
+static Blocking_Internal::Service service;
+
+void BlockableObject::ConfigureService(void)
+{
+    service.Register();
+}

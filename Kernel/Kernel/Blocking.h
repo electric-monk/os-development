@@ -10,6 +10,8 @@ class KernelArray;
 class BlockableObject : public KernelObject
 {
 public:
+    static void ConfigureService(void);
+    
     BlockableObject();
     
     CLASSNAME(KernelObject, BlockableObject);

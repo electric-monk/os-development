@@ -66,8 +66,9 @@ namespace KernelObject_Internal {
     };
 }
 
+static KernelObject_Internal::Service service;
+
 void KernelObject::ConfigureService(void)
 {
-    static KernelObject_Internal::Service service;
     service.Register();
 }

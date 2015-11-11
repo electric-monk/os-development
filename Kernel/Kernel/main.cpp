@@ -604,6 +604,9 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     test();
 
     Thread::ConfigureService(rootDevice->Test());
+    Collections::ConfigureService();
+    BlockableObject::ConfigureService();
+    KernelObject::ConfigureService();
     InitStartup();
     
     AutoreleasePool testPool;

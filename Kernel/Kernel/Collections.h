@@ -8,6 +8,10 @@ class KernelArrayItem;
 class HashEntry;
 class FIFOItem;
 
+namespace Collections {
+    void ConfigureService(void);
+}
+
 class KernelFIFO : public KernelObject
 {
 public:
