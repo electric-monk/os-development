@@ -16,6 +16,8 @@ public:
     KernelObject()
     {
         _count = 1;
+        _watchStart = NULL;
+        _watchEnd = NULL;
     }
     
     void AddRef(void)
