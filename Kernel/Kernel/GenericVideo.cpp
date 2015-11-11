@@ -37,7 +37,12 @@ namespace GenericVideo_Internal {
 GenericVideo::GenericVideo(const char *name)
 :ProviderDriver(name)
 {
-    
+    _ports = new KernelDictionary();
+}
+
+GenericVideo::~GenericVideo()
+{
+    _ports->Release();
 }
 
 static void SaveInt(FlatDictionary *dictionary, const char *name, UInt32 value)
@@ -130,6 +135,8 @@ void GenericVideo::Stop(void)
         for (int i = 0; i < _services->Count(); i++) {
             Terminate((Service*)_services->ObjectAt(i));
         }
+        _ports->Release();
+        _ports = new KernelDictionary();
         return 0;
     });
     ProviderDriver::Stop();
@@ -137,7 +144,6 @@ void GenericVideo::Stop(void)
 
 void GenericVideo::UpdatePort(int index)
 {
-    KernelDictionary *_ports;
     KernelNumber *portIndex = new KernelNumber(index);
     // Get old service
     Service *service = (Service*)_ports->ObjectFor(portIndex);

@@ -22,6 +22,8 @@ public:
     void Stop(void);
     
 protected:
+    ~GenericVideo();
+    
     typedef void* MODE_IDENTIFIER;
     typedef enum {
         tInvalid,
@@ -63,6 +65,7 @@ protected:
     virtual void MoveCharacters(int index, int fromX, int fromY, int toX, int toY, int width, int height) = 0;
     
 private:
+    KernelDictionary *_ports;
 };
 
 #endif // __GENERICVIDEO_H__
