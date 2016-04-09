@@ -1,2 +1,2 @@
-qemu-system-i386 -s -monitor stdio -fda grub_disk.img
+qemu-system-i386 -s -monitor stdio -fda grub_disk.img  -d int,cpu_reset
 

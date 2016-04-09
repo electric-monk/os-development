@@ -16,6 +16,18 @@
  */
 #define THREAD_FUNCTION_KILL        0x01
 
+/* Function: Allocate heap memory
+ * Parameter 0: Maximum size
+ * Result 0: Error
+ * Result 1: Handle - release to free
+ * Result 2: Address
+ */
+#define THREAD_FUNCTION_ALLOC       0x02
+
+/* Function: Terminate current thread
+ */
+#define THREAD_FUNCTION_TERMINATE   0x03
+
 // Errors
 #define THREAD_ERROR_SUCCESS        0x00
 #define THREAD_ERROR_BAD_FUNCTION   0x01

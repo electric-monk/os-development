@@ -118,13 +118,17 @@ int CStringPrint::ParseFormat(va_list &params, const char *format)
 			case 's':	// String
 				{
 					char *s = va_arg(params, char*);
-					int len = LengthOf(s);
-					padding -= len;
-					while (padding > 0)
-					{
-						PrintOut(" ", 1);
-						padding--;
-					}
+                    if (s == NULL) {
+                        s = "(null)";
+                    } else {
+                        int len = LengthOf(s);
+                        padding -= len;
+                        while (padding > 0)
+                        {
+                            PrintOut(" ", 1);
+                            padding--;
+                        }
+                    }
 					PrintOut(s, LengthOf(s));
 				}
 				index++;
@@ -135,6 +139,14 @@ int CStringPrint::ParseFormat(va_list &params, const char *format)
 				index++;
 				added = true;
 				break;
+            case 'c':   // Character
+            {
+                char c = (char)va_arg(params, int);
+                PrintOut(&c, 1);
+            }
+                index++;
+                added = true;
+                break;
 
 			// ..else
 			default:

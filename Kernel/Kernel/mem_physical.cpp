@@ -255,6 +255,7 @@ PhysicalPointer CPhysicalMemory::AllocateContiguousPages(PageCount count, Physic
 			}
 		}
 	}
+    kprintf("Failed to allocate physical memory\n");
 	return Invalid;
 }
 

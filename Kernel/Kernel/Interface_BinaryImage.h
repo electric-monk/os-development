@@ -44,6 +44,7 @@ namespace Interface_BinaryImage {
             bool read, write, executable;
         };
         
+        // is relocatable?
         UInt32 chunkCount;
         Chunk chunks[];
     };

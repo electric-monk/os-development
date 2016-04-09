@@ -9,6 +9,7 @@ public:
     // Classes
     static const int Request = 0;
     static const int Response = 1;
+    static const int Event = 2;
     static const int MAX = 100;
 
     UInt32 packetClass;

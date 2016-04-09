@@ -11,6 +11,7 @@ public:
     class Colour
     {
     public:
+        Colour(){red = green = blue = 0;}
         Colour(UInt8 r, UInt8 g, UInt8 b):red(r), green(g), blue(b){}
         UInt8 red, green, blue;
     };

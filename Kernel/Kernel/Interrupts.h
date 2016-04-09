@@ -28,4 +28,23 @@ public:
     virtual void ConfigureSyscall(int irq) = 0;
 };
 
+// A simple class for providing userspace services.
+class SystemService
+{
+public:
+    void Register(void);
+    void Unregister(void);
+    
+protected:
+    // When a system call occurs, we jump straight into Handle. It'll execute in the kernel, but within the context of the calling Process, so all pointers should remain valid.
+    // Parameter values may be changed to return values
+    virtual void Handle(UInt64 *parameters) = 0;
+    
+    // used only for registration, indicates the interrupt (or whatever underlying mechanism is being employed) to hook
+    virtual int Interrupt(void) = 0;
+    
+private:
+    InterruptHandlerHandle _handle;
+};
+
 #endif // __INTERRUPTS_H__

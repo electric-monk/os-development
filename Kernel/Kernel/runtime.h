@@ -5,7 +5,7 @@
 #define NULL 0L
 #endif
 
-typedef unsigned  int size_t;
+typedef unsigned int size_t;
 
 typedef unsigned char UInt8;
 typedef unsigned short UInt16;

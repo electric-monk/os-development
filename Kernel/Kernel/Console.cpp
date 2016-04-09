@@ -11,6 +11,8 @@ void Console_Init(void)
 
 void Console_Panic(void)
 {
+    if (activeConsole == panicConsole)
+        return;
     activeConsole = panicConsole;
     activeConsole->SetCursor(0, 0);
 }

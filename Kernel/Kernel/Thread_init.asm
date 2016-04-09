@@ -25,8 +25,8 @@ ThreadEntryPoint: ; expects stack pre-configured for callback and context - like
     call edx
     ; Tell our object we stopped
     pop ebx
-    mov eax, 0x1
-    int 0x70
+    mov eax, 0x3    ; THREAD_FUNCTION_TERMINATE
+    int 0x83        ; THREAD_SYSCALL
     ; End of thread! Shouldn't really ever get here.
 .deadloop:
     hlt

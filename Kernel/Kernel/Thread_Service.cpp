@@ -2,6 +2,7 @@
 #include "Thread_Service.h"
 #include "Interrupts.h"
 #include "Process.h"
+#include "Userspace_Heap.h"
 
 extern UInt32 virt;
 
@@ -33,6 +34,16 @@ namespace Thread_Internal {
                     }
                     thread->Kill();
                 }
+                    break;
+                case THREAD_FUNCTION_ALLOC:
+                {
+                    VirtualMemory *memory = new UserspaceHeap(Process::Active, (UInt32)parameters[0]);
+                    parameters[1] = Process::Mapper()->Map(memory);
+                    parameters[2] = (UInt64)memory->LinearBase();
+                }
+                    break;
+                case THREAD_FUNCTION_TERMINATE:
+                    Thread::Active->Kill(); // We won't return from this
                     break;
             }
             parameters[0] = THREAD_ERROR_SUCCESS;

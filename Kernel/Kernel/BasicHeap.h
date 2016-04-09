@@ -39,7 +39,7 @@ public:
     
 private:
 #ifndef TESTING
-    InterruptableSpinLock _lock;
+    UninterruptableSpinLock _lock;
 #endif
     void *_root;
     h_size _total, _allocated, _count, _granularity;

@@ -4,6 +4,7 @@
 #include "Driver.h"
 
 class CPU;
+class StandardPC_LegacyATA;
 
 #define PIC_IRQ_OFFSET      0x20
 
@@ -49,6 +50,9 @@ protected:
     ~StandardPC();
     
     Interrupts* InterruptSource(void);
+    
+private:
+    StandardPC_LegacyATA *_ataPrimary, *_ataSecondary;
 };
 
 void StartScheduling(void);

@@ -13,6 +13,7 @@
 #include "mem_virtual.h"
 #include "GenericKeyboard.h"
 #include "pci.h"
+#include "Console.h"
 
 static bool s_schedulerEnabled = false;
 
@@ -101,7 +102,6 @@ private:
     static bool InterruptCallback(void *context, void *info)
     {
         StandardPC_LegacyATA *that = (StandardPC_LegacyATA*)context;
-        kprintf("Starting disk interrupt %i\n", that->_baseIRQ);
         that->_interrupt->Activate();
         that->UpdateForInterrupt();
         return true;
@@ -374,7 +374,6 @@ public:
             bool processed = false;
             while (true) {
                 UInt8 c = inb(0x60);
-                kprintf("%.2x ", (int)c);
                 if (c == 0)
                     break;
                 processed = true;
@@ -419,7 +418,6 @@ private:
         }
         Driver* Instantiate(void)
         {
-            kprintf("Instantiating IDE %i\n", _port);
             return new StandardPC_LegacyATA(_port, _irq);
         }
         bool MatchMultiple(void)
@@ -575,11 +573,14 @@ static bool GenericExceptionHandler(void *context, void *state)
 {
     CPU_Interrupt_Disable();
     TrapFrame *tf = (TrapFrame*)state;
+    Console_Panic();
     kprintf("\nPANIC! CPU exception %.2x: %s\n", tf->TrapNumber, StandardPC::NameForTrap(tf->TrapNumber));
     kprintf("Error %.8x; address %.4x:%.8x\n", tf->ERR, tf->CS, tf->EIP);
     PrintStack((void**)tf->ESP);
     kprintf("CPU %.8x Process %.8x Thread %.8x\n", CPU::Active, Process::Active, Thread::Active);
+#ifdef DUMP_THREADS
     Thread::DebugPrint();
+#endif
     while(1) asm("hlt");
     return true;
 }
@@ -590,12 +591,15 @@ static bool PageFaultExceptionHandler(void *context, void *state)
     TrapFrame *tf = (TrapFrame*)state;
     UInt32 faulting_address;
     asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
+    Console_Panic();
     kprintf("\nPANIC! CPU exception %.2x: %s\n", tf->TrapNumber, StandardPC::NameForTrap(tf->TrapNumber));
     kprintf("Error %.8x; address %.4x:%.8x\n", tf->ERR, tf->CS, tf->EIP);
     kprintf("Attempting to access %.8x\n", faulting_address);
     PrintStack((void**)tf->ESP);
     kprintf("CPU %.8x Process %.8x Thread %.8x\n", CPU::Active, Process::Active, Thread::Active);
+#ifdef DUMP_THREADS
     Thread::DebugPrint();
+#endif
     while(1) asm("hlt");
     return true;
 }
@@ -655,4 +659,23 @@ CPU* StandardPC::GetCPU(int index)
     if (index != 0)
         return NULL;
     return s_CPUs + index;
+}
+
+void SystemService::Register(void)
+{
+    int irq = Interrupt();
+    _handle = s_interrupts.RegisterHandler(irq, [this](void *state)->bool{
+        AutoreleasePool pool;
+        TrapFrame *frame = (TrapFrame*)state;
+        UInt64 data[] = {frame->EAX, frame->EBX, frame->ECX, frame->EDX, frame->EDI, frame->ESI};
+        Handle(data);
+        return true;
+    });
+    s_interrupts.ConfigureSyscall(irq);
+}
+
+void SystemService::Unregister(void)
+{
+    s_interrupts.UnregisterHandler(_handle);
+    _handle = NULL;
 }

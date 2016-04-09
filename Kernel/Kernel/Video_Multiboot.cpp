@@ -102,26 +102,7 @@ static void ConfigureTextConsole(int width, int height)
     activeConsole = panicConsole = &g_vgaConsole;
 }
 
-class GraphicalConsoleDriverColour
-{
-public:
-    unsigned char red, green, blue;
-    
-    SInt64 Value(void) const
-    {
-        return (red * red) + (green * green) + (blue * blue);
-    }
-    SInt64 Distance(GraphicalConsoleDriverColour const &other)
-    {
-        SInt64 result = Value() - other.Value();
-        if (result < 0)
-            return -result;
-        else
-            return result;
-    }
-};
-
-static GraphicalConsoleDriverColour g_gfxColourForeground, g_gfxColourBackground;
+static ConsoleDriver::Colour g_gfxColourForeground, g_gfxColourBackground;
 static GraphicalConsoleDriver g_gfxConsole;
 
 static void ConfigureGraphicsConsole(void *buffer, int width, int height, int lineSpan, int depth)
@@ -328,8 +309,7 @@ void MultibootVideo::SetColour(int index, bool foreground, unsigned char r, unsi
 
 void MultibootVideo::SetCharacter(int index, int x, int y, char c)
 {
-    // TODO: colours
-    g_gfxConsole.Set(c, x, y);
+    g_gfxConsole.Set(c, x, y, g_gfxColourForeground, g_gfxColourBackground);
 }
 
 void MultibootVideo::MoveCharacters(int index, int fromX, int fromY, int toX, int toY, int width, int height)

@@ -1,2 +1,3 @@
 cp Kernel/Kernel/kernel.elf isofiles/boot
-../grub/grub-mkrescue --directory=../grub/grub-core/ -o os.iso --grub-mkimage=../grub/grub-mkimage isofiles
+cp User/Conductor/Conductor.task isofiles/boot
+grub/grub-mkrescue --directory=grub/grub-core/ -o os.iso --grub-mkimage=grub/grub-mkimage isofiles

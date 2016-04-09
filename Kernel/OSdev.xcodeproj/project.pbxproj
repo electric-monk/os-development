@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3B2DE0211C941E810001668E /* System_Service.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2DE01F1C941E810001668E /* System_Service.cpp */; };
 		3B493E0C1B8DA07D00AE972F /* pci.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B493E0A1B8DA07D00AE972F /* pci.cpp */; };
 		3B4A92961BB059A20063E5CA /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B4A92931BB059A20063E5CA /* Console.cpp */; };
 		3B762FFF1B12A9AD00C41D62 /* test.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3B762FFE1B12A9AD00C41D62 /* test.1 */; };
@@ -43,6 +44,9 @@
 		3B7D1B7F1BF0786900C380C9 /* KernelObject_Service.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7D1B7E1BF0786900C380C9 /* KernelObject_Service.cpp */; };
 		3B7D1B831BF0993C00C380C9 /* Blocking_Service.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7D1B811BF0993C00C380C9 /* Blocking_Service.cpp */; };
 		3B7D1B861BF0A4FF00C380C9 /* Collections_Service.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7D1B841BF0A4FF00C380C9 /* Collections_Service.cpp */; };
+		3B7D1B891BF3495900C380C9 /* Thread_Service.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7D1B871BF3495900C380C9 /* Thread_Service.cpp */; };
+		3B7D1B8C1BF48A8300C380C9 /* Userspace_Heap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7D1B8A1BF48A8300C380C9 /* Userspace_Heap.cpp */; };
+		3B7D1B8F1C0263F500C380C9 /* IPC_Service.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7D1B8D1C0263F500C380C9 /* IPC_Service.cpp */; };
 		3B99C3F31B7C72A800C6DD38 /* GenericKeyboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B99C3F11B7C72A800C6DD38 /* GenericKeyboard.cpp */; };
 		3BB523FA1BB1B29B008344C8 /* Video_Multiboot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BB523F81BB1B29B008344C8 /* Video_Multiboot.cpp */; };
 		3BB523FF1BC1D08D008344C8 /* GenericVideo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BB523FD1BC1D08D008344C8 /* GenericVideo.cpp */; };
@@ -86,6 +90,8 @@
 		3B2706C51B02679200C2178E /* FileNubbin.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FileNubbin.cpp; path = Kernel/FileNubbin.cpp; sourceTree = "<group>"; };
 		3B2706C61B02679200C2178E /* FileNubbin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FileNubbin.h; path = Kernel/FileNubbin.h; sourceTree = "<group>"; };
 		3B2706C71B02699300C2178E /* Interface_File_Nubbin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface_File_Nubbin.h; path = Kernel/Interface_File_Nubbin.h; sourceTree = "<group>"; };
+		3B2DE01F1C941E810001668E /* System_Service.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = System_Service.cpp; path = Kernel/System_Service.cpp; sourceTree = "<group>"; };
+		3B2DE0201C941E810001668E /* System_Service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = System_Service.h; path = Kernel/System_Service.h; sourceTree = "<group>"; };
 		3B2DFD1C1A53565700C19756 /* Kernel.ld */ = {isa = PBXFileReference; lastKnownFileType = text; name = Kernel.ld; path = Kernel/Kernel.ld; sourceTree = "<group>"; };
 		3B2DFD1D1A54D15700C19756 /* CPU_context.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = CPU_context.asm; path = Kernel/CPU_context.asm; sourceTree = "<group>"; };
 		3B2DFD1E1A54D9D400C19756 /* Thread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Thread.cpp; path = Kernel/Thread.cpp; sourceTree = "<group>"; };
@@ -122,6 +128,12 @@
 		3B7D1B821BF0993C00C380C9 /* Blocking_Service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Blocking_Service.h; path = Kernel/Blocking_Service.h; sourceTree = "<group>"; };
 		3B7D1B841BF0A4FF00C380C9 /* Collections_Service.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Collections_Service.cpp; path = Kernel/Collections_Service.cpp; sourceTree = "<group>"; };
 		3B7D1B851BF0A4FF00C380C9 /* Collections_Service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Collections_Service.h; path = Kernel/Collections_Service.h; sourceTree = "<group>"; };
+		3B7D1B871BF3495900C380C9 /* Thread_Service.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Thread_Service.cpp; path = Kernel/Thread_Service.cpp; sourceTree = "<group>"; };
+		3B7D1B881BF3495900C380C9 /* Thread_Service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Thread_Service.h; path = Kernel/Thread_Service.h; sourceTree = "<group>"; };
+		3B7D1B8A1BF48A8300C380C9 /* Userspace_Heap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Userspace_Heap.cpp; path = Kernel/Userspace_Heap.cpp; sourceTree = "<group>"; };
+		3B7D1B8B1BF48A8300C380C9 /* Userspace_Heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Userspace_Heap.h; path = Kernel/Userspace_Heap.h; sourceTree = "<group>"; };
+		3B7D1B8D1C0263F500C380C9 /* IPC_Service.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPC_Service.cpp; path = Kernel/IPC_Service.cpp; sourceTree = "<group>"; };
+		3B7D1B8E1C0263F500C380C9 /* IPC_Service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPC_Service.h; path = Kernel/IPC_Service.h; sourceTree = "<group>"; };
 		3B99C3F11B7C72A800C6DD38 /* GenericKeyboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GenericKeyboard.cpp; path = Kernel/GenericKeyboard.cpp; sourceTree = "<group>"; };
 		3B99C3F21B7C72A800C6DD38 /* GenericKeyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GenericKeyboard.h; path = Kernel/GenericKeyboard.h; sourceTree = "<group>"; };
 		3BB3A0B01BC4F0210093C195 /* Interface_VideoMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Interface_VideoMode.h; path = Kernel/Interface_VideoMode.h; sourceTree = "<group>"; };
@@ -167,6 +179,8 @@
 		3BE43F7A19B6FB1B009B16F3 /* CPU_LAPIC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU_LAPIC.cpp; path = Kernel/CPU_LAPIC.cpp; sourceTree = "<group>"; };
 		3BE43F7B19B6FB1B009B16F3 /* CPU_PICIRQ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU_PICIRQ.cpp; path = Kernel/CPU_PICIRQ.cpp; sourceTree = "<group>"; };
 		3BE6C2991B7477F6008A16E2 /* Startup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Startup.h; path = Kernel/Startup.h; sourceTree = "<group>"; };
+		3BF9455A1A8FDD79003F151C /* VFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VFS.cpp; path = Kernel/VFS.cpp; sourceTree = "<group>"; };
+		3BF9455B1A8FDD79003F151C /* VFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VFS.h; path = Kernel/VFS.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -329,6 +343,14 @@
 		3B7D1B7D1BF0784100C380C9 /* Userspace services */ = {
 			isa = PBXGroup;
 			children = (
+				3B2DE01F1C941E810001668E /* System_Service.cpp */,
+				3B2DE0201C941E810001668E /* System_Service.h */,
+				3B7D1B8D1C0263F500C380C9 /* IPC_Service.cpp */,
+				3B7D1B8E1C0263F500C380C9 /* IPC_Service.h */,
+				3B7D1B8A1BF48A8300C380C9 /* Userspace_Heap.cpp */,
+				3B7D1B8B1BF48A8300C380C9 /* Userspace_Heap.h */,
+				3B7D1B871BF3495900C380C9 /* Thread_Service.cpp */,
+				3B7D1B881BF3495900C380C9 /* Thread_Service.h */,
 				3B7D1B841BF0A4FF00C380C9 /* Collections_Service.cpp */,
 				3B7D1B851BF0A4FF00C380C9 /* Collections_Service.h */,
 				3B7D1B811BF0993C00C380C9 /* Blocking_Service.cpp */,
@@ -361,6 +383,8 @@
 				3B3FE3451AC8F4D5008BE6D8 /* Utilities */,
 				3B3FE3441AC8F441008BE6D8 /* Core system */,
 				3B3FE3421AC8F400008BE6D8 /* System Interfaces */,
+				3BF9455A1A8FDD79003F151C /* VFS.cpp */,
+				3BF9455B1A8FDD79003F151C /* VFS.h */,
 				3B26F89A1A5A14EC003BE1B6 /* process_test.asm */,
 				3B26F8981A59CB41003BE1B6 /* Process.cpp */,
 				3B26F8991A59CB41003BE1B6 /* Process.h */,
@@ -456,6 +480,7 @@
 				3B7630101B12A9D600C41D62 /* ImageLoader.cpp in Sources */,
 				3B7630111B12A9D600C41D62 /* mem_logical.cpp in Sources */,
 				3B7630121B12A9D600C41D62 /* mem_physical.cpp in Sources */,
+				3B7D1B8C1BF48A8300C380C9 /* Userspace_Heap.cpp in Sources */,
 				3B7D1B861BF0A4FF00C380C9 /* Collections_Service.cpp in Sources */,
 				3B7630131B12A9D600C41D62 /* mem_virtual.cpp in Sources */,
 				3B7630141B12A9D600C41D62 /* runtime.cpp in Sources */,
@@ -465,14 +490,17 @@
 				3B493E0C1B8DA07D00AE972F /* pci.cpp in Sources */,
 				3B7630161B12A9D600C41D62 /* BasicHeap.cpp in Sources */,
 				3B7630171B12A9D600C41D62 /* descript.cpp in Sources */,
+				3B7D1B8F1C0263F500C380C9 /* IPC_Service.cpp in Sources */,
 				3BB523FF1BC1D08D008344C8 /* GenericVideo.cpp in Sources */,
 				3B7630181B12A9D600C41D62 /* tools.cpp in Sources */,
+				3B2DE0211C941E810001668E /* System_Service.cpp in Sources */,
 				3B7630191B12A9D600C41D62 /* debug.cpp in Sources */,
 				3B76301A1B12A9D600C41D62 /* KernelObject.cpp in Sources */,
 				3B76301B1B12A9D600C41D62 /* VFS.cpp in Sources */,
 				3B76301C1B12A9D600C41D62 /* Process.cpp in Sources */,
 				3B76301D1B12A9D600C41D62 /* main.cpp in Sources */,
 				3B76301E1B12A9D600C41D62 /* CPU.cpp in Sources */,
+				3B7D1B891BF3495900C380C9 /* Thread_Service.cpp in Sources */,
 				3B7630211B12A9D600C41D62 /* CPU_PICIRQ.cpp in Sources */,
 				3B7630241B144E6800C41D62 /* Runloop.cpp in Sources */,
 			);
@@ -587,6 +615,7 @@
 				3B7630011B12A9AD00C41D62 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3BE43F5619B1B915009B16F3 /* Build configuration list for PBXProject "OSdev" */ = {
 			isa = XCConfigurationList;
