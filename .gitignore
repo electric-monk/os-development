@@ -4,8 +4,15 @@ kernel.elf
 *.o
 kernel.map
 .depend
+a.out*
+*.task
 
 # Ignore Xcode nonsense
 *.xcbkptlist
 *.xcuserstate
+xcuserdata
+xcshareddata
 .*
+DerivedData
+*~
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:Conductor/main.cpp">
+   </FileRef>
+   <FileRef
+      location = "group:Conductor/Makefile">
+   </FileRef>
+   <FileRef
+      location = "group:Conductor/entry.asm">
+   </FileRef>
+   <FileRef
+      location = "group:Conductor/User.ld">
+   </FileRef>
+   <FileRef
+      location = "group:Conductor/runtime.cpp">
+   </FileRef>
+</Workspace>
