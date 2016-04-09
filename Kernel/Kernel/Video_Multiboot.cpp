@@ -4,6 +4,7 @@
 #include "mem_logical.h"
 #include "descript.h"
 #include "Collections.h"
+#include "debug.h"
 
 #define GENERIC_IDENTIFIER          0x20151013
 #define GENERIC_VIDEO_TEXT          (void*)(GENERIC_IDENTIFIER + 0)
@@ -125,7 +126,7 @@ static GraphicalConsoleDriver g_gfxConsole;
 
 static void ConfigureGraphicsConsole(void *buffer, int width, int height, int lineSpan, int depth)
 {
-    g_gfxConsole.SetMode(buffer, width, height, depth, lineSpan, depth);
+    g_gfxConsole.SetMode(buffer, width, height, depth / 8, lineSpan, depth);
     activeConsole = panicConsole = &g_gfxConsole;
     g_gfxColourBackground.red = 0;
     g_gfxColourBackground.green = 0;
@@ -197,7 +198,7 @@ void Init_Video_Multiboot(void *vbe_control_info, void *vbe_mode_info, UInt16 vb
     // Apparently we have values? Fire up the relevant console
     PhysicalPointer base = (PhysicalPointer)(s_modeInfo.phys_base & ~(PAGE_SIZE - 1));
     void *framebuffer = rootAddressSpace.Map(fmWritable, pmKernel, base, ((s_modeInfo.phys_base - UInt32(base)) + (s_modeInfo.bytes_per_scanline * s_modeInfo.y_resolution) + PAGE_SIZE - 1) / PAGE_SIZE);
-    ConfigureGraphicsConsole(framebuffer, s_modeInfo.x_resolution, s_modeInfo.y_resolution, s_modeInfo.bytes_per_scanline, s_modeInfo.bits_per_pixel / 8);
+    ConfigureGraphicsConsole(framebuffer, s_modeInfo.x_resolution, s_modeInfo.y_resolution, s_modeInfo.bytes_per_scanline, s_modeInfo.bits_per_pixel);
     // Register a PCI video adapter
     MultibootVideo_Factory *mvf = new MultibootVideo_Factory();
     Driver::RegisterFactory(mvf);

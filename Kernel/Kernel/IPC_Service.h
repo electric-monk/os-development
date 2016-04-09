@@ -41,41 +41,54 @@
 /* Function: Provider: Create
  * Parameter 0: Array handle (describing inputs)
  * Result 0: Error
- * Result 1: Object handle
+ * Result 1: Provider handle
  */
+#define IPC_PROVIDER_CREATE         0x10
+
 /* Function: Provider: Start service
  * Parameter 0: Provider handle
  * Parameter 1: Name (string handle)
  * Parameter 2: Type (string handle)
  * Result 0: Error
- * Result 1: Object handle
+ * Result 1: Service handle
  */
+#define IPC_PROVIDER_START          0x11
+
 /* Function: Provider: Terminate service
  * Parameter 0: Provider handle
- * Parameter 1: Object handle
+ * Parameter 1: Service handle
  * Result 0: Error
  */
+#define IPC_SERVICE_TERMINATE       0x30
+
 /* Function: Provider: Get event (error code indicates event type)
  * Parameter 0: Provider handle
  * Result 0: Error (success indicates no event, but no error)
  * Result 1: Connection handle (on start/message/end)
  * Result 2: Message handle (on message)
  */
+#define IPC_PROVIDER_GET_EVENT      0x12
+
 /* Function: Provider connection: Get IPC
- * Parameter 0: Connection
+ * Parameter 0: Connection handle
  * Result 0: Error
  * Result 1: IPC connection object
  */
+#define IPC_CONNECTION_GET_IPC      0x20
+
 /* Function: Provider connection: Get name
  * Parameter 0: Connection
  * Result 0: Error
  * Result 1: Service name (string object)
  */
+#define IPC_CONNECTION_GET_NAME     0x21
+
 /* Function: Provider connection: Get type
  * Parameter 0: Connection
  * Result 0: Error
  * Result 1: Service type (string object)
  */
+#define IPC_CONNECTION_GET_TYPE     0x22
 
 #define IPC_ERROR_SUCCESS                   0x00
 #define IPC_ERROR_SECURITY                  0x01
@@ -86,5 +99,8 @@
 #define IPC_ERROR_EVENT_OUTPUT_CONNECT      0x06
 #define IPC_ERROR_EVENT_OUTPUT_MESSAGE      0x07
 #define IPC_ERROR_EVENT_OUTPUT_DISCONNECT   0x08
+#define IPC_ERROR_UNKNOWN_FUNCTION          0x09
+#define IPC_ERROR_INVALID_HANDLE            0x0A
+#define IPC_ERROR_NO_BUFFER                 0x0B
 
 #endif // __IPC_SERVICE_H__

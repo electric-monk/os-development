@@ -1,5 +1,6 @@
 #include "Console.h"
 #include "CPU_intr.h"
+#include "debug.h"
 
 ConsoleDriver *activeConsole, *panicConsole;
 
@@ -169,6 +170,22 @@ static void ToggleCursor(unsigned char *buffer, int pixelSpan, int widthSpan, in
     SimpleInvert(buffer, pixelSpan, widthSpan, x * ZeppFont::width, ((y + 1) * ZeppFont::height) - (PIXEL_HEIGHT + 1), ZeppFont::width, PIXEL_HEIGHT);
 }
 
+static void SetPixel24(unsigned char *buffer, int widthSpan, int x, int y, ConsoleDriver::Colour colour)
+{
+    UInt32 colour24 = (colour.red << 0) | (colour.green << 8) | (colour.blue << 16);
+    buffer += (y * widthSpan) + (3 * x);
+    buffer[0] = colour24 & 0xFF;
+    buffer[1] = (colour24 >> 8) & 0xFF;
+    buffer[2] = (colour24 >> 16) & 0xFF;
+}
+
+static void SetPixel32(unsigned char *buffer, int widthSpan, int x, int y, ConsoleDriver::Colour colour)
+{
+    buffer += y * widthSpan;
+    buffer += x * /*pixelSpan*/4;
+    ((UInt32*)buffer)[0] =  (colour.red << 0) | (colour.green << 8) | (colour.blue << 16);
+}
+
 void GraphicalConsoleDriver::SetMode(void *address, int width, int height, int pixelSpan, int widthSpan, int depth)
 {
     _buffer = (unsigned char*)address;
@@ -180,28 +197,18 @@ void GraphicalConsoleDriver::SetMode(void *address, int width, int height, int p
     _cursorX = 0;
     _cursorY = 0;
     _cursorEnabled = true;
+    switch(_depth) {
+        case 32:
+        default:
+            _pixelSet = SetPixel32;
+            break;
+        case 24:
+            _pixelSet = SetPixel24;
+            break;
+    }
     
     SimpleClear(_buffer, _pixelSpan, _widthSpan, 0, 0, _width, _height);
     ToggleCursor(_buffer, _pixelSpan, _widthSpan, 0, 0);
-}
-
-static void SetPixel24(unsigned char *buffer, int widthSpan, int x, int y, UInt32 colour)
-{
-    buffer += (y * widthSpan) + (3 * x);
-    buffer[0] = colour & 0xFF;
-    buffer[1] = (colour >> 8) & 0xFF;
-    buffer[2] = (colour >> 16) & 0xFF;
-}
-
-static void SetPixel32(unsigned char *buffer, int widthSpan, int x, int y, UInt32 colour)
-{
-    UInt32 *data = (UInt32*)buffer;
-    data[(y * widthSpan) + x] = colour;
-}
-
-static UInt32 As24(ConsoleDriver::Colour const& colour)
-{
-    return (colour.red << 0) | (colour.green << 8) | (colour.blue << 16) | (0xFF << 24);
 }
 
 void GraphicalConsoleDriver::Set(char c, int x, int y, Colour foreground, Colour background)
@@ -222,12 +229,7 @@ void GraphicalConsoleDriver::Set(char c, int x, int y, Colour foreground, Colour
                 byte = *bitmap;
                 bitmap++;
             }
-            UInt32 colour;
-            if (byte & 0x80)
-                colour = As24(foreground);
-            else
-                colour = As24(background);
-            SetPixel24(_buffer, _widthSpan, actualXcursor, actualY, colour);
+            _pixelSet(_buffer, _widthSpan, actualXcursor, actualY, (byte & 0x80) ? foreground : background);
             actualXcursor++;
         }
         actualY++;

@@ -75,6 +75,8 @@ private:
     int _depth;
     int _cursorX, _cursorY;
     bool _cursorEnabled;
+
+    void(*_pixelSet)(unsigned char *buffer, int widthSpan, int x, int y, Colour colour);
 };
 
 #endif // __CONSOLE_H__
