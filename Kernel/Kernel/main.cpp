@@ -142,6 +142,12 @@ static bool TestHandler(void *context, void *state)
     test(tf->EBX, tf->ECX, tf->EAX);
     return true;
 }
+static bool TestPrint(void *context, void *state)
+{
+    TrapFrame *tf = (TrapFrame*)state;
+    kprintf("%s", (char*)tf->EAX);
+    return true;
+}
 extern "C" void ProcessTestThreadOne(void*);
 extern "C" void ProcessTestThreadTwo(void*);
 static void ConfigureProcessTest(void (*test)(void*), const char *name)
@@ -223,6 +229,8 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     ConfigureProcessTest(ProcessTestThreadTwo, "Four");
     rootDevice->Test()->RegisterHandler(0x99, TestHandler, NULL);
     rootDevice->Test()->ConfigureSyscall(0x99);
+    rootDevice->Test()->RegisterHandler(0xff, TestPrint, NULL);
+    rootDevice->Test()->ConfigureSyscall(0xff);
     
     // Queue test
     testQueue = new DispatchQueue();
