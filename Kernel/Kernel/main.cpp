@@ -18,7 +18,7 @@ extern UInt32 kern_start, kern_end;
 extern UInt32 virt, phys;
 
 BasicHeap *s_coreHeap;
-static unsigned char s_coreMemory[65535*4];
+static unsigned char s_coreMemory[65535*8*2];
 
 #include "Thread.h"
 Thread *one, *two;
@@ -63,7 +63,7 @@ class TestServiceWatcher : public IpcServiceWatcher
 public:
     void ServiceProviderAppeared(KernelObject *provider)
     {
-        kprintf("Provider started: %.8x\n", provider);
+        kprintf("Provider started: %.8x: %s\n", provider, provider->GetClassName(0));
     }
     
     void ServiceAppeared(KernelObject *provider, IpcService *service)
@@ -217,7 +217,7 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     Init_Video_Multiboot(FixAddress((void*)mbd->vbe_control_info), FixAddress((void*)mbd->vbe_mode_info), mbd->vbe_mode);
 
     // Splash
-	kprintf("Munro Systems\nCosmOS 1.0\nCopyright (C) 2008-2015 Colin Munro\n\n");
+	kprintf("Munro Systems\nCosmOS 1.0\nCopyright (C) 2008-2016 Colin Munro\n\n");
     
     TestServiceWatcher *watcher = new TestServiceWatcher();
     IpcServiceList::Register(watcher);
