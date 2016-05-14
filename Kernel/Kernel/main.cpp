@@ -88,19 +88,6 @@ public:
 };
 
 #include "Interrupts.h"
-int taunt = 0;
-static bool KeyboardTestHandler(void *context, void *state)
-{
-    unsigned char c = inb(0x60);
-    kprintf("%.2x ", c);
-    if (c == 0x39)
-//        ((BasicHeap*)NULL)->AddBlock(0, 0);
-        taunt++;
-    if (c == 0x14)
-        Thread::DebugPrint();
-    
-    return true;
-}
 
 static const char *testchars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 class TestThread : public KernelThread
@@ -123,11 +110,6 @@ protected:
             i++;
             if (testchars[i] == '\0')
                 i = 0;
-            if ((_x - 49) == taunt) {
-//                kprintf("Lose all marks in exam\n");
-//                break;
-                s_coreHeap->Test();
-            }
             if (_sleep) {
                 Thread::Active->Sleep(MILLISECONDS(_sleep));
                 
@@ -222,8 +204,6 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     StandardPC *rootDevice = new StandardPC();
     rootDevice->Start(NULL);
 
-    rootDevice->Test()->RegisterHandler(0x21, KeyboardTestHandler, NULL);
-    
     // Do something else
 	kprintf("\nStarting!\n");
     
