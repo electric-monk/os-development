@@ -129,9 +129,7 @@ protected:
                 s_coreHeap->Test();
             }
             if (_sleep) {
-                test(12, 0, '?');
                 Thread::Active->Sleep(MILLISECONDS(_sleep));
-                test(12, 0, '!');
                 
                 TestTask *testTask = new TestTask('W');
 //                testQueue->AddTask(testTask);
@@ -159,7 +157,6 @@ private:
 static bool TestHandler(void *context, void *state)
 {
     TrapFrame *tf = (TrapFrame*)state;
-    test('>');
     test(tf->EBX, tf->ECX, tf->EAX);
     return true;
 }
@@ -229,7 +226,6 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     
     // Do something else
 	kprintf("\nStarting!\n");
-	test('Z');
     
     bicycle::function<int(void)> test = [rootDevice](){
         kprintf("Lambda %.8x\n", rootDevice);
