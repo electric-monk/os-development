@@ -227,12 +227,6 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     // Do something else
 	kprintf("\nStarting!\n");
     
-    bicycle::function<int(void)> test = [rootDevice](){
-        kprintf("Lambda %.8x\n", rootDevice);
-        return 0;
-    };
-    test();
-
     Thread::ConfigureService();
     Collections::ConfigureService();
     BlockableObject::ConfigureService();
