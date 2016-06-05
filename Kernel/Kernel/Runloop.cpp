@@ -1,6 +1,7 @@
 #include "Runloop.h"
 #include "Collections.h"
 #include "Thread.h"
+#include "debug.h"
 
 typedef KernelFunction<int(BlockableObject *watching, KernelArray *signals)> RunloopFunction;
 
