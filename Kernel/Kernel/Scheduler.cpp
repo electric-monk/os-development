@@ -29,9 +29,10 @@ void Scheduler::BeginScheduling(void)
             test('&');
             rootAddressSpace.Select();
             Process::Active = NULL;
-            CPU_Interrupt_Enable();
-            asm("hlt");
-            CPU_Interrupt_Disable();
+            {
+                InterruptEnabler enabler;
+                asm volatile("hlt");
+            }
         }
     }
 }
