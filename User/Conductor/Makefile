@@ -1,13 +1,13 @@
-CC = gcc
+CC = i386-elf-gcc
 AS = nasm
-LD = ld
+LD = i386-elf-ld
 
 CFLAGS = -m32 -g -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
 #CFLAGS = -m32 -O3 -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
 AFLAGS = -f elf
 LFLAGS = -q -melf_i386
 
-OBJS = main.o entry.so runtime.o
+OBJS = main.o entry.so runtime.o Handle_x86.o Collections_x86.o Blocking_x86.o Thread_x86.o
 
 SRC = $(patsubst %.so,%.asm,$(patsubst %.o,%.cpp,$(OBJS)))
 
