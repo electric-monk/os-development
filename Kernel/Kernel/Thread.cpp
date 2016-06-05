@@ -141,13 +141,17 @@ KernelArray* Thread::BlockOn(BlockableObject *source)
     // If the new object is signalled, don't do anything
     if (!source)
         return NULL;
-    if (source->IsSignalled())
-        return source->CurrentSignals();
+    {
+        InterruptDisabler disabler;
+        if (source->IsSignalled())
+            return source->CurrentSignals();
     // Start blocking
-    _blockingObject = source;
-    _blockingObject->AddRef();
-    _blockingObject->RegisterObserver(this);
-    _state = tsBlocked;
+        _blockingObject = source;
+        _blockingObject->AddRef();
+        // Disable interrupts here in particular, as if we're preempted between the following two lines, we'll be stuck forever
+        _state = tsBlocked;
+        _blockingObject->RegisterObserver(this);
+    }
     // TODO: Multiprocessor?
     if (Thread::Active == this) {
         // TODO: Disable interrupt earlier?
