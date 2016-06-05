@@ -1,5 +1,6 @@
 #include "tools.h"
 #include "debug.h"
+#include "KernelObject.h"
 
 #define HEXSTRING		"0123456789ABCDEF"
 
@@ -146,6 +147,50 @@ int CStringPrint::ParseFormat(va_list &params, const char *format)
             }
                 index++;
                 added = true;
+                break;
+                
+            case '@':   // Kernel object
+            {
+                KernelObject *ptr = va_arg(params, KernelObject*);
+                if (ptr == NULL) {
+                    const char *s = "<null>";
+                    PrintOut(s, LengthOf(s));
+                } else {
+                    // Pointer
+                    UInt64 x = (UInt64)(unsigned int)ptr;
+					char buf[32];
+					int i;
+                    
+                    const char *a = "<0x";
+                    PrintOut(a, LengthOf(a));
+                    if (padding == 0)
+                        padding = sizeof(KernelObject*) * 2;
+					i = 32;
+					if (x == 0)
+						buf[--i] = '0';
+					while (x != 0)
+					{
+						buf[--i] = HEXSTRING[x & 0x0F];
+						x >>= 4;
+					}
+					padding -= 32 - i;
+					while (padding > 0)
+					{
+						PrintOut("0", 1);
+						padding--;
+					}
+					PrintOut(buf + i, 32 - i);
+                    const char *b = ": ";
+                    PrintOut(b, LengthOf(b));
+                    // Meaning
+                    const char *z = ptr->GetClassName(0);
+                    PrintOut(z, LengthOf(z));
+                    const char *c = ">";
+                    PrintOut(c, LengthOf(c));
+                }
+                index++;
+                added = true;
+            }
                 break;
 
 			// ..else
