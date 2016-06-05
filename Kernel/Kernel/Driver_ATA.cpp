@@ -253,7 +253,6 @@ public:
         UInt8 programmingInterface = (classInfo & 0x0000FF00) >> 8;
         bool nativeMode = programmingInterface & (_primary ? 0x01 : 0x04);
         bool configurable = programmingInterface & (_primary ? 0x02 : 0x08);
-        kprintf("PCI %.8x device %i: native %s configurable %s\n", parent, _primary ? 0 : 1, nativeMode ? "true" : "false", configurable ? "true" : "false");
         // Can it be set to PCI native mode?
         if (configurable && !nativeMode) {
             nativeMode = true;
@@ -281,7 +280,6 @@ public:
             _controlPort = _primary ? 0x3F6 : 0x376;
             irq = PIC_IRQ_OFFSET + (_primary ? 14 : 15);
         }
-        kprintf("Selected I/O %.3x control %.3x bm %.3x IRQ %i\n", _ioPort, _controlPort, _bmPort, irq);
         // Hook up the interrupt
         Interrupts *interruptSource;
         if (irq == -1) {

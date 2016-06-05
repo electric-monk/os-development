@@ -124,12 +124,10 @@ void DispatchGroup::Exit(void *token)
 DispatchQueue::Task::Task()
 {
     // No initialisation required
-//    kprintf("Task create\n");
 }
 
 DispatchQueue::Task::~Task()
 {
-//    kprintf("Task release\n");
 }
 
 void DispatchQueue::Task::Run(void)
@@ -160,7 +158,6 @@ DispatchQueue::~DispatchQueue()
 
 void DispatchQueue::AddTask(Task *task)
 {
-//    kprintf("Queue 0x%.8x adding task 0x%.8x\n", this, task);
     GenericLock::Autolock locker(&_taskLock);
     _tasks->Push(task);
     SetSignalled(task, true);
@@ -204,26 +201,20 @@ void DispatchQueue::WorkThread(void *context)
     watching->AddSource(that->_threadEnd);
     watching->AddSource(that);
     
-//    kprintf("Starting queue 0x%.8x\n", that);
     while (!Thread::Active->BlockOn(watching)->Contains(that->_threadEnd)) {
-//        kprintf("Waking up queue 0x%.8x\n", that);
         // Get the next task
         {
             GenericLock::Autolock locker(&that->_taskLock);
             task = (Task*)that->_tasks->Pop();
             if (task == NULL) {
-//                kprintf("Sleeping queue 0x%.8x\n", that);
                 continue;
             }
             that->SetSignalled(task, false);
         }
         // Run it
-//        kprintf("Running task on 0x%.8x: 0x%.8x\n", that, task);
         task->Run();
-//        kprintf("Task completed for 0x%.8x\n", that);
         pool.Flush();
     }
-//    kprintf("Stopping queue 0x%.8x\n", that);
     
     watching->Release();
 }

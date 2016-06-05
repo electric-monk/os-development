@@ -283,7 +283,7 @@ private:
 public:
     StartupHandler()
     {
-        kprintf("STARTUP: Initialising\n");
+        START_LOG("STARTUP: Initialising\n");
 
         _runloop = new RunloopThread();
         _watcher = new RunloopWatcher();

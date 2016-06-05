@@ -136,8 +136,6 @@ void BasicHeap::AddBlock(void *offset, BasicHeap::h_size length)
 void* BasicHeap::Alloc(BasicHeap::h_size amount)
 {
     HEAP_LOCK;
-//    kprintf("Allocating %i\n", amount);
-//    Test();
     h_size required = amount + sizeof(BasicHeap_Block);
 #ifdef CHECK_OVERRUN
     required += sizeof(BasicHeap::h_size);
@@ -152,7 +150,6 @@ void* BasicHeap::Alloc(BasicHeap::h_size amount)
             block->size = amount;
             _count++;
             _allocated += count * _granularity;
-//            kprintf("=> %.8x\n", block + 1);
 #ifdef CHECK_UNDERRUN
             block->_before = TEST_BEFORE;
             block->_after = TEST_AFTER;
@@ -170,7 +167,8 @@ void* BasicHeap::Alloc(BasicHeap::h_size amount)
             return block + 1;
         }
     }
-//    kprintf("=> failure:\n");
+    kprintf("Allocation failure for %i\n", amount);
+    Test();
     return NULL;
 }
 
@@ -207,8 +205,9 @@ void BasicHeap::Release(void *buffer)
     _allocated -= count * _granularity;
 #ifdef CLEAR_FREE
     char *blockStart = (char*)block;
-    for (h_size amount = count * _granularity; amount != 0; amount--, blockStart++)
-        *blockStart = amount & 1 ? 0xFF : 0x55;
+    for (h_size amount = count * _granularity; amount != 0; amount--, blockStart++) {
+        *blockStart = amount & 1 ? 0xFF : 0x55; // 0xFF55FF55
+    }
 #endif
 }
 

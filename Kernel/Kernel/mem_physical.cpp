@@ -150,7 +150,6 @@ void CPhysicalMemory::AddChunk(PhysicalPointer address, PhysicalLength length)
 
 void CPhysicalMemory::AddReserved(PhysicalPointer address, PhysicalLength length)
 {
-//    kprintf("CPhysicalMemory::AddReserved(0x%.8x, %i)\n", (int)address, (int)length);
     // Not very efficient just now
     int pageCount = ((length + 0x00000FFF) & 0xFFFFF000) >> 12;
     char* reserveLower = (char*)address;

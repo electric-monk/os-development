@@ -126,7 +126,6 @@ void Thread::Kill(void)
 
 KernelArray* Thread::BlockOn(BlockableObject *source)
 {
-//    kprintf("Thread %.8x blocking on %.8x\n", this, source);
     // Release any previous object
     if (_blockingObject) {
         _blockingObject->UnregisterObserver(this);
@@ -171,7 +170,6 @@ KernelArray* Thread::BlockOn(BlockableObject *source)
 
 void Thread::SignalChanged(BlockableObject *watching, bool active)
 {
-//    kprintf("Thread %.8x got signal %.8x\n", this, signal);
     if (active) {
         // Make a note of who set us off again
         _blockingResult = watching->CurrentSignals();
@@ -205,9 +203,7 @@ void Thread::Select(CPU::Context **scheduler)
         }
     }
     Thread::Active = this;
-    test('^');
     _context->SwitchFrom(scheduler);
-    test('?');
     Thread::Active = NULL;
 }
 

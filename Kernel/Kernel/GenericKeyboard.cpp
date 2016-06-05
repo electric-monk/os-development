@@ -181,7 +181,6 @@ void GenericKeyboard::SendEvent(int key, bool down)
         });
         return (void*)NULL;
     });
-//    kprintf("Key %s: %c\n", down ? "down" : "up", (char)key);
 }
 
 class GenericKeyboard_Connection : public ProviderDriver::Connection

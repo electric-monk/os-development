@@ -177,7 +177,6 @@ protected:
             observer->Release();
             // Add to the connection list
             GenericProvider_Thunk::Connections(_provider)->Add(connection);
-            kprintf("Got connection %.8x\n", connection);
         }
     }
 private:

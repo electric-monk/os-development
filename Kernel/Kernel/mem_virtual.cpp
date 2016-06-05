@@ -112,7 +112,6 @@ void VirtualMemory::Init(Process *process)
     KernelNumber *number = new KernelNumber(_identifier);
     s_identifierMap->Set(number, this);
     number->Release();
-//    kprintf("VirtualMemory 0x%.8x: process 0x%.8x from 0x%.8x to 0x%.8x\n", this, _process, _linear, _linear + _length);
 }
 
 VirtualMemory::VirtualMemory(Process *process, UInt32 length)
@@ -139,7 +138,6 @@ VirtualMemory::VirtualMemory(Process *process, void *linearBase, UInt32 length)
 
 VirtualMemory::~VirtualMemory()
 {
-//    kprintf("VirtualMemory 0x%.8x end\n", this);
     KernelNumber *number = new KernelNumber(_identifier);
     s_identifierMap->Set(number, NULL);
     number->Release();

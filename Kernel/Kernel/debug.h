@@ -5,7 +5,6 @@
 
 void kcls(void);
 void kprintf(const char *format, ...);
-void test(char c);
 void test(int x, int y, char c);
 
 #ifdef DEBUG

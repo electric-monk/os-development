@@ -50,7 +50,6 @@ void SPageDirectoryInfo::InitKernel(void)
             {
                 // 4MB page
                 tables[i] = (SPageTable*)0xFFFFFFFF;
-//                kprintf("4MB page found at %i\n", i);
             }
             else
             {

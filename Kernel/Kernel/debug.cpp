@@ -14,13 +14,6 @@ static inline char* Get_Framebuffer(void)
     return (char*)(physicalAddress + (long long)&virt - (long long)&phys);
 }
 
-void test(char c)
-{
-	char *output = Get_Framebuffer() + (((80 * 24) + 79) * 2);
-	output[0] = c;
-	output[1] = FORMAT_PLAIN;
-}
-
 class CathodeRayTube
 {
 private:
