@@ -4,6 +4,7 @@
 #include "Interface_Block.h"
 #include "Queue.h"
 #include "IPC.h"
+#include "debug.h"
 
 FileNubbin::FileNubbin()
 {
@@ -272,6 +273,7 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
                 message->Release();
                 return 0;
             });
+            service->Release();
         }
             break;
         case Interface_File_Nubbin::Command::UnexposeFile | INDICATE_COMMAND:
