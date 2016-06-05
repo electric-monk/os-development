@@ -158,7 +158,7 @@ typedef struct {
         sel = segment;
         alwaysZero = 0;
         gateType = istrap ? IDT_TYPE_TRAP32 : IDT_TYPE_INT32;
-        segment = 0;
+        this->segment = 0;
         privilegeLevel = dpl;
         Present = 1;
         baseHigh = UInt16(UInt32(offset) >> 16);
