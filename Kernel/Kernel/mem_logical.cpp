@@ -316,12 +316,6 @@ void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer ph
         newDirectoryEntry.PageSize = 0; // 4Kb
         newDirectoryEntry.Global = 0;   // Not global
         tablesPhysical[dirEntry] = newDirectoryEntry;
-        
-        // Make sure it's mapped, if necessary
-        if (this != currentAddressSpace) {
-            currentAddressSpace->tables[dirEntry] = tables[dirEntry];
-            currentAddressSpace->tablesPhysical[dirEntry] = tablesPhysical[dirEntry];
-        }
     }
     
     SPage newPageInfo;
@@ -355,6 +349,11 @@ void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer ph
     if (this == currentAddressSpace) {
         InvalidateTLB(location);
     } else if ((this == &rootAddressSpace) && (currentAddressSpace->revision != 0)) {
+        // These two may already be set, but just in case, reset
+        currentAddressSpace->tables[dirEntry] = tables[dirEntry];
+        currentAddressSpace->tablesPhysical[dirEntry] = tablesPhysical[dirEntry];
+        
+        // Set the actual mapping
         currentAddressSpace->tables[dirEntry]->pages[pagEntry] = newPageInfo;
         currentAddressSpace->revision = revision;   // Update now, as we just refreshed it efficiently
         InvalidateTLB(location);
