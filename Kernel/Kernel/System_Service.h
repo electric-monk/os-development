@@ -33,6 +33,7 @@
  * Result 1: Array handle containing dictionaries
  *      0x00 -> Provider handle
  *      0x01 -> 0x00=stop, 0x01=start, 0x02=new output, 0x03=
+ */
 
 /* Function: Connect two objects
  * Parameter 0: Monitor handle
