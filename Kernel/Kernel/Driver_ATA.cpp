@@ -306,8 +306,7 @@ public:
         _interruptToken = interruptSource->RegisterHandler(irq, [this](void *state){
             if (!UpdateForInterrupt())
                 /*return false*/;
-            if (!_interrupt->IsSignalled())
-                _interrupt->Set();
+            _interrupt->Set();
             return true;
         });
         return ATADriverNode::Start(parent);
@@ -377,8 +376,7 @@ public:
     }
     void ResetInterrupt(void)
     {
-        if (_interrupt->IsSignalled())
-            _interrupt->Reset();
+        _interrupt->Reset();
     }
     
     bool DMAAvailable(void)
@@ -1020,9 +1018,13 @@ void ATADriver::_Wait(UInt8 we, UInt8 pe)
 {
     if (we && _useInterrupts) {
         KernelArray *result = Thread::Active->BlockOn(_waitObject);
-        if ((result != NULL) && result->Contains(_timer)) {
-            _regCommandInfo.timeOutError = true;
-            _regCommandInfo.errorCode = we;
+        if (result) {
+            if (result->Contains(_timer)) {
+                _regCommandInfo.timeOutError = true;
+                _regCommandInfo.errorCode = we;
+            } else {
+                IOPort()->ResetInterrupt();
+            }
         }
     } else {
         while (true) {

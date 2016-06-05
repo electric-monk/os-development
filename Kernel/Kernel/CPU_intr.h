@@ -15,6 +15,8 @@ void CPU_LAPIC_StartProcessor(UInt8 ApicId, void *address);
 void CPU_PIC_Init(int baseVector); // IRQ_Vector == baseVector + irq
 void CPU_PIC_MasterEnable(bool enable);
 void CPU_PIC_Enable(int irq, bool enable);
+void CPU_PIC_SendEOI(int irq);
+bool CPU_PIC_IsSpurious(int irq);
 
 // CPU
 static inline void CPU_Interrupt_Enable(void) { asm("sti"); }

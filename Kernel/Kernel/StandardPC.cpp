@@ -281,6 +281,17 @@ public:
     
     void Trigger(TrapFrame *frame)
     {
+        if ((frame->TrapNumber >= PIC_IRQ_OFFSET) && (frame->TrapNumber < (PIC_IRQ_OFFSET + 16))) {
+            int irq = frame->TrapNumber - PIC_IRQ_OFFSET;
+            // Spurious interrupt detection
+            if (CPU_PIC_IsSpurious(irq)) {
+                kprintf("Got spurious %i\n", irq);
+                return;
+            }
+            // Acknowledge, as we may not immediately return from triggering the interrupt
+            CPU_PIC_SendEOI(irq);
+        }
+        // Actually handle
         HandlerHandle::Trigger(handlers[frame->TrapNumber], frame);
     }
 
