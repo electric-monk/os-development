@@ -680,6 +680,7 @@ void SystemService::Register(void)
         TrapFrame *frame = (TrapFrame*)state;
         UInt64 data[] = {frame->EAX, frame->EBX, frame->ECX, frame->EDX, frame->EDI, frame->ESI};
         Handle(data);
+        frame->EAX = data[0]; frame->EBX = data[1]; frame->ECX = data[2]; frame->EDX = data[3]; frame->EDI = data[4]; frame->ESI = data[5];
         return true;
     });
     s_interrupts.ConfigureSyscall(irq);
