@@ -34,7 +34,6 @@
 		3B7630181B12A9D600C41D62 /* tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F6F19B1B95A009B16F3 /* tools.cpp */; };
 		3B7630191B12A9D600C41D62 /* debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F5B19B1B95A009B16F3 /* debug.cpp */; };
 		3B76301A1B12A9D600C41D62 /* KernelObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7713361A6C353500556361 /* KernelObject.cpp */; };
-		3B76301B1B12A9D600C41D62 /* VFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BF9455A1A8FDD79003F151C /* VFS.cpp */; };
 		3B76301C1B12A9D600C41D62 /* Process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B26F8981A59CB41003BE1B6 /* Process.cpp */; };
 		3B76301D1B12A9D600C41D62 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F6519B1B95A009B16F3 /* main.cpp */; };
 		3B76301E1B12A9D600C41D62 /* CPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F7619B6F7B6009B16F3 /* CPU.cpp */; };
@@ -179,8 +178,6 @@
 		3BE43F7A19B6FB1B009B16F3 /* CPU_LAPIC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU_LAPIC.cpp; path = Kernel/CPU_LAPIC.cpp; sourceTree = "<group>"; };
 		3BE43F7B19B6FB1B009B16F3 /* CPU_PICIRQ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU_PICIRQ.cpp; path = Kernel/CPU_PICIRQ.cpp; sourceTree = "<group>"; };
 		3BE6C2991B7477F6008A16E2 /* Startup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Startup.h; path = Kernel/Startup.h; sourceTree = "<group>"; };
-		3BF9455A1A8FDD79003F151C /* VFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VFS.cpp; path = Kernel/VFS.cpp; sourceTree = "<group>"; };
-		3BF9455B1A8FDD79003F151C /* VFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VFS.h; path = Kernel/VFS.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -383,8 +380,6 @@
 				3B3FE3451AC8F4D5008BE6D8 /* Utilities */,
 				3B3FE3441AC8F441008BE6D8 /* Core system */,
 				3B3FE3421AC8F400008BE6D8 /* System Interfaces */,
-				3BF9455A1A8FDD79003F151C /* VFS.cpp */,
-				3BF9455B1A8FDD79003F151C /* VFS.h */,
 				3B26F89A1A5A14EC003BE1B6 /* process_test.asm */,
 				3B26F8981A59CB41003BE1B6 /* Process.cpp */,
 				3B26F8991A59CB41003BE1B6 /* Process.h */,
@@ -496,7 +491,6 @@
 				3B2DE0211C941E810001668E /* System_Service.cpp in Sources */,
 				3B7630191B12A9D600C41D62 /* debug.cpp in Sources */,
 				3B76301A1B12A9D600C41D62 /* KernelObject.cpp in Sources */,
-				3B76301B1B12A9D600C41D62 /* VFS.cpp in Sources */,
 				3B76301C1B12A9D600C41D62 /* Process.cpp in Sources */,
 				3B76301D1B12A9D600C41D62 /* main.cpp in Sources */,
 				3B76301E1B12A9D600C41D62 /* CPU.cpp in Sources */,
