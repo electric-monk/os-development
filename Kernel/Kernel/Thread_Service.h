@@ -24,6 +24,13 @@
  */
 #define THREAD_FUNCTION_ALLOC       0x02
 
+/* Function: Get heap address
+ * Parameter 0: Object handle
+ * Result 0: Error
+ * Result 1: Address
+ */
+#define THREAD_FUNCTION_GET_ADDRESS 0x04
+
 /* Function: Terminate current thread
  */
 #define THREAD_FUNCTION_TERMINATE   0x03

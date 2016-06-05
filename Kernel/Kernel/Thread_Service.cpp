@@ -37,9 +37,19 @@ namespace Thread_Internal {
                     break;
                 case THREAD_FUNCTION_ALLOC:
                 {
-                    VirtualMemory *memory = new UserspaceHeap(Process::Active, (UInt32)parameters[0]);
+                    VirtualMemory *memory = new UserspaceHeap(Process::Active, (UInt32)parameters[1]);
                     parameters[1] = Process::Mapper()->Map(memory);
                     parameters[2] = (UInt64)memory->LinearBase();
+                }
+                    break;
+                case THREAD_FUNCTION_GET_ADDRESS:
+                {
+                    VirtualMemory *memory = (VirtualMemory*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!memory || !memory->IsDerivedFromClass("VirtualMemory")) {
+                        parameters[0] = THREAD_INVALID_HANDLE;
+                        return;
+                    }
+                    parameters[1] = (UInt64)memory->LinearBase();
                 }
                     break;
                 case THREAD_FUNCTION_TERMINATE:
