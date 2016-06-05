@@ -176,13 +176,13 @@ namespace KernelObject_Internal {
             return _object;
         }
         
-        HandledObject(int handle, KernelObject *object, bicycle::function<int(void)> onDestroy)
+        HandledObject(int handle, KernelObject *object, bicycle::function<int(HandledObject*)> onDestroy)
         {
             _handle = handle;
             _object = object;
             _watcher = object->Watch([this, onDestroy]{
                 _watcher = NULL;    // Remove our own reference, as it'll now be released
-                onDestroy();        // Call the real handler
+                onDestroy(this);        // Call the real handler
                 return 0;
             });
         }
@@ -243,12 +243,12 @@ Handle ObjectMapper::Map(KernelObject *object)
     }
     _nextHandle++;  // Prepare for next time
     // Create new item
-    entry = new KernelObject_Internal::HandledObject(handleNumber->Value(), object, [entry, this]{
+    entry = new KernelObject_Internal::HandledObject(handleNumber->Value(), object, [this](KernelObject_Internal::HandledObject *activeEntry){
         // TODO: a queue - who knows where this will be running
-        KernelNumber *number = new KernelNumber(entry->GetHandle());
+        KernelNumber *number = new KernelNumber(activeEntry->GetHandle());
         _handleMap->Set(number, NULL);
         number->Release();
-        KernelNumber *object = new KernelNumber((UInt32)entry->Object());
+        KernelNumber *object = new KernelNumber((UInt32)activeEntry->Object());
         _objectMap->Set(object, NULL);
         object->Release();
         return 0;
