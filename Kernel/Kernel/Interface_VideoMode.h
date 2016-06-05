@@ -3,7 +3,7 @@
 
 #include "Interface.h"
 
-#define SERVICE_TYPE_VIDEOMODE          "core.provider.video"_ko
+#define SERVICE_TYPE_VIDEOMODE          "core.provider.video.mode"_ko
 
 namespace VideoMode {
     
