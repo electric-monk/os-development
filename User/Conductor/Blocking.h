@@ -3,6 +3,10 @@
 
 #include "Handle.h"
 
+#define MICROSECONDS(x)         (x)
+#define MILLISECONDS(x)         (MICROSECONDS(x) * 1000)
+#define SECONDS(x)              (MILLISECONDS(x) * 1000)
+
 namespace Kernel {
     
     namespace Collections {
