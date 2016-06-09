@@ -59,6 +59,19 @@
  * Result 1: Input dictionary
  */
 
+/* Function: Get root device
+ * Result 0: Error
+ * Result 1: Handle
+ */
+#define SYSTEM_DRIVER_GET_ROOT      0xA0
+
+/* Function: Get device children
+ * Parameter 0: Device
+ * Result 0: Error
+ * Result 1: Array
+ */
+#define SYSTEM_DRIVER_CHILDREN      0xA1
+
 // Errors
 #define SYSTEM_ERROR_SUCCESS        0x00
 #define SYSTEM_ERROR_BAD_FUNCTION   0x01

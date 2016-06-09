@@ -2,12 +2,16 @@
 #include "Interrupts.h"
 #include "Process.h"
 #include "Collections.h"
+#include "Blocking.h"
+#include "Driver.h"
+
+extern Driver *s_rootDevice;
 
 namespace System_Internal {
-    class Monitor : public KernelObject
+    class Monitor : public BlockableObject
     {
     public:
-        CLASSNAME(KernelObject, System_Internal::Monitor);
+        CLASSNAME(BlockableObject, System_Internal::Monitor);
         
         Monitor()
         {
@@ -17,10 +21,7 @@ namespace System_Internal {
         KernelArray* Capture(void)
         {
             KernelArray *result = new KernelArray();
-            int i, j;
-            j = _providers->Count();
-            for (i = 0; i < j; i++) {
-                
+            _providers->Enumerate([result](KernelObject *provider){
                 KernelDictionary *providerEntry = new KernelDictionary();
                 providerEntry->Set("object"_ko, provider);
                 KernelArray *inputs = new KernelArray();
@@ -31,7 +32,8 @@ namespace System_Internal {
                 outputs->Release();
                 result->Add(providerEntry);
                 providerEntry->Release();
-            }
+                return (void*)NULL;
+            });
             return result;
         }
         
@@ -64,6 +66,25 @@ namespace System_Internal {
                     parameters[1] = Process::Mapper()->Map(monitor->Capture());
                 }
                     break;
+                case SYSTEM_DRIVER_GET_ROOT:
+                    parameters[1] = Process::Mapper()->Map(s_rootDevice);
+                    s_rootDevice->AddRef(); // For user app
+                    break;
+                case SYSTEM_DRIVER_CHILDREN:
+                {
+                    Driver *driver = (Driver*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!driver || !driver->IsDerivedFromClass("Driver")) {
+                        parameters[0] = SYSTEM_INVALID_HANDLE;
+                        return;
+                    }
+                    KernelArray *array = new KernelArray();
+                    Driver *child;
+                    int i = 0;
+                    while ((child = driver->Child(i++)) != NULL)
+                        array->Add(child);
+                    parameters[1] = Process::Mapper()->Map(array);
+                }
+                    break;
                 default:
                     parameters[0] = SYSTEM_ERROR_BAD_FUNCTION;
                     return;
@@ -77,3 +98,10 @@ namespace System_Internal {
         }
     };
 };
+
+static System_Internal::Service service;
+
+void Driver::ConfigureService(void)
+{
+    service.Register();
+}
