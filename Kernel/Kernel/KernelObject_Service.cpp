@@ -36,15 +36,15 @@ namespace KernelObject_Internal {
                     break;
                 case KERNELOBJECT_FUNCTION_GETNAME:
                 {
-                    const char *name = first->GetClassName((UInt32)parameters[1]);
+                    const char *name = first->GetClassName((UInt32)parameters[2]);
                     if (parameters[3]) {
                         int i = 0;
-                        char *output = (char*)parameters[2];
-                        while ((name[i] != '\0') && (i < parameters[3])) {
+                        char *output = (char*)parameters[3];
+                        while ((name[i] != '\0') && (i < parameters[4])) {
                             output[i] = name[i];
                             i++;
                         }
-                        if (i < parameters[3])
+                        if (i < parameters[4])
                             output[i] = '\0';
                         parameters[1] = i;
                     } else {
