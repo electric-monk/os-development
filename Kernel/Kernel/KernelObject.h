@@ -102,6 +102,66 @@ private:
     bicycle::function<func> m_function;
 };
 
+template <class KernelObjectClass> class StrongKernelObject
+{
+private:
+    KernelObjectClass *_object;
+    
+public:
+    StrongKernelObject()
+    {
+        _object = NULL;
+    }
+    StrongKernelObject(KernelObjectClass *object)
+    {
+        _object = object;
+        if (_object)
+            _object->AddRef();
+    }
+    StrongKernelObject(const StrongKernelObject& other)
+    {
+        _object = other._object;
+        if (_object)
+            _object->AddRef();
+    }
+    ~StrongKernelObject()
+    {
+        if (_object)
+            _object->Release();
+    }
+    
+    StrongKernelObject& operator=(const StrongKernelObject& other)
+    {
+        StrongKernelObject *oldObject = _object;
+        _object = other._object;
+        if (_object)
+            _object->AddRef();
+        if (oldObject)
+            oldObject->Release();
+        return *this;
+    }
+    StrongKernelObject& operator=(const KernelObjectClass *object)
+    {
+        StrongKernelObject *oldObject = _object;
+        _object = object;
+        if (_object)
+            _object->AddRef();
+        if (oldObject)
+            oldObject->Release();
+        return *this;
+    }
+    
+    KernelObjectClass* operator->()
+    {
+        return _object;
+    }
+    
+    KernelObjectClass* Value(void) const
+    {
+        return _object;
+    }
+};
+
 // This class allows a process (or the kernel itself) to map between actual kernel pointers, and per process handle. This provides
 // security as each process can only see objects it's been told about. Note that this does not save a reference, the userspace
 // process should manage objects itself. Released objects will be automatically removed (hence this class is closely tied to KernelObject).
