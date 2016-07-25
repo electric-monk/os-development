@@ -6,7 +6,7 @@
 class Interrupts;
 class Driver;
 class KernelDictionary;
-class IpcServiceList;
+class IpcServiceProxy;
 class RunloopThread;
 class IpcService;
 class IpcEndpoint;
@@ -49,6 +49,8 @@ public:
 class Driver : public KernelObject
 {
 public:
+    static void ConfigureService(void);
+    
     static void RegisterFactory(DriverFactory *factory);
     static void UnregisterFactory(DriverFactory *factory);
     
@@ -89,7 +91,10 @@ public:
     ProviderDriver(const char *name);
 
     CLASSNAME(Driver, ProviderDriver);
-    
+
+    bool Start(Driver *parent);
+    void Stop(void);
+
     class Connection;
     
     /* The services that this provider has detected and is vending */
@@ -149,7 +154,7 @@ protected:
     virtual void ConnectionReceive(Connection *connection, KernelBufferMemory *message);
     virtual void ConnectionStop(Connection *connection);
 
-    IpcServiceList *_serviceList;
+    IpcServiceProxy *_serviceList;
     RunloopThread *_runloop;
 
     KernelArray *_services;

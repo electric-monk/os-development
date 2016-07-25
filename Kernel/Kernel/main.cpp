@@ -56,37 +56,6 @@ private:
     char _c;
 };
 
-#include "IPC.h"
-
-class TestServiceWatcher : public IpcServiceWatcher
-{
-public:
-    void ServiceProviderAppeared(KernelObject *provider)
-    {
-        kprintf("Provider started: %.8x: %s\n", provider, provider->GetClassName(0));
-    }
-    
-    void ServiceAppeared(KernelObject *provider, IpcService *service)
-    {
-        kprintf("Service started on %.8x: %.8x [%s / %s]\n", provider, service, service->Name()->CString(), service->ServiceType()->CString());
-    }
-
-    void ServiceChanged(KernelObject *provider, IpcService *service)
-    {
-        kprintf("Service changed on %.8x: %.8x\n", provider, service);
-    }
-    
-    void ServiceRemoved(KernelObject *provider, IpcService *service)
-    {
-        kprintf("Service stopped on %.8x: %.8x [%s / %s]\n", provider, service, service->Name()->CString(), service->ServiceType()->CString());
-    }
-    
-    void ServiceProviderRemoved(KernelObject *provider)
-    {
-        kprintf("Provider stopped: %.8x\n", provider);
-    }
-};
-
 #include "Interrupts.h"
 
 static const char *testchars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -157,8 +126,10 @@ static void ConfigureProcessTest(void (*test)(void*), const char *name)
     void *linearPage = testProcess->pageDirectory.Map(fmWritable | fmUser, pmApplication, page);
     testProcess->pageDirectory.Select();
     CopyMemory(linearPage, (void*)test, 4096);
-    new Thread(testProcess, (void(*)(void*))linearPage, NULL);
+    Thread *thread= new Thread(testProcess, (void(*)(void*))linearPage, NULL);
 }
+
+Driver *s_rootDevice;
 
 static inline void* FixAddress(void *address)
 {
@@ -202,13 +173,10 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     Init_Video_Multiboot(FixAddress((void*)mbd->vbe_control_info), FixAddress((void*)mbd->vbe_mode_info), mbd->vbe_mode);
 
     // Splash
-	kprintf("Munro Systems\nCosmOS 1.0\nCopyright (C) 2008-2016 Colin Munro\n\n");
+	kprintf("Munro Systems\nCopyright (C) 2008-2016 Colin Munro\n\n");
     
-    TestServiceWatcher *watcher = new TestServiceWatcher();
-    IpcServiceList::Register(watcher);
-    
-    StandardPC *rootDevice = new StandardPC();
-    rootDevice->Start(NULL);
+    s_rootDevice = new StandardPC();
+    s_rootDevice->Start(NULL);
 
     // Do something else
 	kprintf("\nStarting!\n");
@@ -227,10 +195,10 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     // Process test
     ConfigureProcessTest(ProcessTestThreadOne, "Three");
     ConfigureProcessTest(ProcessTestThreadTwo, "Four");
-    rootDevice->Test()->RegisterHandler(0x99, TestHandler, NULL);
-    rootDevice->Test()->ConfigureSyscall(0x99);
-    rootDevice->Test()->RegisterHandler(0xff, TestPrint, NULL);
-    rootDevice->Test()->ConfigureSyscall(0xff);
+    s_rootDevice->Test()->RegisterHandler(0x99, TestHandler, NULL);
+    s_rootDevice->Test()->ConfigureSyscall(0x99);
+    s_rootDevice->Test()->RegisterHandler(0xff, TestPrint, NULL);
+    s_rootDevice->Test()->ConfigureSyscall(0xff);
     
     // Queue test
     testQueue = new DispatchQueue();
@@ -246,7 +214,7 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     while (1) asm("hlt");
     
     // Shut down?
-    rootDevice->Stop();
+    s_rootDevice->Stop();
     
 	return 0;
 }

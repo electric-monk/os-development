@@ -3,6 +3,7 @@
 #include "Collections.h"
 #include "IPC.h"
 #include "Runloop.h"
+#include "IPC_Manager.h"
 
 static KernelArray *s_factories = NULL;
 
@@ -161,7 +162,7 @@ void Driver::SetProperty(KernelObject *property, KernelObject *value)
 ProviderDriver::ProviderDriver(const char *name)
 :Driver(name)
 {
-    _serviceList = new IpcServiceList(this);
+    _serviceList = new IpcServiceProxy(this);
     _runloop = new RunloopThread(NULL);
     _services = new KernelArray();
     _connections = new KernelArray();
@@ -175,12 +176,26 @@ ProviderDriver::~ProviderDriver()
     _services->Release();
 }
 
+bool ProviderDriver::Start(Driver *parent)
+{
+    bool started = Driver::Start(parent);
+    if (started)
+        _serviceList->Start();
+    return started;
+}
+
+void ProviderDriver::Stop(void)
+{
+    _serviceList->Stop();
+    Driver::Stop();
+}
+
 void ProviderDriver::Launch(Service *service)
 {
     service->AddRef();
     _runloop->AddTask([this, service]{
         _services->Add(service);
-        _serviceList->AddService(service->ServiceObject());
+        _serviceList->AddOutput(service->ServiceObject());
         _runloop->AddSource(service->ServiceObject(), [this, service](BlockableObject *watching, KernelArray *signals){
             IpcEndpoint *endpoint = service->ServiceObject()->NextConnection(false);
             if (endpoint == NULL)
@@ -210,7 +225,7 @@ void ProviderDriver::Terminate(Service *service)
 {
     _runloop->AddTask([this, service]{
         // Remove as a service
-        _serviceList->RemoveService(service->ServiceObject());
+        _serviceList->RemoveOutput(service->ServiceObject());
         // Remove as a source for connections
         _runloop->RemoveSource(service->ServiceObject());
         // Remove any connections using this object

@@ -78,6 +78,27 @@ private:
     UInt64 _fifoCount;
 };
 
+class IpcService;
+
+class IpcClient : public KernelObject
+{
+public:
+    CLASSNAME(KernelObject, IpcClient);
+    
+    IpcClient(KernelString *name);
+    
+    KernelString* Name(void) { return _name; }
+    
+    KernelDictionary* Properties(void) { return _properties; }
+    
+    virtual void Connect(IpcService *service) = 0;
+    virtual void Disconnect(void) = 0;
+    
+private:
+    KernelString *_name;
+    KernelDictionary *_properties;
+};
+
 class IpcService : public BlockableObject
 {
 public:
@@ -101,42 +122,6 @@ private:
     KernelString *_name, *_type;
     KernelFIFO *_fifo;
     UInt64 _fifoCount;
-};
-
-class IpcServiceWatcher : public KernelObject
-{
-public:
-    CLASSNAME(KernelObject, IpcServiceWatcher);
-    
-    virtual void ServiceProviderAppeared(KernelObject *provider) = 0;
-    virtual void ServiceAppeared(KernelObject *provider, IpcService *service) = 0;
-    virtual void ServiceRemoved(KernelObject *provider, IpcService *service) = 0;
-    virtual void ServiceProviderRemoved(KernelObject *provider) = 0;
-};
-
-class IpcServiceList : public KernelObject
-{
-public:
-    CLASSNAME(KernelObject, IpcServiceList);
-    
-    static void Register(IpcServiceWatcher *watcher);
-    static void Unregister(IpcServiceWatcher *watcher);
-    
-    IpcServiceList(KernelObject *owner);
-    
-    void RemoveServiceProvider(KernelObject *owner);
-    void AddService(IpcService *service);
-    void RemoveService(IpcService *service);
-    
-    KernelArray* ServiceList(void); // Array of IpcService objects
-    IpcService* ServiceNamed(KernelString *name);
-    
-protected:
-    ~IpcServiceList();
-    
-private:
-    KernelObject *_owner;
-    KernelDictionary *_services;
 };
 
 #endif // __IPC_H__

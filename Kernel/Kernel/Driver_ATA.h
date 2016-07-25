@@ -12,7 +12,6 @@ class ATADriverDrive_ATAPI;
 class ConfigureATA;
 class ATADriverDrive_ATA;
 class DispatchQueue;
-class IpcServiceList;
 
 #define kDriver_Bus_SystemATA      "provider.ata"_ko
 
@@ -218,7 +217,7 @@ private:
     Timer *_timer;
     SignalOr *_waitObject;
     
-    IpcServiceList *_serviceList;
+    IpcServiceProxy *_serviceList;
     DispatchQueue *_mainQueue;
     ATADriverDrive *_driveHandlers[2];
     

@@ -21,6 +21,7 @@
 #include "fs_iso9660.h"
 #include "ImageLoader.h"
 #include "Process.h"
+#include "IPC_Manager.h"
 #include "debug.h"
 
 #define DEBUG_STARTUP
@@ -30,158 +31,6 @@
 #else
 #define START_LOG(...)
 #endif
-
-class RunloopWatcher : public IpcServiceWatcher
-{
-public:
-    CLASSNAME(IpcServiceWatcher, RunloopWatcher);
-    
-    typedef enum {
-        Appear,
-        Change,
-        Disappear,
-    } State;
-
-private:
-    typedef KernelFunction<int(State, KernelObject*)> RunloopWatcherProviderFunction;
-    typedef KernelFunction<int(State, KernelObject*, IpcService*)> RunloopWatcherServiceFunction;
-    
-    int _count;
-    KernelDictionary *_providerWatchers, *_serviceWatchers;
-    
-    int Store(KernelDictionary *dictionary, KernelObject *object)
-    {
-        // TODO: Lock?
-        KernelNumber *token = new KernelNumber(_count++);
-        while (dictionary->ObjectFor(token))
-            token->Reset(_count++);
-        dictionary->Set(token, object);
-        int result = token->Value();
-        token->Release();
-        return result;
-    }
-    static void Reset(KernelDictionary *dictionary, int token)
-    {
-        KernelNumber *tokenNumber = new KernelNumber(token);
-        dictionary->Set(tokenNumber, NULL);
-        tokenNumber->Release();
-    }
-    
-    TaskQueue *_queue;
-
-    void SendMessage(KernelDictionary *list, bicycle::function<int(KernelObject *callback)> handler, bicycle::function<int(void)> finish)
-    {
-        if (_queue) {
-            _queue->AddTask([handler, finish, list](){
-                list->AllObjects()->Enumerate([handler](KernelObject *func)->void*{
-                    handler(func);
-                    return NULL;
-                });
-                finish();
-                return 0;
-            });
-        }
-    }
-    void SendProviderMessage(KernelObject *provider, State event)
-    {
-        provider->AddRef();
-        SendMessage(_providerWatchers, [provider, event](KernelObject *func){
-            RunloopWatcherProviderFunction *function = (RunloopWatcherProviderFunction*)func;
-            function->Pointer()(event, provider);
-            return 0;
-        }, [provider]{
-            provider->Release();
-            return 0;
-        });
-    }
-    void SendServiceMessage(KernelObject *provider, IpcService *service, State event)
-    {
-        provider->AddRef();
-        service->AddRef();
-        SendMessage(_serviceWatchers, [provider, service, event](KernelObject *func){
-            RunloopWatcherServiceFunction *function = (RunloopWatcherServiceFunction*)func;
-            function->Pointer()(event, provider, service);
-            return 0;
-        }, [provider, service]{
-            provider->Release();
-            service->Release();
-            return 0;
-        });
-    }
-    
-public:
-    
-    RunloopWatcher()
-    {
-        _providerWatchers = new KernelDictionary();
-        _serviceWatchers = new KernelDictionary();
-    }
-    
-    void SetQueue(TaskQueue *queue)
-    {
-        // TODO: retain?
-        _queue = queue;
-    }
-    
-    int AddTaskForProvider(bicycle::function<int(State appear, KernelObject *provider)> task)
-    {
-        RunloopWatcherProviderFunction *function = new RunloopWatcherProviderFunction(task);
-        int token = Store(_providerWatchers, function);
-        function->Release();
-        return token;
-    }
-    
-    int AddTaskForService(bicycle::function<int(State appear, KernelObject *provider, IpcService *service)> task)
-    {
-        RunloopWatcherServiceFunction *function = new RunloopWatcherServiceFunction(task);
-        int token = Store(_serviceWatchers, function);
-        function->Release();
-        return token;
-    }
-    
-    void RemoveTaskForProvider(int token)
-    {
-        Reset(_providerWatchers, token);
-    }
-    
-    void RemoveTaskForService(int token)
-    {
-        Reset(_serviceWatchers, token);
-    }
-    
-protected:
-    ~RunloopWatcher()
-    {
-        _serviceWatchers->Release();
-        _providerWatchers->Release();
-    }
-    
-public: // For IpcServiceWatcher
-    void ServiceProviderAppeared(KernelObject *provider)
-    {
-        SendProviderMessage(provider, Appear);
-    }
-    
-    void ServiceProviderRemoved(KernelObject *provider)
-    {
-        SendProviderMessage(provider, Disappear);
-    }
-
-    void ServiceAppeared(KernelObject *provider, IpcService *service)
-    {
-        SendServiceMessage(provider, service, Appear);
-    }
-    
-    void ServiceChanged(KernelObject *provider, IpcService *service)
-    {
-        SendServiceMessage(provider, service, Change);
-    }
-    
-    void ServiceRemoved(KernelObject *provider, IpcService *service)
-    {
-        SendServiceMessage(provider, service, Disappear);
-    }
-};
 
 static void ConvertPath(FlatArray *output, ...)
 {
@@ -208,12 +57,10 @@ public:
 private:
     // To make it work
     RunloopThread *_runloop;
-    RunloopWatcher *_watcher;
+    IpcServiceMonitor *_monitor;
     InterfaceHelper *_helper;
     // For launching the startup process
     bool _starting;
-    // For managing a list of services
-    KernelDictionary *_providerList;
     
     void FoundPotentialDiskDrive(IpcService *service)
     {
@@ -233,6 +80,13 @@ private:
     {
         // Tell the nubbin what file to open
         IpcEndpoint *nubbinControl = service->RequestConnection();
+        _runloop->AddSource(nubbinControl, [=](BlockableObject *object, KernelArray *signals){
+            _helper->HandleMessage(nubbinControl->Read(false), [this](Interface_Response *response){
+                kprintf("STARTUP: nubbin unhandled message\n");
+                return 0;
+            });
+            return 0;
+        });
         _helper->PerformTask(nubbinControl, [](Interface_Request *request){
             Interface_File_Nubbin::Expose *exposeRequest = (Interface_File_Nubbin::Expose*)request;
             exposeRequest->type = Interface_File_Nubbin::Expose::ExposeFile;
@@ -250,7 +104,10 @@ private:
             return 0;
         }, [](Interface_Response *response){
             Interface_File_Nubbin::ExposeResponse *exposeResponse = (Interface_File_Nubbin::ExposeResponse*)response;
-            // TODO: thing?
+            if (exposeResponse->status != Interface_Response::Success) {
+                kprintf("STARTUP: Couldn't find task! Error %i\n", exposeResponse->status);
+                // TODO: Kernel doomed
+            }
             return 0;
         });
     }
@@ -286,99 +143,58 @@ public:
         START_LOG("STARTUP: Initialising\n");
 
         _runloop = new RunloopThread();
-        _watcher = new RunloopWatcher();
-        _watcher->SetQueue(_runloop->Queue());
+        _monitor = new IpcServiceMonitor();
         _helper = new InterfaceHelper();
         _starting = true;
         
-        _providerList = new KernelDictionary();
-
-        _watcher->AddTaskForProvider([this](RunloopWatcher::State state, KernelObject *provider){
-            switch (state) {
-                case RunloopWatcher::Appear:
-                {
-                    ProviderContainer *container = new ProviderContainer(provider);
-                    _providerList->Set(provider, container);
-                    container->Release();
-                    // TODO: Generate message to anybody listening
-                }
-                    break;
-                case RunloopWatcher::Change:
-                {
-                    ProviderContainer *container = (ProviderContainer*)_providerList->ObjectFor(provider);
-                    // TODO: Generate message to anybody listening
-                }
-                    break;
-                case RunloopWatcher::Disappear:
-                    _providerList->Set(provider, NULL);
-                    // TODO: Generate message to anybody listening
-                    break;
-            }
-            return 0;
-        });
-        
-        _watcher->AddTaskForService([this](RunloopWatcher::State state, KernelObject *provider, IpcService *service){
-            // Make a note of any changes, for clients
-            switch(state) {
-                case RunloopWatcher::Appear:
-                {
-                    ProviderContainer *container = (ProviderContainer*)_providerList->ObjectFor(provider);
-//                    container->AddService(service);
-                    // TODO: Generate message to anybody listening
-                }
-                    break;  // Fall through to startup logic
-                case RunloopWatcher::Change:
-                {
-                    ProviderContainer *container = (ProviderContainer*)_providerList->ObjectFor(provider);
-                    // TODO: Generate message to anybody listening
-                }
-                    return 0;
-                case RunloopWatcher::Disappear:
-                {
-                    ProviderContainer *container = (ProviderContainer*)_providerList->ObjectFor(provider);
-                    // TODO: Generate message to anybody listening
-                }
-                    return 0;
-            }
-            // Start up process, if necessary
-            if (_starting) {
-                if (service->ServiceType()->IsEqualTo(SERVICE_TYPE_BLOCK)) {
-                    if (service->Name()->IsEqualTo("0"_ko)) {
-                        START_LOG("STARTUP: Found file %x\n", service);
-                        FoundPotentialFile(service);
-                    } else {
-                        START_LOG("STARTUP: Found block service %x\n", service);
-                        // New disk drive appeared
-                        FoundPotentialDiskDrive(service);
+        _runloop->AddSource(_monitor, [this](BlockableObject *object, KernelObject *other){
+            KernelArray *changes = _monitor->Changes();
+            if (!_starting)
+                return 0;
+            changes->Enumerate([this](KernelObject *object){
+                KernelDictionary *info = (KernelDictionary*)object;
+                KernelString *state = (KernelString*)info->ObjectFor("State"_ko);
+                KernelString *type = (KernelString*)info->ObjectFor("Type"_ko);
+                if (state && type && state->IsEqualTo("Start"_ko) && type->IsEqualTo("Output"_ko)) {
+                    KernelNumber *handle = (KernelNumber*)info->ObjectFor("Connector"_ko);
+                    IpcService *service = handle ? (IpcService*)Process::Mapper()->Find(handle->Value()) : NULL;
+                    if (service) {
+                        if (service->ServiceType()->IsEqualTo(SERVICE_TYPE_BLOCK)) {
+                            if (service->Name()->IsEqualTo("0"_ko)) {
+                                START_LOG("STARTUP: Found file %x\n", service);
+                                FoundPotentialFile(service);
+                            } else {
+                                START_LOG("STARTUP: Found block service %x\n", service);
+                                // New disk drive appeared
+                                FoundPotentialDiskDrive(service);
+                            }
+                        } else if (service->ServiceType()->IsEqualTo("filesystem"_ko)) {
+                            START_LOG("STARTUP: Found filesystem %x\n", service);
+                            // New filesystem appeared
+                            FoundPotentialFileSystem(service);
+                        } else if (service->ServiceType()->IsEqualTo("binaryImage"_ko)) {
+                            START_LOG("STARTUP: Found binary %x\n", service);
+                            // New binary image!
+                            FoundImage(service);
+                        } else if (service->ServiceType()->IsEqualTo("nubbin"_ko)) {
+                            START_LOG("STARTUP: Found nubbin %x\n", service);
+                            // New nubbin!
+                            FoundPotentialNubbin(service);
+                        }
                     }
-                } else if (service->ServiceType()->IsEqualTo("filesystem"_ko)) {
-                    START_LOG("STARTUP: Found filesystem %x\n", service);
-                    // New filesystem appeared
-                    FoundPotentialFileSystem(service);
-                } else if (service->ServiceType()->IsEqualTo("binaryImage"_ko)) {
-                    START_LOG("STARTUP: Found binary %x\n", service);
-                    // New binary image!
-                    FoundImage(service);
-                } else if (service->ServiceType()->IsEqualTo("nubbin"_ko)) {
-                    START_LOG("STARTUP: Found nubbin %x\n", service);
-                    // New nubbin!
-                    FoundPotentialNubbin(service);
                 }
-            }
+                return (void*)NULL;
+            });
             return 0;
         });
-        
-        IpcServiceList::Register(_watcher);
     }
     
 protected:
     ~StartupHandler()
     {
-        IpcServiceList::Unregister(_watcher);
-        _providerList->Release();
         _helper->Release();
         _runloop->Release();
-        _watcher->Release();
+        _monitor->Release();
     }
 };
 

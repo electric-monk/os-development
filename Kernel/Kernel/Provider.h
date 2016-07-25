@@ -8,7 +8,7 @@ class IpcService;
 class IpcEndpoint;
 class KernelBufferMemory;
 class DispatchQueue;
-class IpcServiceList;
+class IpcServiceProxy;
 class Interface_Request;
 class Interface_Response;
 
@@ -141,7 +141,7 @@ protected:
     KernelArray *_services;
     KernelArray *_connections;
     
-    IpcServiceList *_serviceList;
+    IpcServiceProxy *_serviceList;
     
 public:
     class Stash

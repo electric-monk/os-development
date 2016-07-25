@@ -98,7 +98,6 @@ static void MakeMap(KernelDictionary *dictionary, bool extended, UInt8 code, Int
 GenericKeyboard::GenericKeyboard(const char *name)
 :ProviderDriver(name)
 {
-    _serviceList = new IpcServiceList(this);
     _mapping = new KernelDictionary();
     _pressed = new KernelArray();
     
@@ -111,7 +110,6 @@ GenericKeyboard::GenericKeyboard(const char *name)
 
 GenericKeyboard::~GenericKeyboard()
 {
-    _serviceList->Release();
     _pressed->Release();
     _mapping->Release();
 }
@@ -121,19 +119,19 @@ bool GenericKeyboard::Start(Driver *parent)
     _thread = new RunloopThread(NULL);
     _extended = false;
     IpcService *ipcService = new IpcService("keyboard"_ko, SERVICE_TYPE_KEYBOARD);
-    Service *service = new Service(this, ipcService);
+    _service = new Service(this, ipcService);
     ipcService->Release();
-    Launch(service);
-    service->Release();
+    Launch(_service);
     _identifierCount = 0;
-    return Driver::Start(parent);
+    return ProviderDriver::Start(parent);
 }
 
 void GenericKeyboard::Stop(void)
 {
-    Terminate((Service*)_serviceList->ServiceList()->ObjectAt(0));
+    Terminate(_service);
+    _service->Release();
     _thread->Release();
-    Driver::Stop();
+    ProviderDriver::Stop();
 }
 
 bool GenericKeyboard::HandleKey(UInt8 event)

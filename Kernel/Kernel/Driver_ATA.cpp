@@ -9,6 +9,7 @@
 #include "Interrupts.h"
 #include "pci.h"
 #include "StandardPC.h"
+#include "IPC_Manager.h"
 
 #include "Interface_Block.h"
 
@@ -691,7 +692,7 @@ public:
     }
 };
 
-static ATADriverDrive* Instantiate(ATADriver *driver, IpcServiceList *service, DispatchQueue *queue, int index, ATADriver::DEV_CONFIG type)
+static ATADriverDrive* Instantiate(ATADriver *driver, IpcServiceProxy *service, DispatchQueue *queue, int index, ATADriver::DEV_CONFIG type)
 {
     ATADriverDrive *result;
     
@@ -709,7 +710,7 @@ static ATADriverDrive* Instantiate(ATADriver *driver, IpcServiceList *service, D
             break;
     }
     if (result != NULL)
-        service->AddService(result->_service);
+        service->AddOutput(result->_service);
     return result;
 }
 
@@ -755,7 +756,7 @@ private:
 ATADriver::ATADriver()
 :Driver("ATA(PI) driver")
 {
-    _serviceList = new IpcServiceList(this);
+    _serviceList = new IpcServiceProxy(this);
     // Create waiting stuff
     _timer = new Timer();
     _waitObject = new SignalOr();
@@ -766,9 +767,9 @@ ATADriver::ATADriver()
 
 ATADriver::~ATADriver()
 {
+    _serviceList->Release();
     _waitObject->Release();
     _timer->Release();
-    _serviceList->Release();
 }
 
 void ATADriver::Install(void)
@@ -783,6 +784,7 @@ void ATADriver::Install(void)
 
 bool ATADriver::Start(Driver *parent)
 {
+    _serviceList->Start();
     // Check setup
     BlockableObject *interrupt = IOPort()->Interrupt();
     _useInterrupts = interrupt != NULL;
@@ -805,7 +807,7 @@ void ATADriver::Stop(void)
     for (int i = 0; i < 2; i++) {
         if (_driveHandlers[i] == NULL)
             continue;
-        _serviceList->RemoveService(_driveHandlers[i]->_service);
+        _serviceList->RemoveOutput(_driveHandlers[i]->_service);
         _driveHandlers[i]->Release();
         _driveHandlers[i] = NULL;
     }
@@ -818,6 +820,7 @@ void ATADriver::Stop(void)
     if (_useInterrupts)
         _waitObject->RemoveSource(IOPort()->Interrupt());
     Driver::Stop();
+    _serviceList->Stop();
 }
 
 void ATADriver::StartTimer(void)

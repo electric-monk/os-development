@@ -67,6 +67,8 @@ static void SaveString(FlatDictionary *dictionary, const char *name, const char 
 
 bool GenericVideo::Start(Driver *parent)
 {
+    if (!ProviderDriver::Start(parent))
+        return false;
     // We always export a "mode" interface, which allows a client to pick a text or video mode and what resolution it is
     IpcService *ipcService = new IpcService("mode"_ko, SERVICE_TYPE_VIDEOMODE);
     Service *service = new Service(this, ipcService);
@@ -126,7 +128,7 @@ bool GenericVideo::Start(Driver *parent)
     for (int i = 0; i < max; i++)
         UpdatePort(i);
     // Done
-    return ProviderDriver::Start(parent);
+    return true;
 }
 
 void GenericVideo::Stop(void)

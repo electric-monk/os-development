@@ -3,6 +3,7 @@
 #include "IPC.h"
 #include "debug.h"
 #include "Interface.h"
+#include "IPC_Manager.h"
 
 class GenericProvider_Thunk
 {
@@ -51,7 +52,10 @@ GenericProvider::GenericProvider()
     _inputs = new KernelDictionary();
     _services = new KernelArray();
     _connections = new KernelArray();
-    _serviceList = new IpcServiceList(this);
+    _queue->AddTask([this]{
+        _serviceList = new IpcServiceProxy(this);
+        return 0;
+    });
 }
 
 GenericProvider::~GenericProvider()
@@ -187,12 +191,12 @@ private:
 void GenericProvider::Launch(Service *service)
 {
     _services->Add(service);
-    _serviceList->AddService(service->ServiceObject());
+    _serviceList->AddOutput(service->ServiceObject());
 }
 
 void GenericProvider::Kill(Service *service)
 {
-    _serviceList->RemoveService(service->ServiceObject());
+    _serviceList->RemoveOutput(service->ServiceObject());
     _services->Remove(service);
 }
 
@@ -216,6 +220,7 @@ public:
         void Execute(void)
         {
             GenericProvider_Thunk::InputDisconnect(_owner, _connection);
+            GenericProvider_Thunk::Inputs(_owner)->Set(_connection->Source(), NULL);
         }
         
     private:
