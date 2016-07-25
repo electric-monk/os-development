@@ -31,6 +31,8 @@ public:
     void Run(void);     // Blocks until stopped
     void Stop(void);
     
+    void Sync(bicycle::function<int(void)> synchronousCode);
+    
 protected:
     ~Runloop();
     

@@ -10,6 +10,7 @@
 		3B2DE0211C941E810001668E /* System_Service.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2DE01F1C941E810001668E /* System_Service.cpp */; };
 		3B493E0C1B8DA07D00AE972F /* pci.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B493E0A1B8DA07D00AE972F /* pci.cpp */; };
 		3B4A92961BB059A20063E5CA /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B4A92931BB059A20063E5CA /* Console.cpp */; };
+		3B7405FE1D0C169800E0C531 /* IPC_Manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7405FC1D0C169800E0C531 /* IPC_Manager.cpp */; };
 		3B762FFF1B12A9AD00C41D62 /* test.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3B762FFE1B12A9AD00C41D62 /* test.1 */; };
 		3B7630031B12A9D600C41D62 /* Provider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2706881AD8FE3C00C2178E /* Provider.cpp */; };
 		3B7630041B12A9D600C41D62 /* Driver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BE43F6019B1B95A009B16F3 /* Driver.cpp */; };
@@ -114,6 +115,8 @@
 		3B5E06BE1AD265B900280BDD /* fs_iso9660.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fs_iso9660.cpp; path = Kernel/fs_iso9660.cpp; sourceTree = "<group>"; };
 		3B5E06BF1AD265B900280BDD /* fs_iso9660.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fs_iso9660.h; path = Kernel/fs_iso9660.h; sourceTree = "<group>"; };
 		3B6830871B8ADAE800C2B55B /* Interface_Keyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Interface_Keyboard.h; path = Kernel/Interface_Keyboard.h; sourceTree = "<group>"; };
+		3B7405FC1D0C169800E0C531 /* IPC_Manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPC_Manager.cpp; path = Kernel/IPC_Manager.cpp; sourceTree = "<group>"; };
+		3B7405FD1D0C169800E0C531 /* IPC_Manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPC_Manager.h; path = Kernel/IPC_Manager.h; sourceTree = "<group>"; };
 		3B762FF41B12A9AD00C41D62 /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B762FF71B12A9AD00C41D62 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		3B762FFA1B12A9AD00C41D62 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -258,6 +261,8 @@
 				3B3FE3401AB3C4D0008BE6D8 /* Queue.h */,
 				3BE18B391A911A6E0028B70A /* IPC.cpp */,
 				3BE18B3A1A911A6E0028B70A /* IPC.h */,
+				3B7405FC1D0C169800E0C531 /* IPC_Manager.cpp */,
+				3B7405FD1D0C169800E0C531 /* IPC_Manager.h */,
 				3B25C4951A757B3B004D39F6 /* Blocking.cpp */,
 				3B25C4941A74E6E4004D39F6 /* Blocking.h */,
 				3B25C4961A75C126004D39F6 /* Locking.cpp */,
@@ -466,6 +471,7 @@
 				3B7630081B12A9D600C41D62 /* Driver_ATA.cpp in Sources */,
 				3B76300A1B12A9D600C41D62 /* Queue.cpp in Sources */,
 				3B7630231B13AFFA00C41D62 /* Startup.cpp in Sources */,
+				3B7405FE1D0C169800E0C531 /* IPC_Manager.cpp in Sources */,
 				3B4A92961BB059A20063E5CA /* Console.cpp in Sources */,
 				3B76300B1B12A9D600C41D62 /* IPC.cpp in Sources */,
 				3B76300C1B12A9D600C41D62 /* Blocking.cpp in Sources */,

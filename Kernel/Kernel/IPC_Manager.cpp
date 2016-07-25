@@ -1,6 +1,7 @@
 #include "IPC_Manager.h"
 #include "IPC.h"
 #include "Process.h"
+#include "Runloop.h"
 
 // TODO: A queue or something, to make it safe
 
@@ -24,18 +25,17 @@ namespace IPC_Manager_Internal {
 #define TYPE_IS_START(x)    (((x) & 0x01) == ::IPC_Manager_Internal::Entry::typeStart)
 #define TYPE_IS_STOP(x)     (((x) & 0x01) == ::IPC_Manager_Internal::Entry::typeStop)
         
-        Entry(Entry **start, Entry **end, KernelObject *provider, KernelObject *ioPort, KernelObject *connection, Type type)
+        static UInt32 Map(KernelObject *object)
+        {
+            return Process::Mapper()->Map(object);
+        }
+        
+        Entry(Entry **start, Entry **end, UInt32 provider, UInt32 ioPort, UInt32 connection, Type type)
         {
             _type = type;
-            _providerHandle = Process::Mapper()->Map(provider);
-            if (ioPort)
-                _ioHandle = Process::Mapper()->Map(ioPort);
-            else
-                _ioHandle = -1;
-            if (connection)
-                _connectionHandle = Process::Mapper()->Map(connection);
-            else
-                _connectionHandle = -1;
+            _providerHandle = provider;
+            _ioHandle = ioPort;
+            _connectionHandle = connection;
             _start = start;
             _end = end;
             _next = NULL;
@@ -149,6 +149,8 @@ namespace IPC_Manager_Internal {
         }
     };
     
+    RunloopThread *s_runloop = NULL;
+    
     class State : public KernelObject
     {
     public:
@@ -174,7 +176,7 @@ namespace IPC_Manager_Internal {
                 handler(start);
         }
         
-        void AddEntry(KernelObject *provider, KernelObject *ioPort, KernelObject *connection, Entry::Type type)
+        void AddEntry(UInt32 provider, UInt32 ioPort, UInt32 connection, Entry::Type type)
         {
             int start = _total;
             Entry *entry = new Entry(&_start, &_end, provider, ioPort, connection, type);
@@ -210,6 +212,15 @@ namespace IPC_Manager_Internal {
         
         bicycle::function<int(int amount)> onChanged;
         
+        void AddTask(bicycle::function<int(void)> task)
+        {
+            s_runloop->AddTask(task);
+        }
+        void Sync(bicycle::function<int(void)> task)
+        {
+            s_runloop->Sync(task);
+        }
+        
     protected:
         ~State()
         {
@@ -238,6 +249,8 @@ namespace IPC_Manager_Internal {
     State *State::_stateStart = NULL;
     State *State::_stateEnd = NULL;
     State *State::_stateGlobal = NULL;
+    
+    
 }
 
 IpcServiceProxy::IpcServiceProxy(KernelObject *service)
@@ -245,6 +258,9 @@ IpcServiceProxy::IpcServiceProxy(KernelObject *service)
     IPC_Manager_Internal::State::GlobalState();
     _service = service;
     _active = false;
+    // Should this be per kernel or per monitor? Leaving it an option by making this an instance method
+    if (!IPC_Manager_Internal::s_runloop)
+        IPC_Manager_Internal::s_runloop = new RunloopThread();
 }
 
 IpcServiceProxy::~IpcServiceProxy()
@@ -255,67 +271,108 @@ IpcServiceProxy::~IpcServiceProxy()
 
 void IpcServiceProxy::Start(void)
 {
-    if (_active)
-        return;
-    IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
-        state->AddEntry(_service, NULL, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeProvider));
+    StrongKernelObject<IpcServiceProxy> strongSelf(this);
+    UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
+    IPC_Manager_Internal::State::GlobalState()->AddTask([strongSelf, selfHandle]{
+        IpcServiceProxy *that = strongSelf.Value();
+        if (!that->_active) {
+            IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
+                state->AddEntry(selfHandle, NULL, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeProvider));
+                return 0;
+            });
+            that->_active = true;
+        }
         return 0;
     });
-    _active = true;
 }
 
 void IpcServiceProxy::Stop(void)
 {
-    if (!_active)
-        return;
-    IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
-        state->AddEntry(_service, NULL, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeProvider));
+    StrongKernelObject<IpcServiceProxy> strongSelf(this);
+    UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
+    IPC_Manager_Internal::State::GlobalState()->AddTask([strongSelf, selfHandle]{
+        IpcServiceProxy *that = strongSelf.Value();
+        if (that->_active) {
+            IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
+                state->AddEntry(selfHandle, NULL, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeProvider));
+                return 0;
+            });
+            that->_active = false;
+        }
         return 0;
     });
-    _active = false;
 }
 
 void IpcServiceProxy::AddInput(IpcClient *client)
 {
-    IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
-        state->AddEntry(_service, client, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeInput));
+    UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
+    UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(client);
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle]{
+        IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
+            state->AddEntry(selfHandle, clientHandle, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeInput));
+            return 0;
+        });
         return 0;
     });
 }
 
 void IpcServiceProxy::RemoveInput(IpcClient *client)
 {
-    IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
-        state->AddEntry(_service, client, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeInput));
+    UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
+    UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(client);
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle]{
+        IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
+            state->AddEntry(selfHandle, clientHandle, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeInput));
+            return 0;
+        });
         return 0;
     });
 }
 
 void IpcServiceProxy::AddOutput(IpcService *output)
 {
-    IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
-        state->AddEntry(_service, output, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeOutput));
+    UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
+    UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(output);
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle]{
+        IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
+            state->AddEntry(selfHandle, clientHandle, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeOutput));
+            return 0;
+        });
         return 0;
     });
 }
 
 void IpcServiceProxy::RemoveOutput(IpcService *output)
 {
-    IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
-        state->AddEntry(_service, output, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeOutput));
+    UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
+    UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(output);
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle]{
+        IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
+            state->AddEntry(selfHandle, clientHandle, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeOutput));
+            return 0;
+        });
         return 0;
     });
 }
 
 void IpcServiceProxy::StartInput(IpcClient *client, IpcEndpoint *endpoint)
 {
-    IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
-        state->AddEntry(_service, client, endpoint, TYPE_START(IPC_Manager_Internal::Entry::typeInputConnection));
+    UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
+    UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(client);
+    UInt32 endpointHandle = IPC_Manager_Internal::Entry::Map(endpoint);
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, endpointHandle]{
+        IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
+            state->AddEntry(selfHandle, clientHandle, endpointHandle, TYPE_START(IPC_Manager_Internal::Entry::typeInputConnection));
+            return 0;
+        });
         return 0;
     });
-    endpoint->Watch([=]{
-        IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
-            state->AddEntry(_service, client, endpoint, TYPE_STOP(IPC_Manager_Internal::Entry::typeInputConnection));
+    endpoint->Watch([selfHandle, clientHandle, endpointHandle]{
+        IPC_Manager_Internal::State::GlobalState()->AddTask([=]{
+            IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
+                state->AddEntry(selfHandle, clientHandle, endpointHandle, TYPE_STOP(IPC_Manager_Internal::Entry::typeInputConnection));
+                return 0;
+            });
             return 0;
         });
         return 0;
@@ -324,13 +381,22 @@ void IpcServiceProxy::StartInput(IpcClient *client, IpcEndpoint *endpoint)
 
 void IpcServiceProxy::StartOutput(IpcService *output, IpcEndpoint *endpoint)
 {
-    IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
-        state->AddEntry(_service, output, endpoint, TYPE_START(IPC_Manager_Internal::Entry::typeOutputConnection));
+    UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
+    UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(output);
+    UInt32 endpointHandle = IPC_Manager_Internal::Entry::Map(endpoint);
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, endpointHandle]{
+        IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
+            state->AddEntry(selfHandle, clientHandle, endpointHandle, TYPE_START(IPC_Manager_Internal::Entry::typeOutputConnection));
+            return 0;
+        });
         return 0;
     });
-    endpoint->Watch([=]{
-        IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
-            state->AddEntry(_service, output, endpoint, TYPE_STOP(IPC_Manager_Internal::Entry::typeOutputConnection));
+    endpoint->Watch([selfHandle, clientHandle, endpointHandle]{
+        IPC_Manager_Internal::State::GlobalState()->AddTask([=]{
+            IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
+                state->AddEntry(selfHandle, clientHandle, endpointHandle, TYPE_STOP(IPC_Manager_Internal::Entry::typeOutputConnection));
+                return 0;
+            });
             return 0;
         });
         return 0;
@@ -352,27 +418,30 @@ IpcServiceMonitor::~IpcServiceMonitor()
 
 KernelArray* IpcServiceMonitor::Changes(void)
 {
-    bool reset;
-    IPC_Manager_Internal::State *state;
-    
-    if (_state) {
-        reset = true;
-        state = _state;
-    } else {
-        reset = false;
-        state = IPC_Manager_Internal::State::GlobalState();
-        _state = new IPC_Manager_Internal::State();
-        _state->onChanged = [this](int amount){
-            SetTrigger(amount != 0);
-            return 0;
-        };
-        SetTrigger(false);
-    }
     KernelArray *result = new KernelArray();
-    state->ReadOut([result](IPC_Manager_Internal::Entry *entry){
-        result->Add(entry->GetInfo());
+    IPC_Manager_Internal::State::GlobalState()->Sync([=]{
+        bool reset;
+        IPC_Manager_Internal::State *state;
+        
+        if (_state) {
+            reset = true;
+            state = _state;
+        } else {
+            reset = false;
+            state = IPC_Manager_Internal::State::GlobalState();
+            _state = new IPC_Manager_Internal::State();
+            _state->onChanged = [this](int amount){
+                SetTrigger(amount != 0);
+                return 0;
+            };
+            SetTrigger(false);
+        }
+        state->ReadOut([result](IPC_Manager_Internal::Entry *entry){
+            result->Add(entry->GetInfo());
+            return 0;
+        }, reset);
         return 0;
-    }, reset);
+    });
     result->Autorelease();
     return result;
 }

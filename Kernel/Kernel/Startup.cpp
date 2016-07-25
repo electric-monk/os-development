@@ -142,6 +142,8 @@ public:
     {
         START_LOG("STARTUP: Initialising\n");
 
+        AutoreleasePool pool;
+        
         _runloop = new RunloopThread();
         _monitor = new IpcServiceMonitor();
         _helper = new InterfaceHelper();

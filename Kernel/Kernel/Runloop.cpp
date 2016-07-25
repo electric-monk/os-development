@@ -75,6 +75,49 @@ void Runloop::Stop(void)
     _stop->Set();
 }
 
+class SyncTask : public Runloop::SelfHandlingBlockableObject
+{
+public:
+    SyncTask(bicycle::function<int(void)> task)
+    {
+        _task = task;
+        _done = new SimpleSignal(false);
+        SetSignalled(this, true);
+    }
+    
+    void ProcessSignal(Runloop *runloop, BlockableObject *watching, KernelArray *signals)
+    {
+        SetSignalled(this, false);
+        _task();
+        _done->Set();
+    }
+    
+    BlockableObject* CompletionSignal(void)
+    {
+        return _done;
+    }
+    
+protected:
+    ~SyncTask()
+    {
+        _done->Release();
+    }
+    
+private:
+    bicycle::function<int(void)> _task;
+    SimpleSignal *_done;
+};
+
+void Runloop::Sync(bicycle::function<int(void)> synchronousCode)
+{
+    // Hopefully, assuming this is the most recently added blocking object, it will have lower priority than e.g. any pending tasks.
+    SyncTask *sync = new SyncTask(synchronousCode);
+    AddSource(sync);
+    Thread::Active->BlockOn(sync->CompletionSignal());
+    RemoveSource(sync);
+    sync->Release();
+}
+
 typedef KernelFunction<int(void)> TaskQueueFunction;
 
 TaskQueue::TaskQueue()
