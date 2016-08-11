@@ -2,12 +2,11 @@
 #define __PROVIDER_H__
 
 #include "Collections.h"
+#include "IPC.h"
 
 class GenericProvider_Thunk;
-class IpcService;
-class IpcEndpoint;
 class KernelBufferMemory;
-class DispatchQueue;
+class RunloopThread;
 class IpcServiceProxy;
 class Interface_Request;
 class Interface_Response;
@@ -20,12 +19,6 @@ public:
     
     GenericProvider();
 
-    // Hooking up inputs
-    virtual UInt32 InputCount(void) = 0;
-    virtual KernelDictionary* Input(UInt32 index) = 0;
-    void ConnectInput(KernelString *inputName, IpcService *service);
-    void DisconnectInput(KernelString *inputName);
-    
 //protected:
     /* The factory object that creates instances of this provider */
     class Factory : public KernelObject
@@ -41,6 +34,31 @@ public:
         virtual KernelDictionary* ExpectedOutputInfo(UInt32 index) = 0;
         
         virtual GenericProvider* Create(void) = 0;
+    };
+    
+    class InputConnection;
+    
+    /* The inputs that this provider has */
+    class Input : public IpcClient
+    {
+    public:
+        CLASSNAME(IpcClient, GenericProvider::Input);
+        
+        Input(GenericProvider *owner, KernelString *name);
+        
+        void Connect(IpcService *service);
+        void Disconnect(void);
+
+    protected:
+        ~Input();
+        
+        GenericProvider* Owner(void) { return _owner; }
+        
+    private:
+        GenericProvider *_owner;
+        InputConnection *_connection;
+        
+        void DoDisconnect(void);
     };
     
     /* The services that this provider has detected and is vending */
@@ -61,6 +79,10 @@ public:
     private:
         GenericProvider *_owner;
         IpcService *_service;
+        
+    private:
+        friend GenericProvider;
+        void SetActive(bool);
     };
     
     /* Active clients that this provider currently has */
@@ -134,12 +156,12 @@ protected:
     virtual void OutputConnectionEnd(OutputConnection *oldConnection) = 0;
     
     // The queue to handle events on
-    DispatchQueue *_queue;
+    RunloopThread *_runloop;
     
     // Useful information
-    KernelDictionary *_inputs;
-    KernelArray *_services;
-    KernelArray *_connections;
+    KernelDictionary *_inputs;  // KernelString* -> InputConnection*
+    KernelArray *_services;     // Service*
+    KernelArray *_connections;  // OutputConnection*
     
     IpcServiceProxy *_serviceList;
     

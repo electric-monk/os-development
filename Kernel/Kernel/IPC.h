@@ -5,6 +5,8 @@
 #include "mem_virtual.h"
 
 class KernelFIFO;
+class IpcEndpoint;
+class IpcServiceProxy;
 
 class KernelBufferMemory : public KernelObject
 {
@@ -31,7 +33,7 @@ public:
 public:
     KernelBufferMemory(UInt64 maximumSize);
     
-    PhysicalPointer PointerForOffset(UInt64 offset);
+    virtual PhysicalPointer PointerForOffset(UInt64 offset);
     
     UInt64 MaximumSize(void);
     UInt64 Size(void);
@@ -57,6 +59,7 @@ public:
     
     void Connect(IpcEndpoint *remote);
     bool IsConnected(void);
+    UInt32 UniqueIdentifier(void);
     
     /* Sending */
     
@@ -68,6 +71,7 @@ public:
     /* Receiving */
     
     KernelBufferMemory* Read(bool wait);
+    // TODO: ReadComplete, for buffer pooling
     
 protected:
     ~IpcEndpoint();
@@ -90,13 +94,53 @@ public:
     KernelString* Name(void) { return _name; }
     
     KernelDictionary* Properties(void) { return _properties; }
+
+    void Start(IpcServiceProxy *proxy);
+    void Stop(void);
+    
+    bool Active(void) { return _proxy != NULL; }
     
     virtual void Connect(IpcService *service) = 0;
     virtual void Disconnect(void) = 0;
     
+protected:
+    ~IpcClient();
+    
+    IpcEndpoint* CompleteConnect(IpcService *service);
+    
 private:
     KernelString *_name;
     KernelDictionary *_properties;
+    IpcServiceProxy *_proxy;
+};
+
+class IpcClientBlock : public IpcClient
+{
+public:
+    CLASSNAME(IpcClient, IpcClientBlock);
+    
+    IpcClientBlock(KernelString *name, bicycle::function<int(IpcService*, bicycle::function<IpcEndpoint*(void)>)> onConnect, bicycle::function<int(void)> onDisconnect)
+    :IpcClient(name)
+    {
+        _connect = onConnect;
+        _disconnect = onDisconnect;
+    }
+    
+    void Connect(IpcService *service)
+    {
+        _connect(service, [=]{
+            return CompleteConnect(service);
+        });
+    }
+    
+    void Disconnect(void)
+    {
+        _disconnect();
+    }
+    
+private:
+    bicycle::function<int(IpcService*, bicycle::function<IpcEndpoint*(void)>)> _connect;
+    bicycle::function<int(void)> _disconnect;
 };
 
 class IpcService : public BlockableObject
@@ -109,16 +153,25 @@ public:
     KernelString* Name(void) { return _name; }
     KernelString* ServiceType(void) { return _type; }
     
-    // Create an incoming connection (client end)
-    IpcEndpoint* RequestConnection(void);
-
+    KernelDictionary* Properties(void) { return _properties; }  // TODO: Should this work another way?
+    
     // Get the most recent incoming connection (server end)
     IpcEndpoint* NextConnection(bool wait);
+    
+    void Start(IpcServiceProxy *proxy);
+    void Stop(void);
     
 protected:
     ~IpcService();
     
 private:
+    friend IpcClient;
+    // Create an incoming connection (client end)
+    IpcEndpoint* RequestConnection(void);
+    IpcServiceProxy *_proxy;
+    
+private:
+    KernelDictionary *_properties;
     KernelString *_name, *_type;
     KernelFIFO *_fifo;
     UInt64 _fifoCount;

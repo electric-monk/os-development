@@ -4,11 +4,19 @@
 #include "Interface_Block.h"
 #include "Queue.h"
 #include "IPC.h"
+#include "Runloop.h"
+#include "IPC_Manager.h"
 #include "debug.h"
 
 FileNubbin::FileNubbin()
 {
     _tasks = new InterfaceHelper();
+    _runloop->AddTask([this]{
+        GenericProvider::Input *input = new GenericProvider::Input(this, "filesystem"_ko);
+        _serviceList->AddInput(input);
+//        input->Release();
+        return 0;
+    });
 }
 
 FileNubbin::~FileNubbin()
@@ -16,17 +24,7 @@ FileNubbin::~FileNubbin()
     _tasks->Release();
 }
 
-UInt32 FileNubbin::InputCount(void)
-{
-    return 1;
-}
-
 #define INPUT_NAME          "filesystem"_ko
-
-KernelDictionary* FileNubbin::Input(UInt32 index)
-{
-    return NULL;    // TODO: This
-}
 
 /* A connection class to indicate the type */
 class NubbinConnection : public GenericProvider::OutputConnection
@@ -158,7 +156,7 @@ GenericProvider::InputConnection* FileNubbin::InputConnectionStart(KernelString 
     if (!name->IsEqualTo(INPUT_NAME))
         return NULL;
     InputConnection *newConnection = new InputConnection(this, name, connection);
-    _queue->AddTask([this](){
+    _runloop->AddTask([this](){
         // We have a filesystem, so we can export our control service
         IpcService *ipcService = new IpcService("control"_ko, "nubbin"_ko);
         GenericProvider::Service *service = new NubbinService(this, ipcService);
@@ -180,7 +178,7 @@ void FileNubbin::InputConnectionReceived(GenericProvider::InputConnection *conne
 
 void FileNubbin::InputConnectionEnd(GenericProvider::InputConnection *connection)
 {
-    _queue->AddTask([this](){
+    _runloop->AddTask([this](){
         // We lost our file service, so kill all of the files we're exporting along with the control service
         while (_services->Count() != 0)
             Kill((Service*)_services->ObjectAt(0));
@@ -349,7 +347,7 @@ void FileNubbin::OutputConnectionEnd(GenericProvider::OutputConnection *oldConne
     if (!service->IsCommand()) {
         NubbinHandle *handleService = (NubbinHandle*)service;
         if (handleService->TryDisconnect()) {
-            _queue->AddTask([this, handleService](){
+            _runloop->AddTask([this, handleService](){
                 Kill(handleService);
                 return 0;
             });

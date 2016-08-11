@@ -10,10 +10,6 @@ public:
     
     FileNubbin();
     
-    // Hooking up inputs
-    UInt32 InputCount(void);
-    KernelDictionary* Input(UInt32 index);
-    
 protected:
     ~FileNubbin();
     

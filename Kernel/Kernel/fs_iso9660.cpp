@@ -3,6 +3,8 @@
 #include "Interface_File.h"
 #include "Interface_Block.h"
 #include "fs_iso9660.h"
+#include "Runloop.h"
+#include "IPC_Manager.h"
 
 typedef struct {
     UInt16 lsb;
@@ -408,27 +410,23 @@ namespace ISO9660Driver {
     };
 }
 
+#define INPUT_NAME          "cdrom"_ko
+
 FileSystem_ISO9660::FileSystem_ISO9660()
 {
     _tasks = new InterfaceHelper();
     _nodeCounter = 0;
+    _runloop->AddTask([this]{
+        GenericProvider::Input *input = new GenericProvider::Input(this, INPUT_NAME);
+        _serviceList->AddInput(input);
+//        input->Release();
+        return 0;
+    });
 }
 
 FileSystem_ISO9660::~FileSystem_ISO9660()
 {
     _tasks->Release();
-}
-
-UInt32 FileSystem_ISO9660::InputCount(void)
-{
-    return 1;
-}
-
-#define INPUT_NAME          "cdrom"_ko
-
-KernelDictionary* FileSystem_ISO9660::Input(UInt32 index)
-{
-    return NULL;    // TODO: This
 }
 
 void FileSystem_ISO9660::ReadGVD(int offset)
@@ -483,7 +481,7 @@ GenericProvider::InputConnection* FileSystem_ISO9660::InputConnectionStart(Kerne
         return NULL;
     InputConnection *newConnection = new InputConnection(this, name, connection);
     // Prepare to handle request response
-    _queue->AddTask([this](){
+    _runloop->AddTask([this](){
         ReadGVD(0);
         return 0;
     });

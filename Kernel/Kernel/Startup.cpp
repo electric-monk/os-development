@@ -22,6 +22,7 @@
 #include "ImageLoader.h"
 #include "Process.h"
 #include "IPC_Manager.h"
+#include "ConvenientSink.h"
 #include "debug.h"
 
 #define DEBUG_STARTUP
@@ -49,158 +50,303 @@ static void ConvertPath(FlatArray *output, ...)
     va_end(vl);
 }
 
-class StartupHandler : public KernelObject
-{
-public:
-    CLASSNAME(KernelObject, StartupHandler);
-    
-private:
-    // To make it work
-    RunloopThread *_runloop;
-    IpcServiceMonitor *_monitor;
-    InterfaceHelper *_helper;
-    // For launching the startup process
-    bool _starting;
-    
-    void FoundPotentialDiskDrive(IpcService *service)
-    {
-        // Attempt to mount the disk drive
-        FileSystem_ISO9660 *fs = new FileSystem_ISO9660();
-        fs->ConnectInput("cdrom"_ko, service);
-    }
-    
-    void FoundPotentialFileSystem(IpcService *service)
-    {
-        // Start up a nubbin to allow us to read the file
-        FileNubbin *nubbin = new FileNubbin();
-        nubbin->ConnectInput("filesystem"_ko, service);
-    }
-    
-    void FoundPotentialNubbin(IpcService *service)
-    {
-        // Tell the nubbin what file to open
-        IpcEndpoint *nubbinControl = service->RequestConnection();
-        _runloop->AddSource(nubbinControl, [=](BlockableObject *object, KernelArray *signals){
-            _helper->HandleMessage(nubbinControl->Read(false), [this](Interface_Response *response){
-                kprintf("STARTUP: nubbin unhandled message\n");
-                return 0;
-            });
-            return 0;
-        });
-        _helper->PerformTask(nubbinControl, [](Interface_Request *request){
-            Interface_File_Nubbin::Expose *exposeRequest = (Interface_File_Nubbin::Expose*)request;
-            exposeRequest->type = Interface_File_Nubbin::Expose::ExposeFile;
-            exposeRequest->exclusive = true;
-            exposeRequest->autoUnexpose = true;
-            exposeRequest->rootNode = NodeRequest::RootNode;
-            exposeRequest->subpath.Initialise();
-            FlatString *dir = (FlatString*)exposeRequest->subpath.GetNextAddress();
-            dir->Initialise("boot");
-            exposeRequest->subpath.CompleteNextItem();
-            FlatString *file = (FlatString*)exposeRequest->subpath.GetNextAddress();
-//            file->Initialise("Conductor.task");
-            file->Initialise("Conducto.tas");
-            exposeRequest->subpath.CompleteNextItem();
-            return 0;
-        }, [](Interface_Response *response){
-            Interface_File_Nubbin::ExposeResponse *exposeResponse = (Interface_File_Nubbin::ExposeResponse*)response;
-            if (exposeResponse->status != Interface_Response::Success) {
-                kprintf("STARTUP: Couldn't find task! Error %i\n", exposeResponse->status);
-                // TODO: Kernel doomed
-            }
-            return 0;
-        });
-    }
-    
-    void FoundPotentialFile(IpcService *service)    // TODO: We know the name of the file as the return to the nubbin, don't just guess
-    {
-        // Attempt to open the initial process
-        ImageLoader *loader = new ImageLoader();
-        loader->ConnectInput("file"_ko, service);
-    }
-    
-    void FoundImage(IpcService *service)
-    {
-        Process *process = new Process("Conductor");
-        process->AttachImage(service);
-        _starting = false;
-    }
-    
-    class ProviderContainer : public KernelObject
+namespace Startup_Internal {
+    class Handler
     {
     public:
-        CLASSNAME(KernelObject, StartupHandler::ProviderContainer);
-        
-        ProviderContainer(KernelObject *provider)
+        Handler(bicycle::function<int(Handler*)> updater)
         {
-            
+            _updater = updater;
+        }
+        
+        virtual ~Handler()
+        {
+        }
+        
+        virtual void FoundInput(KernelObject *provider, IpcClient *client) = 0;
+        
+        virtual void FoundOutput(KernelObject *provider, IpcService *service) = 0;
+        
+    protected:
+        bicycle::function<int(Handler*)> _updater;
+    };
+    
+    class WaitingForImage : public Handler
+    {
+    public:
+        WaitingForImage(bicycle::function<int(Handler*)> updater, KernelObject *loader)
+        :Handler(updater)
+        {
+            START_LOG("STARTUP: Loading binary image\n");
+            _loader = loader;
+        }
+        
+        void FoundInput(KernelObject *provider, IpcClient *client)
+        {
+        }
+        
+        void FoundOutput(KernelObject *provider, IpcService *service)
+        {
+            if ((provider == _loader) && service->ServiceType()->IsEqualTo("binaryImage"_ko)) {
+                Process *process = new Process("Conductor");
+                process->AttachImage(service);
+                _updater(NULL);
+            }
+        }
+        
+    private:
+        KernelObject *_loader;
+    };
+    
+    class WaitingForFile : public Handler
+    {
+    public:
+        WaitingForFile(bicycle::function<int(Handler*)> updater, KernelObject *nubbin)
+        :Handler(updater)
+        {
+            START_LOG("STARTUP: Waiting for file\n");
+            _nubbin = nubbin;
+            _imageLoader = new ImageLoader();
+            _fileOutput = NULL;
+            _imageInput = NULL;
+        }
+        
+        void FoundInput(KernelObject *provider, IpcClient *client)
+        {
+            if (provider == _imageLoader) {
+                _imageInput = client;
+                Check();
+            }
+        }
+
+        void FoundOutput(KernelObject *provider, IpcService *service)
+        {
+            if ((provider == _nubbin) && service->ServiceType()->IsEqualTo(SERVICE_TYPE_BLOCK)) {
+                _fileOutput = service;
+                Check();
+            }
+        }
+        
+    private:
+        KernelObject *_nubbin;
+        ImageLoader *_imageLoader;
+        IpcService *_fileOutput;
+        IpcClient *_imageInput;
+        
+        void Check(void)
+        {
+            if (!_imageInput || !_fileOutput)
+                return;
+            _imageInput->Connect(_fileOutput);
+            _updater(new WaitingForImage(_updater, _imageLoader));
         }
     };
     
-public:
-    StartupHandler()
+    class WaitingForNubbin : public Handler
     {
-        START_LOG("STARTUP: Initialising\n");
+    public:
+        WaitingForNubbin(bicycle::function<int(Handler*)> updater, KernelObject *nubbin)
+        :Handler(updater)
+        {
+            START_LOG("STARTUP: Creating nubbin\n");
+            _nubbin = nubbin;
+        }
+        
+        void FoundInput(KernelObject *provider, IpcClient *client)
+        {
+        }
+        
+        void FoundOutput(KernelObject *provider, IpcService *service)
+        {
+            if ((provider == _nubbin) && service->ServiceType()->IsEqualTo("nubbin"_ko)) {
+                ConvenientSink *sink = new ConvenientSink();
+                IpcClient *client = sink->CreateInput("input"_ko, [=](IpcEndpoint *connection){
+                    sink->PerformTask(connection, [](Interface_Request *request){
+                        Interface_File_Nubbin::Expose *exposeRequest = (Interface_File_Nubbin::Expose*)request;
+                        exposeRequest->type = Interface_File_Nubbin::Expose::ExposeFile;
+                        exposeRequest->exclusive = true;
+                        exposeRequest->autoUnexpose = true;
+                        exposeRequest->rootNode = NodeRequest::RootNode;
+                        ConvertPath(&exposeRequest->subpath, "boot"_ko, "Conducto.tas"_ko, NULL);
+                        return 0;
+                    }, [](Interface_Response *response){
+                        Interface_File_Nubbin::ExposeResponse *exposeResponse = (Interface_File_Nubbin::ExposeResponse*)response;
+                        if (exposeResponse->status != Interface_Response::Success) {
+                            kprintf("STARTUP: Couldn't find task! Error %i\n", exposeResponse->status);
+                            // TODO: Kernel doomed
+                        }
+                        return 0;
+                    });
+                    return 0;
+                });
+                sink->AddTask([=]{
+                    client->Connect(service);
+                    return 0;
+                });
+                _updater(new WaitingForFile(_updater, _nubbin));
+            }
+        }
 
-        AutoreleasePool pool;
+    private:
+        KernelObject *_nubbin;
+    };
+    
+    class WaitingForFilesystem : public Handler
+    {
+    public:
+        WaitingForFilesystem(bicycle::function<int(Handler*)> updater)
+        :Handler(updater)
+        {
+            START_LOG("STARTUP: Connecting filesystem\n");
+            _nubbin = new FileNubbin();
+            _nubbinInput = NULL;
+            _filesystem = NULL;
+        }
         
-        _runloop = new RunloopThread();
-        _monitor = new IpcServiceMonitor();
-        _helper = new InterfaceHelper();
-        _starting = true;
+        void FoundInput(KernelObject *provider, IpcClient *client)
+        {
+            if (provider == _nubbin) {
+                _nubbinInput = client;
+                Check();
+            }
+        }
         
-        _runloop->AddSource(_monitor, [this](BlockableObject *object, KernelObject *other){
-            KernelArray *changes = _monitor->Changes();
-            if (!_starting)
+        void FoundOutput(KernelObject *provider, IpcService *service)
+        {
+            if (service->ServiceType()->IsEqualTo("filesystem"_ko)) {
+                _filesystem = service;
+                Check();
+            }
+        }
+        
+    private:
+        IpcService *_filesystem;
+        KernelObject *_nubbin;
+        IpcClient *_nubbinInput;
+        
+        void Check(void)
+        {
+            if (!_nubbinInput || !_filesystem)
+                return;
+            _nubbinInput->Connect(_filesystem);
+            _updater(new WaitingForNubbin(_updater, _nubbin));
+        }
+    };
+    
+    class WaitingForDisk : public Handler
+    {
+    public:
+        WaitingForDisk(bicycle::function<int(Handler*)> updater)
+        :Handler(updater)
+        {
+            START_LOG("STARTUP: Waiting for boot device\n");
+            _filesystem = new FileSystem_ISO9660();
+            _filesystemInput = NULL;
+            _disk = NULL;
+        }
+        
+        void FoundInput(KernelObject *provider, IpcClient *client)
+        {
+            if (provider == _filesystem) {
+                _filesystemInput = client;
+                Check();
+            }
+        }
+        
+        void FoundOutput(KernelObject *provider, IpcService *service)
+        {
+            if (service->ServiceType()->IsEqualTo(SERVICE_TYPE_BLOCK)) {
+                _disk = service;
+                Check();
+            }
+        }
+        
+    private:
+        IpcService *_disk;
+        KernelObject *_filesystem;
+        IpcClient *_filesystemInput;
+        
+        void Check(void)
+        {
+            if (!_disk || !_filesystemInput)
+                return;
+            _filesystemInput->Connect(_disk);
+            _updater(new WaitingForFilesystem(_updater));
+        }
+    };
+
+    class StartupHandler : public KernelObject
+    {
+    public:
+        CLASSNAME(KernelObject, StartupHandler);
+        
+    private:
+        // To make it work
+        RunloopThread *_runloop;
+        IpcServiceMonitor *_monitor;
+        InterfaceHelper *_helper;
+        // For launching the startup process
+        Startup_Internal::Handler *_state;
+        
+    public:
+        StartupHandler()
+        {
+            START_LOG("STARTUP: Initialising\n");
+            
+            AutoreleasePool pool;
+            
+            _runloop = new RunloopThread();
+            _monitor = new IpcServiceMonitor();
+            _helper = new InterfaceHelper();
+            
+            _state = new Startup_Internal::WaitingForDisk([=](Startup_Internal::Handler *state){
+                Handler *oldState = _state;
+                _runloop->AddTask([oldState]{
+                    delete oldState;
+                    return 0;
+                });
+                _state = state;
                 return 0;
-            changes->Enumerate([this](KernelObject *object){
-                KernelDictionary *info = (KernelDictionary*)object;
-                KernelString *state = (KernelString*)info->ObjectFor("State"_ko);
-                KernelString *type = (KernelString*)info->ObjectFor("Type"_ko);
-                if (state && type && state->IsEqualTo("Start"_ko) && type->IsEqualTo("Output"_ko)) {
+            });
+            
+            _runloop->AddSource(_monitor, [this](BlockableObject *object, KernelObject *other){
+                KernelArray *changes = _monitor->Changes();
+                if (!_state)
+                    return 0;
+//                report(changes);
+                changes->Enumerate([this](KernelObject *object){
+                    KernelDictionary *info = (KernelDictionary*)object;
+                    KernelString *state = (KernelString*)info->ObjectFor("State"_ko);
+                    KernelString *type = (KernelString*)info->ObjectFor("Type"_ko);
                     KernelNumber *handle = (KernelNumber*)info->ObjectFor("Connector"_ko);
-                    IpcService *service = handle ? (IpcService*)Process::Mapper()->Find(handle->Value()) : NULL;
-                    if (service) {
-                        if (service->ServiceType()->IsEqualTo(SERVICE_TYPE_BLOCK)) {
-                            if (service->Name()->IsEqualTo("0"_ko)) {
-                                START_LOG("STARTUP: Found file %x\n", service);
-                                FoundPotentialFile(service);
-                            } else {
-                                START_LOG("STARTUP: Found block service %x\n", service);
-                                // New disk drive appeared
-                                FoundPotentialDiskDrive(service);
-                            }
-                        } else if (service->ServiceType()->IsEqualTo("filesystem"_ko)) {
-                            START_LOG("STARTUP: Found filesystem %x\n", service);
-                            // New filesystem appeared
-                            FoundPotentialFileSystem(service);
-                        } else if (service->ServiceType()->IsEqualTo("binaryImage"_ko)) {
-                            START_LOG("STARTUP: Found binary %x\n", service);
-                            // New binary image!
-                            FoundImage(service);
-                        } else if (service->ServiceType()->IsEqualTo("nubbin"_ko)) {
-                            START_LOG("STARTUP: Found nubbin %x\n", service);
-                            // New nubbin!
-                            FoundPotentialNubbin(service);
+                    KernelNumber *providerHandle = (KernelNumber*)info->ObjectFor("Provider"_ko);
+                    KernelObject *provider = handle ? (IpcClient*)Process::Mapper()->Find(providerHandle->Value()) : NULL;
+                    if (provider && state && type && state->IsEqualTo("Start"_ko)) {
+                        if (type->IsEqualTo("Input"_ko)) {
+                            IpcClient *client = handle ? (IpcClient*)Process::Mapper()->Find(handle->Value()) : NULL;
+                            _state->FoundInput(provider, client);
+                        } else if (type->IsEqualTo("Output"_ko)) {
+                            IpcService *service = handle ? (IpcService*)Process::Mapper()->Find(handle->Value()) : NULL;
+                            _state->FoundOutput(provider, service);
                         }
                     }
-                }
-                return (void*)NULL;
+                    return (void*)NULL;
+                });
+                return 0;
             });
-            return 0;
-        });
-    }
-    
-protected:
-    ~StartupHandler()
-    {
-        _helper->Release();
-        _runloop->Release();
-        _monitor->Release();
-    }
-};
+        }
+        
+    protected:
+        ~StartupHandler()
+        {
+            _helper->Release();
+            _runloop->Release();
+            _monitor->Release();
+        }
+    };
+}
 
 void InitStartup(void)
 {
-    new StartupHandler();
+    new Startup_Internal::StartupHandler();
 }

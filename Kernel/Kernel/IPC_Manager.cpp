@@ -307,7 +307,8 @@ void IpcServiceProxy::AddInput(IpcClient *client)
 {
     UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
     UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(client);
-    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle]{
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, client, this]{
+        client->Start(this);
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeInput));
             return 0;
@@ -320,11 +321,12 @@ void IpcServiceProxy::RemoveInput(IpcClient *client)
 {
     UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
     UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(client);
-    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle]{
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, client]{
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeInput));
             return 0;
         });
+        client->Stop();
         return 0;
     });
 }
@@ -333,7 +335,8 @@ void IpcServiceProxy::AddOutput(IpcService *output)
 {
     UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
     UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(output);
-    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle]{
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, output, this]{
+        output->Start(this);
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeOutput));
             return 0;
@@ -346,11 +349,12 @@ void IpcServiceProxy::RemoveOutput(IpcService *output)
 {
     UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
     UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(output);
-    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle]{
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, output]{
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeOutput));
             return 0;
         });
+        output->Stop();
         return 0;
     });
 }

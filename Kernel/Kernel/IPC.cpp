@@ -4,6 +4,8 @@
 #include "Process.h"
 #include "Thread.h"
 #include "debug.h"
+#include "IPC_Manager.h"
+#include "CPU_intr.h"   // temp
 
 KernelBufferMemory::KernelBufferMemory(UInt64 maximumSize)
 {
@@ -84,7 +86,9 @@ IpcEndpoint::~IpcEndpoint()
         IpcEndpoint *remote = _remote;
         _remote = NULL;
         remote->_remote = NULL;
+        remote->AddRef();
         remote->SetSignalled(remote, true);
+        remote->Release();
     }
     _fifo->Release();
 }
@@ -101,6 +105,11 @@ void IpcEndpoint::Connect(IpcEndpoint *remote)
 bool IpcEndpoint::IsConnected(void)
 {
     return _remote != NULL;
+}
+
+UInt32 IpcEndpoint::UniqueIdentifier(void)
+{
+    return UInt32(this) ^ UInt32(_remote);
 }
 
 KernelBufferMemory* IpcEndpoint::CreateSendBuffer(UInt64 size)
@@ -146,6 +155,37 @@ KernelBufferMemory* IpcEndpoint::Read(bool wait)
     return result;
 }
 
+IpcClient::IpcClient(KernelString *name)
+{
+    _name = name;
+    _name->AddRef();
+    _properties = new KernelDictionary();
+    _proxy = NULL;
+}
+
+IpcClient::~IpcClient()
+{
+    _name->Release();
+    _properties->Release();
+}
+
+void IpcClient::Start(IpcServiceProxy *proxy)
+{
+    _proxy = proxy;
+}
+
+void IpcClient::Stop(void)
+{
+    _proxy = NULL;
+}
+
+IpcEndpoint* IpcClient::CompleteConnect(IpcService *service)
+{
+    IpcEndpoint *endpoint = service->RequestConnection();
+    _proxy->StartInput(this, endpoint);
+    return endpoint;
+}
+
 IpcService::IpcService(KernelString *name, KernelString *service)
 {
     _name = name;
@@ -154,6 +194,8 @@ IpcService::IpcService(KernelString *name, KernelString *service)
     _type->AddRef();
     _fifo = new KernelFIFO();
     _fifoCount = 0;
+    _properties = new KernelDictionary();
+    _proxy = NULL;
 }
 
 IpcService::~IpcService()
@@ -161,6 +203,17 @@ IpcService::~IpcService()
     _name->Release();
     _type->Release();
     _fifo->Release();
+    _properties->Release();
+}
+
+void IpcService::Start(IpcServiceProxy *proxy)
+{
+    _proxy = proxy;
+}
+
+void IpcService::Stop(void)
+{
+    _proxy = NULL;
 }
 
 IpcEndpoint* IpcService::RequestConnection(void)
@@ -177,6 +230,7 @@ IpcEndpoint* IpcService::RequestConnection(void)
     
     local->Release();
     remote->Autorelease();
+    _proxy->StartOutput(this, local);
     return remote;
 }
 

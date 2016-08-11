@@ -3,6 +3,8 @@
 #include "Interface_Block.h"
 #include "IPC.h"
 #include "Interface_BinaryImage.h"
+#include "Runloop.h"
+#include "IPC_Manager.h"
 
 // ELF base types
 
@@ -206,11 +208,19 @@ public:
 
 // Our code
 
+#define INPUT_NAME          "file"_ko
+
 ImageLoader::ImageLoader()
 {
     _tasks = new InterfaceHelper();
     _symbols = new KernelArray();
     _segments = new KernelArray();
+    _runloop->AddTask([this]{
+        GenericProvider::Input *input = new GenericProvider::Input(this, INPUT_NAME);
+        _serviceList->AddInput(input);
+//        input->Release();
+        return 0;
+    });
 }
 
 ImageLoader::~ImageLoader()
@@ -220,23 +230,12 @@ ImageLoader::~ImageLoader()
     _tasks->Release();
 }
 
-UInt32 ImageLoader::InputCount(void)
-{
-    return 1;
-}
-KernelDictionary* ImageLoader::Input(UInt32 index)
-{
-    return NULL;    // TODO
-}
-
-#define INPUT_NAME          "file"_ko
-
 GenericProvider::InputConnection* ImageLoader::InputConnectionStart(KernelString *name, IpcEndpoint *connection)
 {
     if (!name->IsEqualTo(INPUT_NAME))
         return NULL;
     InputConnection *newConnection = new InputConnection(this, name, connection);
-    _queue->AddTask([this, connection](){
+    _runloop->AddTask([this, connection](){
         _tasks->PerformTask(connection, [](Interface_Request *request){
             BlockRequestRead *read = (BlockRequestRead*)request;
             read->type = BlockRequest::Read;

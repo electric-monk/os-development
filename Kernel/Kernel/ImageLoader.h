@@ -10,8 +10,6 @@ public:
     
     ImageLoader();
     
-    UInt32 InputCount(void);
-    KernelDictionary* Input(UInt32 index);
 protected:
     ~ImageLoader();
     

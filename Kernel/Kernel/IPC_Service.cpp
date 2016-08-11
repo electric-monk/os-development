@@ -16,16 +16,7 @@ namespace IPC_Service {
             _inputs = inputs;
             // TODO: Copy?
             _inputs->AddRef();
-        }
-        
-        UInt32 InputCount(void)
-        {
-            return _inputs->Count();
-        }
-        
-        KernelDictionary* Input(UInt32 index)
-        {
-            return (KernelDictionary*)_inputs->ObjectAt(index);
+            // TODO: Fix this
         }
         
     protected:
@@ -36,7 +27,7 @@ namespace IPC_Service {
 
         InputConnection* InputConnectionStart(KernelString *name, IpcEndpoint *connection)
         {
-            
+            return NULL;
         }
         void InputConnectionReceived(InputConnection *connection, KernelBufferMemory *message)
         {
@@ -48,7 +39,7 @@ namespace IPC_Service {
         }
         OutputConnection* OutputConnectionStart(Service *source, IpcEndpoint *connection)
         {
-            
+            return NULL;
         }
         void OutputConnectionMessage(OutputConnection *connection, KernelBufferMemory *message)
         {
@@ -174,6 +165,7 @@ namespace IPC_Service {
                 case IPC_CONNECTION_GET_IPC:
                 case IPC_CONNECTION_GET_NAME:
                 case IPC_CONNECTION_GET_TYPE:
+                    ;
             }
             parameters[0] = IPC_ERROR_SUCCESS;
         }

@@ -6,6 +6,7 @@
 #include "Interface_BinaryImage.h"
 #include "CPU_intr.h"
 #include "Thread.h"
+#include "ConvenientSink.h"
 
 class BinaryMap : public VirtualMemory
 {
@@ -110,63 +111,70 @@ void Process::AttachImage(IpcService *binaryImageService)
         // Already mapped? Ignore it!
         if (_binaries->ObjectFor(binaryImageService) != NULL)
             return 0;
-        // Connect to it
-        IpcEndpoint *connection = binaryImageService->RequestConnection();
-        // Connect the service
-        _binaries->Set(binaryImageService, connection);
-        _runloop->AddSource(connection, [this, connection](BlockableObject *watching, KernelArray *signals){
-            _helper->HandleMessage(connection->Read(false), [](Interface_Response *response){
-                return 0;
-            });
-            return 0;
-        });
-        // Request initial data
-        _helper->PerformTask(connection, [](Interface_Request *request){
-            Interface_BinaryImage::Request *requestChunks = (Interface_BinaryImage::Request*)request;
-            requestChunks->type = Interface_BinaryImage::Request::GetChunks;
-            return 0;
-        }, [this, binaryImageService, connection](Interface_Response *response){
-            Interface_BinaryImage::GotChunks *gotChunks = (Interface_BinaryImage::GotChunks*)response;
-            if (gotChunks->status != Interface_BinaryImage::GotChunks::Success) {
-                // Failed in some way
-                return 0;
-            }
-            // Add entry
-            KernelArray *objects = new KernelArray();
-            _binaries->Set(binaryImageService, objects);
-            // Map chunks into VM
-            for (int i = 0; i < gotChunks->chunkCount; i++) {
-                BinaryMap *map = new BinaryMap(this, _helper, connection, i, (void*)gotChunks->chunks[i].virtualAddress, (UInt32)gotChunks->chunks[i].length);
-                objects->Add(map);
-                map->Release();
-            }
-            objects->Release();
-            // Launch any threads
-            _helper->PerformTask(connection, [](Interface_Request *request){
-                request->type= Interface_BinaryImage::Request::GetSymbols;
-                return 0;
-            }, [this](Interface_Response *response){
-                Interface_BinaryImage::GotSymbols *symbols = (Interface_BinaryImage::GotSymbols*)response;
-                FlatString *launchKey = FlatString::CreateDynamic(Symbol_Launch);
-                FlatString *entryKey = FlatString::CreateDynamic(Symbol_Address_Virtual);
-                for (UInt32 i = 0; i < symbols->symbols.Count(); i++) {
-                    FlatDictionary *symbol = (FlatDictionary*)symbols->symbols.ItemAt(i);
-                    FlatInteger *value = (FlatInteger*)symbol->ItemFor(launchKey);
-                    if (value && value->Value()) {
-                        // This symbol should be launched as an entrypoint
-                        FlatInteger *entryPoint = (FlatInteger*)symbol->ItemFor(entryKey);
-                        if (entryPoint) {
-                            // Actually found entry point, generate new userspace thread!
-                            new Thread(this, (void(*)(void*))entryPoint->Value(), NULL);
-                        }
+        ConvenientSink *sink = new ConvenientSink();
+        IpcClient *client = sink->CreateInput("input"_ko, [=](IpcEndpoint *endpoint){
+            StrongKernelObject<IpcEndpoint> strongEndpoint(endpoint);
+            _runloop->AddTask([=]{
+                // Connect the service
+                _binaries->Set(binaryImageService, strongEndpoint.Value());
+                _runloop->AddSource(endpoint, [this, endpoint](BlockableObject *watching, KernelArray *signals){
+                    _helper->HandleMessage(endpoint->Read(false), [](Interface_Response *response){
+                        return 0;
+                    });
+                    return 0;
+                });
+                // Request initial data
+                _helper->PerformTask(endpoint, [](Interface_Request *request){
+                    Interface_BinaryImage::Request *requestChunks = (Interface_BinaryImage::Request*)request;
+                    requestChunks->type = Interface_BinaryImage::Request::GetChunks;
+                    return 0;
+                }, [this, binaryImageService, endpoint](Interface_Response *response){
+                    Interface_BinaryImage::GotChunks *gotChunks = (Interface_BinaryImage::GotChunks*)response;
+                    if (gotChunks->status != Interface_BinaryImage::GotChunks::Success) {
+                        // Failed in some way
+                        return 0;
                     }
-                }
-                launchKey->ReleaseDynamic();
-                entryKey->ReleaseDynamic();
+                    // Add entry
+                    KernelArray *objects = new KernelArray();
+                    _binaries->Set(binaryImageService, objects);
+                    // Map chunks into VM
+                    for (int i = 0; i < gotChunks->chunkCount; i++) {
+                        BinaryMap *map = new BinaryMap(this, _helper, endpoint, i, (void*)gotChunks->chunks[i].virtualAddress, (UInt32)gotChunks->chunks[i].length);
+                        objects->Add(map);
+                        map->Release();
+                    }
+                    objects->Release();
+                    // Launch any threads
+                    _helper->PerformTask(endpoint, [](Interface_Request *request){
+                        request->type= Interface_BinaryImage::Request::GetSymbols;
+                        return 0;
+                    }, [this](Interface_Response *response){
+                        Interface_BinaryImage::GotSymbols *symbols = (Interface_BinaryImage::GotSymbols*)response;
+                        FlatString *launchKey = FlatString::CreateDynamic(Symbol_Launch);
+                        FlatString *entryKey = FlatString::CreateDynamic(Symbol_Address_Virtual);
+                        for (UInt32 i = 0; i < symbols->symbols.Count(); i++) {
+                            FlatDictionary *symbol = (FlatDictionary*)symbols->symbols.ItemAt(i);
+                            FlatInteger *value = (FlatInteger*)symbol->ItemFor(launchKey);
+                            if (value && value->Value()) {
+                                // This symbol should be launched as an entrypoint
+                                FlatInteger *entryPoint = (FlatInteger*)symbol->ItemFor(entryKey);
+                                if (entryPoint) {
+                                    // Actually found entry point, generate new userspace thread!
+                                    new Thread(this, (void(*)(void*))entryPoint->Value(), NULL);
+                                }
+                            }
+                        }
+                        launchKey->ReleaseDynamic();
+                        entryKey->ReleaseDynamic();
+                        return 0;
+                    });
+                    return 0;
+                });
                 return 0;
             });
             return 0;
         });
+        client->Connect(binaryImageService);
         return 0;
     });
     // this is all wrongh

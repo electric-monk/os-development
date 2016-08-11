@@ -23,8 +23,6 @@ public:
     
     FileSystem_ISO9660();
 
-    UInt32 InputCount(void);
-    KernelDictionary* Input(UInt32 index);
 protected:
     ~FileSystem_ISO9660();
 
