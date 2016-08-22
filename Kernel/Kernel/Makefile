@@ -7,7 +7,7 @@ CFLAGS = -m32 -g -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
 AFLAGS = -f elf
 LFLAGS = -melf_i386
 
-OBJS = entry.so main.o debug.o tools.o runtime.o descript.o descript_cpu.so BasicHeap.o mem_logical.o mem_physical.o Driver.o StandardPC.o StandardPC_traps.so CPU.o CPU_PICIRQ.o CPU_context.so Thread.o Thread_init.so Scheduler.o Process.o process_test.so mem_virtual.o Collections.o KernelObject.o Blocking.o Locking.o Driver_ATA.o IPC.o Queue.o Provider.o fs_iso9660.o ImageLoader.o FileNubbin.o Runloop.o Startup.o GenericKeyboard.o pci.o Video_Multiboot.o Console.o GenericVideo.o Collections_Service.o Blocking_Service.o KernelObject_Service.o Thread_Service.o Userspace_Heap.o System_Service.o IPC_Manager.o
+OBJS = entry.so main.o debug.o tools.o runtime.o descript.o descript_cpu.so BasicHeap.o mem_logical.o mem_physical.o Driver.o StandardPC.o StandardPC_traps.so CPU.o CPU_PICIRQ.o CPU_context.so Thread.o Thread_init.so Scheduler.o Process.o mem_virtual.o Collections.o KernelObject.o Blocking.o Locking.o Driver_ATA.o IPC.o Queue.o Provider.o fs_iso9660.o ImageLoader.o FileNubbin.o Runloop.o Startup.o GenericKeyboard.o pci.o Video_Multiboot.o Console.o GenericVideo.o Collections_Service.o Blocking_Service.o KernelObject_Service.o Thread_Service.o Userspace_Heap.o System_Service.o IPC_Manager.o ConvenientSink.o GenericMouse.o
 
 SRC = $(patsubst %.so,%.asm,$(patsubst %.o,%.cpp,$(OBJS)))
 

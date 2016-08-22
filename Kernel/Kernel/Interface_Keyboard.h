@@ -106,6 +106,10 @@ namespace Interface_Keyboard {
     class Event : public Interface_Packet
     {
     public:
+        static const UInt32 KeyEvent = Interface_Packet::MAX + 0;
+        static const UInt32 MAX = Interface_Packet::MAX + 100;
+        
+        UInt32 timestamp;
         bool keyDown;
         KEY keyValue;
     };
