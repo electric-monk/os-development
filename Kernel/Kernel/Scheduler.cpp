@@ -12,10 +12,14 @@ void Scheduler::BeginScheduling(void)
     StartScheduling();
     while (true) {
         // Select a thread
-        Thread::ThreadNext();
-        Thread *newThread = Thread::ThreadCursor();
-        if (newThread->_state != tsRunnable)
-            continue;
+        Thread *newThread;
+        Thread *oldThread = Thread::ThreadCursor();
+        do {
+            Thread::ThreadNext();
+            newThread = Thread::ThreadCursor();
+        } while ((newThread->_state != tsRunnable) && (newThread != oldThread));
+        if ((newThread == oldThread) && (newThread->_state != tsRunnable))
+            newThread = NULL;
         
         // Jump into thread
         if (newThread != NULL) {
