@@ -13,6 +13,7 @@
 #include "Startup.h"
 #include "Video_Multiboot.h"
 #include "Thread.h"
+#include "IPC_Manager.h"
 
 // Values from the linker
 extern UInt32 kern_start, kern_end;
@@ -82,6 +83,7 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     BlockableObject::ConfigureService();
     KernelObject::ConfigureService();
     Driver::ConfigureService();
+    IpcServiceMonitor::ConfigureService();
  
     AutoreleasePool testPool;
     s_rootDevice->Test()->RegisterHandler(0xff, TestPrint, NULL);

@@ -42,6 +42,8 @@ class IpcServiceMonitor : public BlockableObject
 {
 public:
     CLASSNAME(BlockableObject, IpcServiceMonitor);
+    
+    static void ConfigureService(void);
 
     IpcServiceMonitor(void);
     

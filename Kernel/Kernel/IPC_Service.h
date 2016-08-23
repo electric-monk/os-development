@@ -52,43 +52,51 @@
  * Result 0: Error
  * Result 1: Service handle
  */
-#define IPC_PROVIDER_START          0x11
+#define IPC_PROVIDER_OUTPUT_START   0x30
 
 /* Function: Provider: Terminate service
  * Parameter 0: Provider handle
  * Parameter 1: Service handle
  * Result 0: Error
  */
-#define IPC_SERVICE_TERMINATE       0x30
+#define IPC_SERVICE_TERMINATE       0x31
+
+/* Function: Provider: Start client
+ * Parameter 0: Provider handle
+ * Parameter 1: Name
+ * Result 0: Error
+ * Result 1: Client handle
+ */
+#define IPC_PROVIDER_INPUT_START    0x32
+
+/* Function: Provider: Terminate client
+ * Parameter 0: Provider handle
+ * Parameter 1: Client handle
+ * Result 0: Error
+ */
+#define IPC_INPUT_TERMINATE         0x33
 
 /* Function: Provider: Get event (error code indicates event type)
  * Parameter 0: Provider handle
  * Result 0: Error (success indicates no event, but no error)
  * Result 1: Connection handle (on start/message/end)
  * Result 2: Message handle (on message)
+ * Result 3: On start, service/client that owns this 
  */
 #define IPC_PROVIDER_GET_EVENT      0x12
 
-/* Function: Provider connection: Get IPC
- * Parameter 0: Connection handle
+/* Function: Connect
+ * Parameter 0: Client handle
+ * Parameter 1: Service handle
  * Result 0: Error
- * Result 1: IPC connection object
  */
-#define IPC_CONNECTION_GET_IPC      0x20
+#define IPC_PROVIDER_CONNECT        0x40
 
-/* Function: Provider connection: Get name
- * Parameter 0: Connection
+/* Function: Disconnect
+ * Parameter 0: Client handle
  * Result 0: Error
- * Result 1: Service name (string object)
  */
-#define IPC_CONNECTION_GET_NAME     0x21
-
-/* Function: Provider connection: Get type
- * Parameter 0: Connection
- * Result 0: Error
- * Result 1: Service type (string object)
- */
-#define IPC_CONNECTION_GET_TYPE     0x22
+#define IPC_PROVIDER_DISCONNECT     0x41
 
 #define IPC_ERROR_SUCCESS                   0x00
 #define IPC_ERROR_SECURITY                  0x01
