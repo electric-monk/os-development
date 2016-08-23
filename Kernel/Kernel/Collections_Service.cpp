@@ -45,6 +45,8 @@ namespace Collections_Internal {
                     if (length > parameters[3])
                         length = (UInt32)parameters[3];
                     CopyMemory((void*)parameters[2], string->CString(), length);
+                    if (parameters[3] > (length + 1))
+                        ((char*)parameters[2])[length] = '\0';
                     parameters[1] = length;
                 }
                     break;
