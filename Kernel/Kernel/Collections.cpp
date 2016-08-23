@@ -366,6 +366,8 @@ UInt32 KernelArray::Count(void)
 
 KernelObject* KernelArray::ObjectAt(UInt32 index)
 {
+    if (index >= _count)
+        return NULL;
     return _index[index];
 }
 
