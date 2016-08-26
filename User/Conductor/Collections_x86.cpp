@@ -10,6 +10,9 @@ namespace Kernel {
         {
             int result;
             int handle;
+            if (length == -1) {
+                for (length = 0; str[length] != '\0'; length++);
+            }
             asm volatile ("int %[interrupt]"
                           : /* outputs */ "=a"(result), "=b"(handle)
                           : /* inputs */ [interrupt]"N"(COLLECTIONS_SYSCALL), "a"(COLLECTIONS_FUNCTION_CREATE_STRING), "b"((int)str), "c"(length)

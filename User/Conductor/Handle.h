@@ -15,8 +15,8 @@ namespace Kernel {
         int GetClassName(int superclassCount, char *outputBuffer, int maxLength);
         
     private:
-        Handle() {}
-        ~Handle() {}
+        Handle();
+        ~Handle();
     };
 
 }

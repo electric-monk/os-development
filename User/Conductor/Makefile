@@ -7,7 +7,7 @@ CFLAGS = -m32 -g -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
 AFLAGS = -f elf
 LFLAGS = -q -melf_i386
 
-OBJS = main.o entry.so runtime.o Handle_x86.o Collections_x86.o Blocking_x86.o Thread_x86.o System_x86.o
+OBJS = main.o entry.so runtime.o Handle_x86.o Collections_x86.o Blocking_x86.o Thread_x86.o System_x86.o IPC_x86.o
 
 SRC = $(patsubst %.so,%.asm,$(patsubst %.o,%.cpp,$(OBJS)))
 

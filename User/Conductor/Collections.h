@@ -10,7 +10,7 @@ namespace Kernel {
         class String : public Handle
         {
         public:
-            static String* Create(const char *str, int length);
+            static String* Create(const char *str, int length = -1);
             
             int Length(void);
             int Copy(char *outBuffer, int bufferLength);

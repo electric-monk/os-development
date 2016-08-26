@@ -60,6 +60,14 @@ namespace Kernel {
         return outLength;
     }
     
+    Handle::Handle()
+    {
+    }
+    
+    Handle::~Handle()
+    {
+    }
+    
     void _CheckResult(unsigned char interruptNumber, unsigned char functionNumber, int result)
     {
         if (result != KERNELOBJECT_ERROR_SUCCESS) {
