@@ -48,6 +48,7 @@ public:
     IpcServiceMonitor(void);
     
     KernelArray* Changes(void);
+    KernelObject* ObjectForIdentifier(UInt32 identifier);
     
 protected:
     ~IpcServiceMonitor();

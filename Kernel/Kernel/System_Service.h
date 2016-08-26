@@ -27,6 +27,14 @@
  */
 #define SYSTEM_MONITOR_CAPTURE      0x01
 
+/* Function: Get object for capture identifier
+ * Parameter 0: Monitor handle
+ * Parameter 1: Capture identifier
+ * Result 0: Error
+ * Result 1: Object handle
+ */
+#define SYSTEM_MONITOR_GETOBJECT    0x02
+
 /* Function: Get update
  * Parameter 0: Monitor handle
  * Result 0: Error

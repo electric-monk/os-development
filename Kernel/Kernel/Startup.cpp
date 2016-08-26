@@ -320,13 +320,13 @@ namespace Startup_Internal {
                     KernelString *type = (KernelString*)info->ObjectFor("Type"_ko);
                     KernelNumber *handle = (KernelNumber*)info->ObjectFor("Connector"_ko);
                     KernelNumber *providerHandle = (KernelNumber*)info->ObjectFor("Provider"_ko);
-                    KernelObject *provider = handle ? (IpcClient*)Process::Mapper()->Find(providerHandle->Value()) : NULL;
+                    KernelObject *provider = handle ? (IpcClient*)_monitor->ObjectForIdentifier(providerHandle->Value()) : NULL;
                     if (provider && state && type && state->IsEqualTo("Start"_ko)) {
                         if (type->IsEqualTo("Input"_ko)) {
-                            IpcClient *client = handle ? (IpcClient*)Process::Mapper()->Find(handle->Value()) : NULL;
+                            IpcClient *client = handle ? (IpcClient*)_monitor->ObjectForIdentifier(handle->Value()) : NULL;
                             _state->FoundInput(provider, client);
                         } else if (type->IsEqualTo("Output"_ko)) {
-                            IpcService *service = handle ? (IpcService*)Process::Mapper()->Find(handle->Value()) : NULL;
+                            IpcService *service = handle ? (IpcService*)_monitor->ObjectForIdentifier(handle->Value()) : NULL;
                             _state->FoundOutput(provider, service);
                         }
                     }

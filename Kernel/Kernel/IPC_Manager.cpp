@@ -6,6 +6,9 @@
 // TODO: A queue or something, to make it safe
 
 namespace IPC_Manager_Internal {
+
+    ObjectMapper *mapper = NULL;
+    
     class Entry
     {
     public:
@@ -27,7 +30,16 @@ namespace IPC_Manager_Internal {
         
         static UInt32 Map(KernelObject *object)
         {
-            return Process::Mapper()->Map(object);
+            if (mapper == NULL)
+                mapper = new ObjectMapper();
+            return mapper->Map(object);
+        }
+        
+        static KernelObject* Demap(UInt32 map)
+        {
+            if (mapper == NULL)
+                return NULL;
+            return mapper->Find(map);
         }
         
         Entry(Entry **start, Entry **end, UInt32 provider, UInt32 ioPort, UInt32 connection, Type type)
@@ -448,6 +460,11 @@ KernelArray* IpcServiceMonitor::Changes(void)
     });
     result->Autorelease();
     return result;
+}
+
+KernelObject* IpcServiceMonitor::ObjectForIdentifier(UInt32 identifier)
+{
+    return IPC_Manager_Internal::Entry::Demap(identifier);
 }
 
 void IpcServiceMonitor::SetTrigger(bool shouldTrigger)

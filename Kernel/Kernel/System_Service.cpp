@@ -32,6 +32,16 @@ namespace System_Internal {
                     parameters[1] = Process::Mapper()->Map(changes);
                 }
                     break;
+                case SYSTEM_MONITOR_GETOBJECT:
+                {
+                    IpcServiceMonitor *monitor = (IpcServiceMonitor*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!monitor || !monitor->IsDerivedFromClass("IpcServiceMonitor")) {
+                        parameters[0] = SYSTEM_INVALID_HANDLE;
+                        return;
+                    }
+                    parameters[1] = Process::Mapper()->Map(monitor->ObjectForIdentifier((UInt32)parameters[2]));
+                }
+                    break;
                 case SYSTEM_DRIVER_GET_ROOT:
                     parameters[1] = Process::Mapper()->Map(s_rootDevice);
                     s_rootDevice->AddRef(); // For user app
