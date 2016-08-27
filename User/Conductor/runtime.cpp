@@ -1,17 +1,15 @@
-typedef unsigned char UInt8;
-typedef unsigned short UInt16;
-typedef unsigned int UInt32;
-typedef unsigned long long UInt64;
-typedef signed char SInt8;
-typedef signed short SInt16;
-typedef signed int SInt32;
-typedef signed long long SInt64;
+#include "Runtime.h"
+#include "Thread.h"
+#include "BasicHeap.h"
 
-#define NULL 0
+#define DEFAULT_HEAP            64 * 1024 * 1024
 
-// Pure virtual functions
+BasicHeap s_mainHeap(128);
+BasicHeap *s_coreHeap;
 
 extern "C" {
+    
+    // Pure virtual functions
     
     int __cxa_pure_virtual() __attribute__((noinline, used));
     int __cxa_pure_virtual()
@@ -21,29 +19,45 @@ extern "C" {
         return 0;
     }
     
+    // Entrypoints
+    
+    void sysmain(void);
+    
+    void presysmain(void)
+    {
+        // create default heap
+        s_coreHeap = &s_mainHeap;
+        void *heapAddress;
+        Kernel::Thread::Memory *memory = Kernel::Thread::Memory::Create(DEFAULT_HEAP, &heapAddress);
+        s_coreHeap->AddBlock(heapAddress, DEFAULT_HEAP);
+        
+        // call 'real' main
+        sysmain();
+    }
+    
 }
 
 // Allocation
 
-//void* operator new (size_t size)
-//{
-//    return s_coreHeap->Alloc(size);
-//}
-//
-//void* operator new[] (size_t size)
-//{
-//    return s_coreHeap->Alloc(size);
-//}
-//
-//void operator delete (void * p)
-//{
-//    s_coreHeap->Release(p);
-//}
-//
-//void operator delete[] (void * p)
-//{
-//    s_coreHeap->Release(p);
-//}
+void* operator new (size_t size)
+{
+    return s_coreHeap->Alloc(size);
+}
+
+void* operator new[] (size_t size)
+{
+    return s_coreHeap->Alloc(size);
+}
+
+void operator delete (void * p)
+{
+    s_coreHeap->Release(p);
+}
+
+void operator delete[] (void * p)
+{
+    s_coreHeap->Release(p);
+}
 
 // Inexplicable C++ stuff required by GCC or something
 

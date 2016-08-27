@@ -8,7 +8,7 @@
 [global testprint]
 
 ; From C/C++
-[extern sysmain] ; this is in the c file
+[extern presysmain] ; this is in the c file
 [extern __cxa_finalize] ; C++ runtime support
 
 ; From the linker
@@ -47,7 +47,7 @@ init_array_loop:
 kernel_main:
   ; Jump to kernel main()
   
-  call sysmain
+  call presysmain
   
 dynamic_dtors:
   ; Call any dynamically added C++ destructors
