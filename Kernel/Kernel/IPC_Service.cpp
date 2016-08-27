@@ -17,12 +17,12 @@ namespace IPC_Service {
         UInt64 _count;
         
     public:
-        CLASSNAME(BlockableObject, IPC_Service::UserspaceProviderMonitor);
+        CLASSNAME(BlockableObject, IPC_Service::UserspaceProvider);
         
         class Data : public KernelObject
         {
         public:
-            CLASSNAME(KernelObject, IPC_Service::UserspaceProviderMonitor::Data);
+            CLASSNAME(KernelObject, IPC_Service::UserspaceProvider::Data);
             
             Data(int type, IpcEndpoint *connection, KernelBufferMemory *message, KernelObject *owner)
             {
@@ -41,8 +41,8 @@ namespace IPC_Service {
             {
                 output[0] = _type;
                 output[1] = Process::Mapper()->Map(_endpoint);
-                output[2] = _memory ? Process::Mapper()->Map(_memory) : -1;
-                output[3] = _source ? Process::Mapper()->Map(_source) : -1;
+                output[2] = _memory ? Process::Mapper()->Map(_memory) : 0;
+                output[3] = _source ? Process::Mapper()->Map(_source) : 0;
             }
             
         protected:
@@ -113,7 +113,7 @@ namespace IPC_Service {
     public:
         CLASSNAME(GenericProvider, IPC_Service::ActualUserspaceProvider);
         
-        ActualUserspaceProvider(KernelArray *inputs)
+        ActualUserspaceProvider()
         {
             _clientList = new KernelArray();
             _serviceMap = new KernelDictionary();
@@ -264,28 +264,23 @@ namespace IPC_Service {
                     break;
                 case IPC_PROVIDER_CREATE:
                 {
-                    KernelArray *inputs = (KernelArray*)Process::Mapper()->Find((::Handle)parameters[0]);
-                    if (!inputs || !inputs->IsDerivedFromClass("KernelArray")) {
-                        parameters[0] = IPC_ERROR_INVALID_HANDLE;
-                        return;
-                    }
-                    ActualUserspaceProvider *provider = new ActualUserspaceProvider(inputs);
+                    ActualUserspaceProvider *provider = new ActualUserspaceProvider();
                     parameters[1] = Process::Mapper()->Map(provider->Monitor());
                 }
                     break;
                 case IPC_PROVIDER_OUTPUT_START:
                 {
-                    UserspaceProvider *provider = (UserspaceProvider*)Process::Mapper()->Find((::Handle)parameters[0]);
-                    if (!provider || !provider->IsDerivedFromClass("UserspaceProvider")) {
+                    UserspaceProvider *provider = (UserspaceProvider*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!provider || !provider->IsDerivedFromClass("IPC_Service::UserspaceProvider")) {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }
-                    KernelString *name = (KernelString*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    KernelString *name = (KernelString*)Process::Mapper()->Find((::Handle)parameters[2]);
                     if (!name || !name->IsDerivedFromClass("KernelString")) {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }
-                    KernelString *type = (KernelString*)Process::Mapper()->Find((::Handle)parameters[2]);
+                    KernelString *type = (KernelString*)Process::Mapper()->Find((::Handle)parameters[3]);
                     if (!type || !type->IsDerivedFromClass("KernelString")) {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
@@ -295,12 +290,12 @@ namespace IPC_Service {
                     break;
                 case IPC_SERVICE_TERMINATE:
                 {
-                    UserspaceProvider *provider = (UserspaceProvider*)Process::Mapper()->Find((::Handle)parameters[0]);
-                    if (!provider || !provider->IsDerivedFromClass("UserspaceProvider")) {
+                    UserspaceProvider *provider = (UserspaceProvider*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!provider || !provider->IsDerivedFromClass("IPC_Service::UserspaceProvider")) {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }
-                    IpcService *service = (IpcService*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    IpcService *service = (IpcService*)Process::Mapper()->Find((::Handle)parameters[2]);
                     if (!service || !service->IsDerivedFromClass("IpcService")) {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
@@ -313,12 +308,12 @@ namespace IPC_Service {
                     break;
                 case IPC_PROVIDER_INPUT_START:
                 {
-                    UserspaceProvider *provider = (UserspaceProvider*)Process::Mapper()->Find((::Handle)parameters[0]);
-                    if (!provider || !provider->IsDerivedFromClass("UserspaceProvider")) {
+                    UserspaceProvider *provider = (UserspaceProvider*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!provider || !provider->IsDerivedFromClass("IPC_Service::UserspaceProvider")) {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }
-                    KernelString *name = (KernelString*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    KernelString *name = (KernelString*)Process::Mapper()->Find((::Handle)parameters[2]);
                     if (!name || !name->IsDerivedFromClass("KernelString")) {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
@@ -328,12 +323,12 @@ namespace IPC_Service {
                     break;
                 case IPC_INPUT_TERMINATE:
                 {
-                    UserspaceProvider *provider = (UserspaceProvider*)Process::Mapper()->Find((::Handle)parameters[0]);
-                    if (!provider || !provider->IsDerivedFromClass("UserspaceProvider")) {
+                    UserspaceProvider *provider = (UserspaceProvider*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!provider || !provider->IsDerivedFromClass("IPC_Service::UserspaceProvider")) {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }
-                    IpcClient *client = (IpcClient*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    IpcClient *client = (IpcClient*)Process::Mapper()->Find((::Handle)parameters[2]);
                     if (!client || !client->IsDerivedFromClass("IpcClient")) {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
@@ -344,10 +339,60 @@ namespace IPC_Service {
                     }
                 }
                     break;
+                case IPC_INPUT_GET_NAME:
+                {
+                    IpcClient *client = (IpcClient*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!client || !client->IsDerivedFromClass("IpcClient")) {
+                        parameters[0] = IPC_ERROR_INVALID_HANDLE;
+                        return;
+                    }
+                    parameters[1] = Process::Mapper()->Map(client->Name());
+                }
+                    break;
+                case IPC_INPUT_GET_PROPERTIES:
+                {
+                    IpcClient *client = (IpcClient*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!client || !client->IsDerivedFromClass("IpcClient")) {
+                        parameters[0] = IPC_ERROR_INVALID_HANDLE;
+                        return;
+                    }
+                    parameters[1] = Process::Mapper()->Map(client->Properties());
+                }
+                    break;
+                case IPC_SERVICE_GET_NAME:
+                {
+                    IpcService *service = (IpcService*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!service || !service->IsDerivedFromClass("IpcService")) {
+                        parameters[0] = IPC_ERROR_INVALID_HANDLE;
+                        return;
+                    }
+                    parameters[1] = Process::Mapper()->Map(service->Name());
+                }
+                    break;
+                case IPC_SERVICE_GET_TYPE:
+                {
+                    IpcService *service = (IpcService*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!service || !service->IsDerivedFromClass("IpcService")) {
+                        parameters[0] = IPC_ERROR_INVALID_HANDLE;
+                        return;
+                    }
+                    parameters[1] = Process::Mapper()->Map(service->ServiceType());
+                }
+                    break;
+                case IPC_SERVICE_GET_PROPERTIES:
+                {
+                    IpcService *service = (IpcService*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!service || !service->IsDerivedFromClass("IpcService")) {
+                        parameters[0] = IPC_ERROR_INVALID_HANDLE;
+                        return;
+                    }
+                    parameters[1] = Process::Mapper()->Map(service->Properties());
+                }
+                    break;
                 case IPC_PROVIDER_CONNECT:
                 {
-                    IpcClient *client = (IpcClient*)Process::Mapper()->Find((::Handle)parameters[0]);
-                    IpcService *service = (IpcService*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    IpcClient *client = (IpcClient*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    IpcService *service = (IpcService*)Process::Mapper()->Find((::Handle)parameters[2]);
                     if (!client || !service || !client->IsDerivedFromClass("IpcClient") || !service->IsDerivedFromClass("IpcService")) {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
@@ -357,7 +402,7 @@ namespace IPC_Service {
                     break;
                 case IPC_PROVIDER_DISCONNECT:
                 {
-                    IpcClient *client = (IpcClient*)Process::Mapper()->Find((::Handle)parameters[0]);
+                    IpcClient *client = (IpcClient*)Process::Mapper()->Find((::Handle)parameters[1]);
                     if (!client || !client->IsDerivedFromClass("IpcClient")) {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
@@ -367,8 +412,8 @@ namespace IPC_Service {
                     break;
                 case IPC_PROVIDER_GET_EVENT:
                 {
-                    UserspaceProvider *provider = (UserspaceProvider*)Process::Mapper()->Find((::Handle)parameters[0]);
-                    if (!provider || !provider->IsDerivedFromClass("UserspaceProvider")) {
+                    UserspaceProvider *provider = (UserspaceProvider*)Process::Mapper()->Find((::Handle)parameters[1]);
+                    if (!provider || !provider->IsDerivedFromClass("IPC_Service::UserspaceProvider")) {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }

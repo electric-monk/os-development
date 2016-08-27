@@ -39,7 +39,6 @@
  */
 
 /* Function: Provider: Create
- * Parameter 0: Array handle (describing inputs)
  * Result 0: Error
  * Result 1: Provider handle
  */
@@ -75,6 +74,41 @@
  * Result 0: Error
  */
 #define IPC_INPUT_TERMINATE         0x33
+
+/* Function: Service: Get Name
+ * Parameter 0: Service handle
+ * Result 0: Error
+ * Result 1: String handle
+ */
+#define IPC_SERVICE_GET_NAME        0x34
+
+/* Function: Service: Get Type
+ * Parameter 0: Service handle
+ * Result 0: Error
+ * Result 1: String handle
+ */
+#define IPC_SERVICE_GET_TYPE        0x35
+
+/* Function: Service: Get Properties
+ * Parameter 0: Service handle
+ * Result 0: Error
+ * Result 1: Dictionary handle
+ */
+#define IPC_SERVICE_GET_PROPERTIES  0x36
+
+/* Function: Client: Get Name
+ * Parameter 0: Service handle
+ * Result 0: Error
+ * Result 1: String handle
+ */
+#define IPC_INPUT_GET_NAME          0x37
+
+/* Function: Client: Get properties
+ * Parameter 0: Service handle
+ * Result 0: Error
+ * Result 1: Dictionary handle
+ */
+#define IPC_INPUT_GET_PROPERTIES    0x38
 
 /* Function: Provider: Get event (error code indicates event type)
  * Parameter 0: Provider handle

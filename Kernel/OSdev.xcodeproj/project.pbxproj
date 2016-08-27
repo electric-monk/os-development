@@ -10,6 +10,7 @@
 		3B2DE0211C941E810001668E /* System_Service.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2DE01F1C941E810001668E /* System_Service.cpp */; };
 		3B493E0C1B8DA07D00AE972F /* pci.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B493E0A1B8DA07D00AE972F /* pci.cpp */; };
 		3B4A92961BB059A20063E5CA /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B4A92931BB059A20063E5CA /* Console.cpp */; };
+		3B51253F1D71904E00C9A8FE /* GenericMouse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B51253D1D71904E00C9A8FE /* GenericMouse.cpp */; };
 		3B7405FE1D0C169800E0C531 /* IPC_Manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7405FC1D0C169800E0C531 /* IPC_Manager.cpp */; };
 		3B762FFF1B12A9AD00C41D62 /* test.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3B762FFE1B12A9AD00C41D62 /* test.1 */; };
 		3B7630031B12A9D600C41D62 /* Provider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2706881AD8FE3C00C2178E /* Provider.cpp */; };
@@ -111,6 +112,9 @@
 		3B4A92931BB059A20063E5CA /* Console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Console.cpp; path = Kernel/Console.cpp; sourceTree = "<group>"; };
 		3B4A92941BB059A20063E5CA /* Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Console.h; path = Kernel/Console.h; sourceTree = "<group>"; };
 		3B4A92951BB059A20063E5CA /* kernel.font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kernel.font.h; path = Kernel/kernel.font.h; sourceTree = "<group>"; };
+		3B51253D1D71904E00C9A8FE /* GenericMouse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GenericMouse.cpp; path = Kernel/GenericMouse.cpp; sourceTree = "<group>"; };
+		3B51253E1D71904E00C9A8FE /* GenericMouse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GenericMouse.h; path = Kernel/GenericMouse.h; sourceTree = "<group>"; };
+		3B5125401D71906600C9A8FE /* Interface_Mouse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Interface_Mouse.h; path = Kernel/Interface_Mouse.h; sourceTree = "<group>"; };
 		3B5420E91B943BDF00C37954 /* Interface_Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Interface_Console.h; path = Kernel/Interface_Console.h; sourceTree = "<group>"; };
 		3B5E06BE1AD265B900280BDD /* fs_iso9660.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fs_iso9660.cpp; path = Kernel/fs_iso9660.cpp; sourceTree = "<group>"; };
 		3B5E06BF1AD265B900280BDD /* fs_iso9660.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fs_iso9660.h; path = Kernel/fs_iso9660.h; sourceTree = "<group>"; };
@@ -213,6 +217,7 @@
 				3B2706C71B02699300C2178E /* Interface_File_Nubbin.h */,
 				3B2706C41AF7D9F200C2178E /* Interface_BinaryImage.h */,
 				3B6830871B8ADAE800C2B55B /* Interface_Keyboard.h */,
+				3B5125401D71906600C9A8FE /* Interface_Mouse.h */,
 				3B5420E91B943BDF00C37954 /* Interface_Console.h */,
 				3BB523FC1BC1A5A8008344C8 /* Interface_Video.h */,
 				3BB3A0B01BC4F0210093C195 /* Interface_VideoMode.h */,
@@ -283,6 +288,8 @@
 				3B493E0B1B8DA07D00AE972F /* pci.h */,
 				3B99C3F11B7C72A800C6DD38 /* GenericKeyboard.cpp */,
 				3B99C3F21B7C72A800C6DD38 /* GenericKeyboard.h */,
+				3B51253D1D71904E00C9A8FE /* GenericMouse.cpp */,
+				3B51253E1D71904E00C9A8FE /* GenericMouse.h */,
 				3B2706881AD8FE3C00C2178E /* Provider.cpp */,
 				3B2706891AD8FE3C00C2178E /* Provider.h */,
 				3BE43F6019B1B95A009B16F3 /* Driver.cpp */,
@@ -474,6 +481,7 @@
 				3B7405FE1D0C169800E0C531 /* IPC_Manager.cpp in Sources */,
 				3B4A92961BB059A20063E5CA /* Console.cpp in Sources */,
 				3B76300B1B12A9D600C41D62 /* IPC.cpp in Sources */,
+				3B51253F1D71904E00C9A8FE /* GenericMouse.cpp in Sources */,
 				3B76300C1B12A9D600C41D62 /* Blocking.cpp in Sources */,
 				3B76300D1B12A9D600C41D62 /* Locking.cpp in Sources */,
 				3B76300E1B12A9D600C41D62 /* Thread.cpp in Sources */,

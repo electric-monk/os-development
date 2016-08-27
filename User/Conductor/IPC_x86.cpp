@@ -174,7 +174,7 @@ namespace Kernel {
             int handle;
             asm volatile ("int %[interrupt]"
                           : /* outputs */ "=a"(result), "=b"(handle)
-                          : /* inputs */ [interrupt]"N"(IPC_SYSCALL), "a"(IPC_PROVIDER_INPUT_START), "b"((int)name)
+                          : /* inputs */ [interrupt]"N"(IPC_SYSCALL), "a"(IPC_PROVIDER_INPUT_START), "b"((int)this), "c"((int)name)
                           : /* clobbers */);
             CheckResult(IPC_SYSCALL, IPC_PROVIDER_INPUT_START, result);
             return (Client*)handle;
@@ -227,7 +227,7 @@ namespace Kernel {
             if (ipcConnection)
                 *ipcConnection = (Connection*)conn;
             if (message)
-                *message = (Memory*)message;
+                *message = (Memory*)mess;
             if (providerConnection)
                 *providerConnection = (ProviderIO*)star;
             return returnValue;

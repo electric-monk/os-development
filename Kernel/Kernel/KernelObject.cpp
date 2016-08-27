@@ -217,7 +217,7 @@ ObjectMapper::ObjectMapper()
 {
     _handleMap = new KernelDictionary();
     _objectMap = new KernelDictionary();
-    _nextHandle = 0;
+    _nextHandle = 1;
 }
 
 ObjectMapper::~ObjectMapper()
@@ -228,6 +228,8 @@ ObjectMapper::~ObjectMapper()
 
 Handle ObjectMapper::Map(KernelObject *object)
 {
+    if (object == NULL)
+        return 0;
     // Do we already have it?
     KernelNumber *handleObject = new KernelNumber((UInt32)object);
     KernelObject_Internal::HandledObject *entry = (KernelObject_Internal::HandledObject*)_objectMap->ObjectFor(handleObject);
@@ -242,6 +244,8 @@ Handle ObjectMapper::Map(KernelObject *object)
         handleNumber->Reset(_nextHandle);
     }
     _nextHandle++;  // Prepare for next time
+    if (_nextHandle == 0)
+        _nextHandle++;
     // Create new item
     entry = new KernelObject_Internal::HandledObject(handleNumber->Value(), object, [this](KernelObject_Internal::HandledObject *activeEntry){
         // TODO: a queue - who knows where this will be running
@@ -264,6 +268,8 @@ Handle ObjectMapper::Map(KernelObject *object)
 
 void ObjectMapper::Unmap(Handle object)
 {
+    if (object == 0)
+        return;
     KernelNumber *number = new KernelNumber(object);
     KernelObject_Internal::HandledObject *entry = (KernelObject_Internal::HandledObject*)_handleMap->ObjectFor(number);
     if (entry) {
@@ -277,6 +283,8 @@ void ObjectMapper::Unmap(Handle object)
 
 void ObjectMapper::Unmap(KernelObject *object)
 {
+    if (object == NULL)
+        return;
     KernelNumber *number = new KernelNumber((UInt32)object);
     KernelObject_Internal::HandledObject *entry = (KernelObject_Internal::HandledObject*)_objectMap->ObjectFor(number);
     if (entry) {
@@ -290,6 +298,8 @@ void ObjectMapper::Unmap(KernelObject *object)
 
 KernelObject* ObjectMapper::Find(Handle object)
 {
+    if (object == 0)
+        return NULL;
     KernelNumber *number = new KernelNumber(object);
     KernelObject_Internal::HandledObject *entry = (KernelObject_Internal::HandledObject*)_handleMap->ObjectFor(number);
     number->Release();
