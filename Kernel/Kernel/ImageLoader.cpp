@@ -376,6 +376,7 @@ void ImageLoader::OutputConnectionMessage(OutputConnection *connection, KernelBu
                     connection->Link()->SendMessage([readChunk, read, length](void *context){
                         Interface_BinaryImage::ReadChunk *response = (Interface_BinaryImage::ReadChunk*)context;
                         response->Fill(readChunk);
+                        response->status = Interface_BinaryImage::ReadChunk::Success;
                         Interface_BinaryImage::ReadChunk::RLE *position = &response->chunkStart;
                         UInt64 copied = 0;
                         // First, install real data, if necessary
