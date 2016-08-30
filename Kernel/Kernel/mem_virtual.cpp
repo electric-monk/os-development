@@ -11,10 +11,43 @@
 #include "CPU_intr.h"
 
 static UInt32 _identifierCounter = 0;
-static KernelDictionary *s_identifierMap;
-static KernelNumber *s_utilityNumber = NULL;
 
 // TODO: not a kerneldictionary, something faster
+static KernelDictionary *s_identifierDictionary;
+static KernelNumber *s_utilityNumber = NULL;
+static void InitMap(void)
+{
+    s_identifierDictionary = new KernelDictionary();
+    s_utilityNumber = new KernelNumber(0);
+}
+class WeakWrap : public KernelObject
+{
+public:
+    WeakWrap(VirtualMemory *mem)
+    {
+        _mem = mem;
+    }
+    VirtualMemory* Value(void)
+    {
+        return _mem;
+    }
+private:
+    VirtualMemory *_mem;
+};
+static void SetMap(UInt32 identifier, VirtualMemory *vmem)
+{
+    KernelNumber *number = new KernelNumber(identifier);
+    WeakWrap *wrap = new WeakWrap(vmem);
+    s_identifierDictionary->Set(number, wrap);
+    number->Release();
+    wrap->Release();
+}
+static VirtualMemory* GetMap(UInt32 identifier)
+{
+    s_utilityNumber->Reset(identifier);
+    WeakWrap *wrap = (WeakWrap*)s_identifierDictionary->ObjectFor(s_utilityNumber);
+    return wrap ? wrap->Value() : NULL;
+}
 
 bool VirtualMemory::PageFaultHandler(void *context, void *state)
 {
@@ -22,8 +55,7 @@ bool VirtualMemory::PageFaultHandler(void *context, void *state)
     asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
     UInt32 data = currentAddressSpace->AddressRaw((void*)faulting_address);
     int identifier = data >> 1;
-    s_utilityNumber->Reset(identifier);
-    VirtualMemory *handler = (VirtualMemory*)s_identifierMap->ObjectFor(s_utilityNumber);
+    VirtualMemory *handler = GetMap(identifier);
     if (handler != NULL) {
         InterruptEnabler enabler;   // Enabling interrupts allows us to use memory allocation/etc.
         void *voidFaultingAddress = (void*)faulting_address;
@@ -91,8 +123,7 @@ void VirtualMemory::UpdateThread(void *address, Thread *callee)
 
 void VirtualMemory::ConfigureService(Interrupts *interruptSource)
 {
-    s_identifierMap = new KernelDictionary();
-    s_utilityNumber = new KernelNumber(0);
+    InitMap();
     interruptSource->RegisterHandler(pePageFault, PageFaultHandler, NULL);
 }
 
@@ -109,9 +140,7 @@ void VirtualMemory::Init(Process *process)
         _identifierCounter++;
     _identifier = _identifierCounter++;
     _process = process;
-    KernelNumber *number = new KernelNumber(_identifier);
-    s_identifierMap->Set(number, this);
-    number->Release();
+    SetMap(_identifier, this);
 }
 
 VirtualMemory::VirtualMemory(Process *process, UInt32 length)
@@ -138,9 +167,7 @@ VirtualMemory::VirtualMemory(Process *process, void *linearBase, UInt32 length)
 
 VirtualMemory::~VirtualMemory()
 {
-    KernelNumber *number = new KernelNumber(_identifier);
-    s_identifierMap->Set(number, NULL);
-    number->Release();
+    SetMap(_identifier, NULL);
     PageDirectory()->Unmap(_linear, (size_t)_length >> 12);
     _pendingFaults->Release();
 }

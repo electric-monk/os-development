@@ -40,9 +40,15 @@ namespace IPC_Service {
             void Save(UInt64 *output)
             {
                 output[0] = _type;
+                if (_endpoint)
+                    _endpoint->AddRef();
                 output[1] = Process::Mapper()->Map(_endpoint);
-                output[2] = _memory ? Process::Mapper()->Map(_memory) : 0;
-                output[3] = _source ? Process::Mapper()->Map(_source) : 0;
+                if (_memory)
+                    _memory->AddRef();
+                output[2] = Process::Mapper()->Map(_memory);
+                if (_source)
+                    _source->AddRef();
+                output[3] = Process::Mapper()->Map(_source);
             }
             
         protected:
@@ -57,7 +63,6 @@ namespace IPC_Service {
             
         private:
             int _type;
-            GenericProvider *_owner;
             IpcEndpoint *_endpoint;
             KernelBufferMemory *_memory;
             KernelObject *_source;

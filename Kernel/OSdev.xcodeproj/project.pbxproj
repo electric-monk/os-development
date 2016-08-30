@@ -75,7 +75,6 @@
 		3B25C4971A75C126004D39F6 /* Locking.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Locking.h; path = Kernel/Locking.h; sourceTree = "<group>"; };
 		3B26F8981A59CB41003BE1B6 /* Process.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Process.cpp; path = Kernel/Process.cpp; sourceTree = "<group>"; };
 		3B26F8991A59CB41003BE1B6 /* Process.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Process.h; path = Kernel/Process.h; sourceTree = "<group>"; };
-		3B26F89A1A5A14EC003BE1B6 /* process_test.asm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm.asm; name = process_test.asm; path = Kernel/process_test.asm; sourceTree = "<group>"; };
 		3B26F89B1A698012003BE1B6 /* mem_virtual.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = mem_virtual.cpp; path = Kernel/mem_virtual.cpp; sourceTree = "<group>"; };
 		3B26F89C1A698013003BE1B6 /* mem_virtual.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mem_virtual.h; path = Kernel/mem_virtual.h; sourceTree = "<group>"; };
 		3B26F89D1A6B311C003BE1B6 /* Collections.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Collections.cpp; path = Kernel/Collections.cpp; sourceTree = "<group>"; };
@@ -105,7 +104,6 @@
 		3B3FE3401AB3C4D0008BE6D8 /* Queue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Queue.h; path = Kernel/Queue.h; sourceTree = "<group>"; };
 		3B3FE3411AB3F081008BE6D8 /* Interface_Block.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface_Block.h; path = Kernel/Interface_Block.h; sourceTree = "<group>"; };
 		3B3FE3431AC8F42D008BE6D8 /* Interface_File.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface_File.h; path = Kernel/Interface_File.h; sourceTree = "<group>"; };
-		3B3FE3481AC8F5CA008BE6D8 /* Interface_Partition.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface_Partition.h; path = Kernel/Interface_Partition.h; sourceTree = "<group>"; };
 		3B3FE3491AC8FE72008BE6D8 /* Interface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Interface.h; path = Kernel/Interface.h; sourceTree = "<group>"; };
 		3B493E0A1B8DA07D00AE972F /* pci.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pci.cpp; path = Kernel/pci.cpp; sourceTree = "<group>"; };
 		3B493E0B1B8DA07D00AE972F /* pci.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pci.h; path = Kernel/pci.h; sourceTree = "<group>"; };
@@ -212,7 +210,6 @@
 			children = (
 				3B3FE3491AC8FE72008BE6D8 /* Interface.h */,
 				3B3FE3411AB3F081008BE6D8 /* Interface_Block.h */,
-				3B3FE3481AC8F5CA008BE6D8 /* Interface_Partition.h */,
 				3B3FE3431AC8F42D008BE6D8 /* Interface_File.h */,
 				3B2706C71B02699300C2178E /* Interface_File_Nubbin.h */,
 				3B2706C41AF7D9F200C2178E /* Interface_BinaryImage.h */,
@@ -392,7 +389,6 @@
 				3B3FE3451AC8F4D5008BE6D8 /* Utilities */,
 				3B3FE3441AC8F441008BE6D8 /* Core system */,
 				3B3FE3421AC8F400008BE6D8 /* System Interfaces */,
-				3B26F89A1A5A14EC003BE1B6 /* process_test.asm */,
 				3B26F8981A59CB41003BE1B6 /* Process.cpp */,
 				3B26F8991A59CB41003BE1B6 /* Process.h */,
 				3B2DFD451A56459500C19756 /* Makefile */,
