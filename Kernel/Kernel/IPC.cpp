@@ -129,7 +129,7 @@ void IpcEndpoint::SendBuffer(KernelBufferMemory *buffer)
 
 void IpcEndpoint::SendMessage(bicycle::function<bool(void*)> generator, UInt64 maximumSize)
 {
-    KernelBufferMemory *buffer = new KernelBufferMemory(maximumSize);
+    KernelBufferMemory *buffer = CreateSendBuffer(maximumSize);
     KernelBufferMemory::Map *mapping = new KernelBufferMemory::Map(NULL, buffer, false);
     bool send = generator(mapping->LinearBase());
     mapping->Release();
