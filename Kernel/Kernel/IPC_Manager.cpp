@@ -190,28 +190,38 @@ namespace IPC_Manager_Internal {
         
         void AddEntry(UInt32 provider, UInt32 ioPort, UInt32 connection, Entry::Type type)
         {
-            int start = _total;
-            Entry *entry = new Entry(&_start, &_end, provider, ioPort, connection, type);
-            _total++;   // For new entry
-            _total -= entry->CancelIfNecessary();
-            if (start != _total)
+            bool changed;
+            {
+                InterruptableSpinLock::Autolock locker(&_lock);
+                int start = _total;
+                Entry *entry = new Entry(&_start, &_end, provider, ioPort, connection, type);
+                _total++;   // For new entry
+                _total -= entry->CancelIfNecessary();
+                changed = start != _total;
+            }
+            if (changed)
                 onChanged(_total);
         }
         
         void ReadOut(bicycle::function<int(Entry*)> handler, bool reset)
         {
-            int start = _total;
-            Entry *current = _start;
-            while (current) {
-                handler(current);
-                Entry *next = current->_next;
-                if (reset) {
-                    delete current;
-                    _total--;
+            bool changed;
+            {
+                InterruptableSpinLock::Autolock locker(&_lock);
+                int start = _total;
+                Entry *current = _start;
+                while (current) {
+                    handler(current);
+                    Entry *next = current->_next;
+                    if (reset) {
+                        delete current;
+                        _total--;
+                    }
+                    current = next;
                 }
-                current = next;
+                changed = start != _total;
             }
-            if (start != _total)
+            if (changed)
                 onChanged(_total);
         }
         
@@ -253,6 +263,7 @@ namespace IPC_Manager_Internal {
         Entry *_start, *_end;
         
     private:
+        InterruptableSpinLock _lock;
         int _total;
         State *_last, *_next;
         static State *_stateStart, *_stateEnd, *_stateGlobal;
@@ -317,10 +328,12 @@ void IpcServiceProxy::Stop(void)
 
 void IpcServiceProxy::AddInput(IpcClient *client)
 {
+    StrongKernelObject<IpcServiceProxy> strongSelf(this);
+    StrongKernelObject<IpcClient> strongClient(client);
     UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
     UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(client);
-    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, client, this]{
-        client->Start(this);
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, strongClient, strongSelf]{
+        strongClient.Value()->Start(strongSelf.Value());
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeInput));
             return 0;
@@ -331,24 +344,27 @@ void IpcServiceProxy::AddInput(IpcClient *client)
 
 void IpcServiceProxy::RemoveInput(IpcClient *client)
 {
+    StrongKernelObject<IpcClient> strongClient(client);
     UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
     UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(client);
-    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, client]{
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, strongClient]{
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeInput));
             return 0;
         });
-        client->Stop();
+        strongClient.Value()->Stop();
         return 0;
     });
 }
 
 void IpcServiceProxy::AddOutput(IpcService *output)
 {
+    StrongKernelObject<IpcServiceProxy> strongSelf(this);
+    StrongKernelObject<IpcService> strongService(output);
     UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
     UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(output);
-    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, output, this]{
-        output->Start(this);
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, strongService, strongSelf]{
+        strongService.Value()->Start(strongSelf.Value());
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeOutput));
             return 0;
@@ -359,14 +375,15 @@ void IpcServiceProxy::AddOutput(IpcService *output)
 
 void IpcServiceProxy::RemoveOutput(IpcService *output)
 {
+    StrongKernelObject<IpcService> strongService(output);
     UInt32 selfHandle = IPC_Manager_Internal::Entry::Map(_service);
     UInt32 clientHandle = IPC_Manager_Internal::Entry::Map(output);
-    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, output]{
+    IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, strongService]{
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeOutput));
             return 0;
         });
-        output->Stop();
+        strongService.Value()->Stop();
         return 0;
     });
 }
