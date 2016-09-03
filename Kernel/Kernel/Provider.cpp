@@ -88,7 +88,6 @@ GenericProvider::Input::Input(GenericProvider *owner, KernelString *name)
 
 GenericProvider::Input::~Input()
 {
-    kprintf("%.8x input gone\n");
     _owner->Release();
 }
 
@@ -135,7 +134,6 @@ void GenericProvider::Input::Disconnect(void)
 
 void GenericProvider::Input::DoDisconnect(void)
 {
-    kprintf("Disconnecting %.8x\n");
     _owner->_runloop->RemoveSource(_connection->Link());
     GenericProvider_Thunk::InputDisconnect(_owner, _connection);
     GenericProvider_Thunk::Inputs(_owner)->Set(_connection->Source(), NULL);
