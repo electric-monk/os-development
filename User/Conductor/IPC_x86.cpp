@@ -224,12 +224,20 @@ namespace Kernel {
                     break;
             }
             CheckResult(IPC_SYSCALL, IPC_PROVIDER_GET_EVENT, (returnValue == eventNone) ? result : IPC_ERROR_SUCCESS);
-            if (ipcConnection)
-                *ipcConnection = (Connection*)conn;
-            if (message)
-                *message = (Memory*)mess;
-            if (providerConnection)
-                *providerConnection = (ProviderIO*)star;
+            if (returnValue != eventNone) {
+                if (ipcConnection)
+                    *ipcConnection = (Connection*)conn;
+                else if (conn)
+                    ((Connection*)conn)->Release();
+                if (message)
+                    *message = (Memory*)mess;
+                else if (mess)
+                    ((Memory*)mess)->Release();
+                if (providerConnection)
+                    *providerConnection = (ProviderIO*)star;
+                else if (star)
+                    ((ProviderIO*)star)->Release();
+            }
             return returnValue;
         }
         
