@@ -271,26 +271,27 @@ GenericProvider::InputConnection* ImageLoader::InputConnectionStart(KernelString
                 symbol->Release();
             }
             // Read the program header
+            Elf32_Ehdr headerCopy = *header;
             _tasks->PerformTask(connection, [header](Interface_Request *request){
                 BlockRequestRead *read = (BlockRequestRead*)request;
                 read->type = BlockRequest::Read;
                 read->offset = header->e_phoff;
                 read->length = header->e_phnum * header->e_phentsize;
                 return 0;
-            }, [this, header](Interface_Response *response){
+            }, [this, headerCopy](Interface_Response *response){
                 BlockResponseRead *blockResponse = (BlockResponseRead*)response;
                 // Check it succeeded
                 if (blockResponse->status != Interface_Response::Success)
                     return /* TODO: Error state: I/O error */0;
                 // Read each header
                 Elf32_Phdr *programHeader = (Elf32_Phdr*)blockResponse->data();
-                for (UInt32 i = 0; i < header->e_phnum; i++) {
+                for (UInt32 i = 0; i < headerCopy.e_phnum; i++) {
                     if (programHeader->p_type == PT_LOAD) {
                         ImageLoader_Segment *segment = new ImageLoader_Segment(programHeader);
                         _segments->Add(segment);
                         segment->Release();
                     }
-                    programHeader = (Elf32_Phdr*)(((char*)programHeader) + header->e_phentsize);
+                    programHeader = (Elf32_Phdr*)(((char*)programHeader) + headerCopy.e_phentsize);
                 }
                 // Done - we can now expose our interface to the outside world!
                 IpcService *ipcService = new IpcService("image"_ko, "binaryImage"_ko);
