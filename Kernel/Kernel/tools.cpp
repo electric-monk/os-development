@@ -70,11 +70,16 @@ int CStringPrint::ParseFormat(va_list &params, const char *format)
 				{
 					int x = va_arg(params, int);
 					char buf[32];
+                    bool negative = false;
 					int i;
 
 					i = 32;
-					if (x == 0)
+                    if (x == 0) {
 						buf[--i] = '0';
+                    } else if (x < 0) {
+                        x = -x;
+                        negative = true;
+                    }
 					while (x != 0)
 					{
 						buf[--i] = HEXSTRING[x % 10];
@@ -86,6 +91,8 @@ int CStringPrint::ParseFormat(va_list &params, const char *format)
 						PrintOut("0", 1);
 						padding--;
 					}
+                    if (negative)
+                        buf[--i] = '-';
 					PrintOut(buf + i, 32 - i);
 				}
 				index++;

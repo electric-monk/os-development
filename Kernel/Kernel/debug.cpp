@@ -2,6 +2,7 @@
 #include "debug.h"
 #include "mem_logical.h"
 #include "Console.h"
+#include "Collections.h"
 
 #define FORMAT_PLAIN		0x07
 
@@ -292,4 +293,37 @@ void kprintf(const char *format, ...)
 	va_start(vl, format);
 	printer.PrintList(format, vl);
 	va_end(vl);
+}
+
+static void _report(KernelObject *item, int level)
+{
+    for (int i = 0; i < level; i++)
+        kprintf("    ");
+    if (item->IsDerivedFromClass("KernelArray")) {
+        kprintf("<%s>\n", item->GetClassName(0));
+        ((KernelArray*)item)->Enumerate([=](KernelObject *item){
+            _report(item, level + 1);
+            return (void*)NULL;
+        });
+    } else if (item->IsDerivedFromClass("KernelDictionary")) {
+        kprintf("<%s>\n", item->GetClassName(0));
+        KernelDictionary *dict = (KernelDictionary*)item;
+        KernelArray *allKeys = dict->AllKeys();
+        allKeys->Enumerate([=](KernelObject *key){
+            _report(key, level + 1);
+            _report(dict->ObjectFor(key), level + 2);
+            return (void*)NULL;
+        });
+    } else if (item->IsDerivedFromClass("KernelNumber")) {
+        kprintf("<%s: %i>\n", item->GetClassName(0), ((KernelNumber*)item)->Value());
+    } else if (item->IsDerivedFromClass("KernelString")) {
+        kprintf("<%s: \"%s\">\n", item->GetClassName(0), ((KernelString*)item)->CString());
+    } else {
+        kprintf("<%s: %x>\n", item->GetClassName(0), item);
+    }
+}
+
+void report(KernelObject *object)
+{
+    _report(object, 0);
 }

@@ -5,7 +5,13 @@
 #define NULL 0L
 #endif
 
-typedef unsigned int size_t;
+typedef unsigned long size_t;
+
+#ifdef __cplusplus
+namespace std {
+	typedef unsigned long size_t;
+}
+#endif
 
 typedef unsigned char UInt8;
 typedef unsigned short UInt16;

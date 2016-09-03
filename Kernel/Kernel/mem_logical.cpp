@@ -14,8 +14,11 @@ extern UInt32 phys;                  // "int" at base address of the kernel
 
 int availableMappingPages;
 
-//#define PAGE_DEBUG(...) kprintf(__VA_ARGS__)
+#ifdef DEBUG_PAGING
+#define PAGE_DEBUG(...) kprintf(__VA_ARGS__)
+#else
 #define PAGE_DEBUG(...)
+#endif
 
 static inline void InvalidateTLB(void *m)
 {

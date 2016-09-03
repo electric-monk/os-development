@@ -130,4 +130,32 @@ UInt64 __umoddi3(UInt64 num, UInt64 den)
     return v;
 }
 
+void* memmove(void *dest, void *src, int length)
+{
+    char *cDest = (char*)dest;
+    char *cSrc = (char*)src;
+    if (cDest == cSrc)
+        return cDest;
+    if (UInt64(cDest) > UInt64(cSrc)) {
+        // Copy up
+        while (length) {
+            *cDest = *cSrc;
+            cDest++;
+            cSrc++;
+            length--;
+        }
+    } else {
+        // Copy down
+        cDest += length - 1;
+        cSrc += length - 1;
+        while (length) {
+            *cDest = *cSrc;
+            cDest--;
+            cSrc--;
+            length--;
+        }
+    }
+    return cDest;
+}
+    
 }

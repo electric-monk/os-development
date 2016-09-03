@@ -990,10 +990,28 @@ static void PrintStack(void **stackBottom)
     kprintf("\n");
 }
 
+static void HandleUserspaceException(int number)
+{
+    kprintf("Process %.8x crashed (%.2x: %s)\n", Process::Active, number, StandardPC::NameForTrap(number));
+    Thread *start = Thread::ThreadCursor();
+    Thread *current = start;
+    do {
+        if (current->_process == Process::Active)
+            current->_state = tsCompleted;
+        Thread::ThreadNext();
+        current = Thread::ThreadCursor();
+    } while (current != start);
+    Scheduler::EnterFromInterrupt();
+}
+
 static bool GenericExceptionHandler(void *context, void *state)
 {
     CPU_Interrupt_Disable();
     TrapFrame *tf = (TrapFrame*)state;
+    if ((tf->CS & DPL_USER) == DPL_USER) {
+        HandleUserspaceException(tf->TrapNumber);
+        return true;
+    }
     Console_Panic();
     kprintf("\nPANIC! CPU exception %.2x: %s\n", tf->TrapNumber, StandardPC::NameForTrap(tf->TrapNumber));
     kprintf("Error %.8x; address %.4x:%.8x\n", tf->ERR, tf->CS, tf->EIP);
@@ -1010,6 +1028,10 @@ static bool PageFaultExceptionHandler(void *context, void *state)
 {
     CPU_Interrupt_Disable();
     TrapFrame *tf = (TrapFrame*)state;
+    if ((tf->CS & DPL_USER) == DPL_USER) {
+        HandleUserspaceException(tf->TrapNumber);
+        return true;
+    }
     UInt32 faulting_address;
     asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
     Console_Panic();

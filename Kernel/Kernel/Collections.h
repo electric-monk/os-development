@@ -136,7 +136,7 @@ private:
     UInt32 _value;
 };
 
-KernelString* operator"" _ko(char const *, size_t);
+KernelString* operator"" _ko(const char*, std::size_t);
 KernelString* operator"" _ko(const char*);
 KernelNumber* operator"" _ko(unsigned long long value);
 
