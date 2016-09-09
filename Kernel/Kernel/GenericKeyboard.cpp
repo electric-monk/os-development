@@ -167,7 +167,7 @@ void GenericKeyboard::SendEvent(int key, bool down)
             Interface_Keyboard::Event *event = (Interface_Keyboard::Event*)buffer;
             event->packetClass = Interface_Packet::Event;
             event->identifier = currentIdentifier;
-            event->type = 0/*todo*/;
+            event->type = Interface_Keyboard::Event::KeyEvent;
             event->keyDown = down;
             event->keyValue = (Interface_Keyboard::KEY)key;
             return true;
