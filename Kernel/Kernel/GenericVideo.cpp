@@ -25,7 +25,7 @@ namespace GenericVideo_Internal {
             UInt64 videoOffset = offset - PAGE_SIZE;
             if ((offset < PAGE_SIZE) || (videoOffset >= _lengthPhysical))
                 return KernelBufferMemory::PointerForOffset(offset);
-            return (void*)(UInt64(_basePhysical) + offset);
+            return (void*)(UInt64(_basePhysical) + videoOffset);
         }
         
     private:
@@ -173,11 +173,12 @@ void GenericVideo::UpdatePort(int index)
                         {
                             //Video::GetBuffer *getBuffer = (Video::GetBuffer*)packet;
                             // As a video driver, we currently just ignore the contents of getBuffer
+                            // TODO: Take into account potential that video buffer doesn't start on a page boundary
                             KernelBufferMemory *response = new GenericVideo_Internal::VideoBufferMemory(info.address, info.lineSpan * info.height);
                             KernelBufferMemory::Map *responseMap = new KernelBufferMemory::Map(NULL, response, false);
                             Video::Buffer *responseBuffer = (Video::Buffer*)responseMap->LinearBase();
-                            responseBuffer->identifier = packet->identifier;
-                            responseBuffer->type = Video::Response::Buffer;
+                            responseBuffer->Fill(packet);
+                            responseBuffer->status = Interface_Response::Success;
                             responseBuffer->width = info.width;
                             responseBuffer->height = info.height;
                             responseBuffer->lineSpan = info.lineSpan;
