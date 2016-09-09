@@ -76,8 +76,6 @@ const struct {
     {true,  0x1C, Interface_Keyboard::keyPadEnter},
 };
 
-KernelDictionary *problemDictionary;
-
 static KernelObject* MakeKey(bool extended, UInt8 code)
 {
     UInt32 value = code;
@@ -104,8 +102,6 @@ GenericKeyboard::GenericKeyboard(const char *name)
     // Make map
     for (int i = 0; i < (sizeof(s_keys) / sizeof(s_keys[0])); i++)
         MakeMap(_mapping, s_keys[i].extended, s_keys[i].code, s_keys[i].key);
-    
-    problemDictionary = _mapping;
 }
 
 GenericKeyboard::~GenericKeyboard()
