@@ -299,6 +299,9 @@ void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer ph
         tables[dirEntry] = (SPageTable*)Map(fmPageData | fmWritable, pmKernel, newPage);
         if (tables[dirEntry] == location)
             PAGE_DEBUG("Something terrible has happened\n");
+        availableMappingPages--;
+        if (availableMappingPages == 0)
+            kprintf("Out of pages\n");
         
         // Scrub the new table
         for (int i = 0; i < 1024; i++)
@@ -340,7 +343,6 @@ void SPageDirectoryInfo::Map(int permissions, void *location, PhysicalPointer ph
         PAGE_DEBUG("Probably making a mistake. old info: %.8x\n", tables[dirEntry]->pages[pagEntry].RawValue);
     }
     tables[dirEntry]->pages[pagEntry] = newPageInfo;
-    availableMappingPages--;
     // Increment 'kernel address space' counter so other processes know to update themselves
     if (this == &rootAddressSpace)
     {
