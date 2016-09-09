@@ -158,7 +158,6 @@ bool GenericKeyboard::HandleKey(UInt8 event)
             }
         }
         key->Release();
-        return 0;
     });
     return false;
 }

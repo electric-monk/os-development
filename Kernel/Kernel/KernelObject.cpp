@@ -124,7 +124,7 @@ namespace KernelObject_Internal {
     class DestructionWatcherHandle : public KernelObject::DestructionWatcherHandle
     {
     public:
-        DestructionWatcherHandle(KernelObject::DestructionWatcherHandle **start, KernelObject::DestructionWatcherHandle **end, bicycle::function<int(void)> onDestroy)
+        DestructionWatcherHandle(KernelObject::DestructionWatcherHandle **start, KernelObject::DestructionWatcherHandle **end, bicycle::function<void(void)> onDestroy)
         {
             _destroy = onDestroy;
             
@@ -159,7 +159,7 @@ namespace KernelObject_Internal {
         
     private:
         KernelObject::DestructionWatcherHandle **_start, **_end, *_last, *_next;
-        bicycle::function<int(void)> _destroy;
+        bicycle::function<void(void)> _destroy;
     };
     
     class HandledObject : public KernelObject
@@ -183,7 +183,6 @@ namespace KernelObject_Internal {
             _watcher = object->Watch([this, onDestroy]{
                 _watcher = NULL;    // Remove our own reference, as it'll now be released
                 onDestroy(this);        // Call the real handler
-                return 0;
             });
         }
         
@@ -200,7 +199,7 @@ namespace KernelObject_Internal {
     };
 }
 
-KernelObject::DestructionWatcherHandle* KernelObject::Watch(bicycle::function<int(void)> onDestroy)
+KernelObject::DestructionWatcherHandle* KernelObject::Watch(bicycle::function<void(void)> onDestroy)
 {
     return new KernelObject_Internal::DestructionWatcherHandle(&_watchStart, &_watchEnd, onDestroy);
 }

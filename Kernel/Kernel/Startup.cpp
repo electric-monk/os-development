@@ -54,7 +54,7 @@ namespace Startup_Internal {
     class Handler
     {
     public:
-        Handler(bicycle::function<int(Handler*)> updater)
+        Handler(bicycle::function<void(Handler*)> updater)
         {
             _updater = updater;
         }
@@ -68,13 +68,13 @@ namespace Startup_Internal {
         virtual void FoundOutput(KernelObject *provider, IpcService *service) = 0;
         
     protected:
-        bicycle::function<int(Handler*)> _updater;
+        bicycle::function<void(Handler*)> _updater;
     };
     
     class WaitingForImage : public Handler
     {
     public:
-        WaitingForImage(bicycle::function<int(Handler*)> updater, KernelObject *loader)
+        WaitingForImage(bicycle::function<void(Handler*)> updater, KernelObject *loader)
         :Handler(updater)
         {
             START_LOG("STARTUP: Loading binary image\n");
@@ -101,7 +101,7 @@ namespace Startup_Internal {
     class WaitingForFile : public Handler
     {
     public:
-        WaitingForFile(bicycle::function<int(Handler*)> updater, KernelObject *nubbin)
+        WaitingForFile(bicycle::function<void(Handler*)> updater, KernelObject *nubbin)
         :Handler(updater)
         {
             START_LOG("STARTUP: Waiting for file\n");
@@ -145,7 +145,7 @@ namespace Startup_Internal {
     class WaitingForNubbin : public Handler
     {
     public:
-        WaitingForNubbin(bicycle::function<int(Handler*)> updater, KernelObject *nubbin)
+        WaitingForNubbin(bicycle::function<void(Handler*)> updater, KernelObject *nubbin)
         :Handler(updater)
         {
             START_LOG("STARTUP: Creating nubbin\n");
@@ -160,7 +160,7 @@ namespace Startup_Internal {
         {
             if ((provider == _nubbin) && service->ServiceType()->IsEqualTo("nubbin"_ko)) {
                 ConvenientSink *sink = new ConvenientSink();
-                IpcClient *client = sink->CreateInput("input"_ko, [=](IpcEndpoint *connection){
+                sink->CreateInput("input"_ko, [=](IpcEndpoint *connection){
                     sink->PerformTask(connection, [](Interface_Request *request){
                         Interface_File_Nubbin::Expose *exposeRequest = (Interface_File_Nubbin::Expose*)request;
                         exposeRequest->type = Interface_File_Nubbin::Expose::ExposeFile;
@@ -168,22 +168,20 @@ namespace Startup_Internal {
                         exposeRequest->autoUnexpose = true;
                         exposeRequest->rootNode = NodeRequest::RootNode;
                         ConvertPath(&exposeRequest->subpath, "boot"_ko, "Conducto.tas"_ko, NULL);
-                        return 0;
                     }, [](Interface_Response *response){
                         Interface_File_Nubbin::ExposeResponse *exposeResponse = (Interface_File_Nubbin::ExposeResponse*)response;
                         if (exposeResponse->status != Interface_Response::Success) {
                             kprintf("STARTUP: Couldn't find task! Error %i\n", exposeResponse->status);
                             // TODO: Kernel doomed
                         }
-                        return 0;
                     });
-                    return 0;
+                    return true;
+                }, [=](IpcClient *client){
+                    sink->AddTask([=]{
+                        client->Connect(service);
+                    });
+                    _updater(new WaitingForFile(_updater, _nubbin));
                 });
-                sink->AddTask([=]{
-                    client->Connect(service);
-                    return 0;
-                });
-                _updater(new WaitingForFile(_updater, _nubbin));
             }
         }
 
@@ -194,7 +192,7 @@ namespace Startup_Internal {
     class WaitingForFilesystem : public Handler
     {
     public:
-        WaitingForFilesystem(bicycle::function<int(Handler*)> updater)
+        WaitingForFilesystem(bicycle::function<void(Handler*)> updater)
         :Handler(updater)
         {
             START_LOG("STARTUP: Connecting filesystem\n");
@@ -236,7 +234,7 @@ namespace Startup_Internal {
     class WaitingForDisk : public Handler
     {
     public:
-        WaitingForDisk(bicycle::function<int(Handler*)> updater)
+        WaitingForDisk(bicycle::function<void(Handler*)> updater)
         :Handler(updater)
         {
             START_LOG("STARTUP: Waiting for boot device\n");
@@ -303,16 +301,14 @@ namespace Startup_Internal {
                 Handler *oldState = _state;
                 _runloop->AddTask([oldState]{
                     delete oldState;
-                    return 0;
                 });
                 _state = state;
-                return 0;
             });
             
             _runloop->AddSource(_monitor, [this](BlockableObject *object, KernelObject *other){
                 KernelArray *changes = _monitor->Changes();
                 if (!_state)
-                    return 0;
+                    return;
 //                report(changes);
                 changes->Enumerate([this](KernelObject *object){
                     KernelDictionary *info = (KernelDictionary*)object;
@@ -332,7 +328,6 @@ namespace Startup_Internal {
                     }
                     return (void*)NULL;
                 });
-                return 0;
             });
         }
         

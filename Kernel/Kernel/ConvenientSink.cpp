@@ -13,7 +13,7 @@ namespace ConvenientSink_Internal {
             _connectionHandler = connectionHandler;
         }
         
-        bool Connect(IpcEndpoint *endpoint)
+        bool ShouldConnect(IpcEndpoint *endpoint)
         {
             return _connectionHandler(endpoint);
         }
@@ -23,9 +23,15 @@ namespace ConvenientSink_Internal {
     };
 }
 
-ConvenientSink::ConvenientSink()
+ConvenientSink::ConvenientSink(RunloopThread *runloop, InterfaceHelper *helper)
+:GenericProvider(runloop)
 {
-    _helper = new InterfaceHelper();
+    if (helper) {
+        _helper = helper;
+        _helper->AddRef();
+    } else {
+        _helper = new InterfaceHelper();
+    }
     _inputs = new KernelDictionary();
 }
 
@@ -35,17 +41,28 @@ ConvenientSink::~ConvenientSink()
     _helper->Release();
 }
 
-void ConvenientSink::PerformTask(IpcEndpoint *destination, bicycle::function<int(Interface_Request*)> generate, bicycle::function<int(Interface_Response*)> response)
+void ConvenientSink::PerformTask(IpcEndpoint *destination, bicycle::function<void(Interface_Request*)> generate, bicycle::function<void(Interface_Response*)> response)
 {
     _helper->PerformTask(destination, generate, response);
 }
 
-void ConvenientSink::AddTask(bicycle::function<int(void)> task)
+void ConvenientSink::AddTask(bicycle::function<void(void)> task)
 {
     _runloop->AddTask(task);
 }
 
-IpcClient* ConvenientSink::CreateInput(KernelString *name, bicycle::function<bool(IpcEndpoint*)> connectionHandler)
+// This is all a horrible hack.
+static void QueueCheck(Runloop *loop, ConvenientSink_Internal::Input *input, bicycle::function<void(IpcClient*)> completion)
+{
+    loop->AddDelayedTask(100, [=]{
+        if (input->Active())
+            completion(input);
+        else
+            QueueCheck(loop, input, completion);
+    });
+}
+
+void ConvenientSink::CreateInput(KernelString *name, bicycle::function<bool(IpcEndpoint*)> connectionHandler, bicycle::function<void(IpcClient*)> completion)
 {
     ConvenientSink_Internal::Input *input = new ConvenientSink_Internal::Input(this, name, connectionHandler);
     StrongKernelObject<KernelString> strongName(name);
@@ -53,10 +70,8 @@ IpcClient* ConvenientSink::CreateInput(KernelString *name, bicycle::function<boo
     _runloop->AddTask([this, strongName, strongInput]{
         _inputs->Set(strongName.Value(), strongInput.Value());
         _serviceList->AddInput(strongInput.Value());
-        return 0;
     });
-    while (!input->Active()) Thread::Active->Sleep(100);   // TODO: Something more efficient than just endlessly spinning
-    return input;
+    QueueCheck(_runloop, input, completion);
 }
 
 void ConvenientSink::StopInput(IpcClient *input)
@@ -65,7 +80,6 @@ void ConvenientSink::StopInput(IpcClient *input)
     _runloop->AddTask([this, strongInput]{
         _serviceList->RemoveInput(strongInput.Value());
         _inputs->Set(strongInput.Value()->Name(), NULL);
-        return 0;
     });
     input->Release();
 }
@@ -75,7 +89,7 @@ GenericProvider::InputConnection* ConvenientSink::InputConnectionStart(KernelStr
     ConvenientSink_Internal::Input *input = (ConvenientSink_Internal::Input*)_inputs->ObjectFor(name);
     if (input == NULL)
         return NULL;
-    if (!input->Connect(connection))
+    if (!input->ShouldConnect(connection))
         return NULL;
     return new GenericProvider::InputConnection(this, name, connection);
 }

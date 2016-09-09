@@ -179,10 +179,10 @@ SPageDirectoryInfo* VirtualMemory::PageDirectory(void)
 
 void VirtualMemory::Map(/*MAP_FLAGS*/int permissions, void *linearAddress, PhysicalPointer physicalAddress)
 {
-    Map(permissions, linearAddress, physicalAddress, [](void*){return 0;});
+    Map(permissions, linearAddress, physicalAddress, [](void*){});
 }
 
-void VirtualMemory::Map(/*MAP_FLAGS*/int permissions, void *linearAddress, PhysicalPointer physicalAddress, bicycle::function<int(void*)> completion)
+void VirtualMemory::Map(/*MAP_FLAGS*/int permissions, void *linearAddress, PhysicalPointer physicalAddress, bicycle::function<void(void*)> completion)
 {
     if ((linearAddress < _linear) || (linearAddress >= (((char*)_linear) + _length)))
         return; // TODO: Error!

@@ -219,7 +219,6 @@ ImageLoader::ImageLoader()
         GenericProvider::Input *input = new GenericProvider::Input(this, INPUT_NAME);
         _serviceList->AddInput(input);
 //        input->Release();
-        return 0;
     });
 }
 
@@ -241,29 +240,28 @@ GenericProvider::InputConnection* ImageLoader::InputConnectionStart(KernelString
             read->type = BlockRequest::Read;
             read->offset = 0;
             read->length = sizeof(Elf32_Ehdr);
-            return 0;
         }, [this, connection](Interface_Response *response){
             BlockResponseRead *blockResponse = (BlockResponseRead*)response;
             // Check it succeeded
             if (blockResponse->status != Interface_Response::Success)
-                return 0/* TODO: Error state: I/O error */;
+                return /* TODO: Error state: I/O error */;
             // Check we got at least the required sector
             if (blockResponse->length() < sizeof(Elf32_Ehdr)) {
-                return 0/* TODO: Error state: read failure */;
+                return /* TODO: Error state: read failure */;
             }
             Elf32_Ehdr *header = (Elf32_Ehdr*)blockResponse->data();
             if ((header->e_ident[EI_MAG0] != ELFMAG0) || (header->e_ident[EI_MAG1] != ELFMAG1) || (header->e_ident[EI_MAG2] != ELFMAG2) || (header->e_ident[EI_MAG3] != ELFMAG3)) {
                 // TODO: Invalid start
-                return 0;
+                return;
             }
             // TODO: Make this more generic
             if (header->e_ident[EI_CLASS] != ELFCLASS32) {
                 // TODO: Not 32-bit
-                return 0;
+                return;
             }
             if (header->e_ident[EI_VERSION] != 1) {
                 // TODO: Wrong version
-                return 0;
+                return;
             }
             if (header->e_entry != 0) {
                 ImageLoader_Symbol *symbol = new ImageLoader_Symbol_Main(header->e_entry);
@@ -277,12 +275,11 @@ GenericProvider::InputConnection* ImageLoader::InputConnectionStart(KernelString
                 read->type = BlockRequest::Read;
                 read->offset = header->e_phoff;
                 read->length = header->e_phnum * header->e_phentsize;
-                return 0;
             }, [this, headerCopy](Interface_Response *response){
                 BlockResponseRead *blockResponse = (BlockResponseRead*)response;
                 // Check it succeeded
                 if (blockResponse->status != Interface_Response::Success)
-                    return /* TODO: Error state: I/O error */0;
+                    return /* TODO: Error state: I/O error */;
                 // Read each header
                 Elf32_Phdr *programHeader = (Elf32_Phdr*)blockResponse->data();
                 for (UInt32 i = 0; i < headerCopy.e_phnum; i++) {
@@ -299,11 +296,8 @@ GenericProvider::InputConnection* ImageLoader::InputConnectionStart(KernelString
                 ipcService->Release();
                 Launch(service);
                 service->Release();
-                return 0;
             });
-            return 0;
         });
-        return 0;
     });
     // Done
     return newConnection;
@@ -313,7 +307,6 @@ void ImageLoader::InputConnectionReceived(InputConnection *connection, KernelBuf
 {
     _tasks->HandleMessage(message, [](Interface_Response *response){
         // TODO: Handle unsolicited message
-        return 0;
     });
 }
 
@@ -337,14 +330,13 @@ void ImageLoader::OutputConnectionMessage(OutputConnection *connection, KernelBu
 {
     KernelBufferMemory::Map *mapping = new KernelBufferMemory::Map(NULL, message, true);
     Interface_Request *request = (Interface_Request*)mapping->LinearBase();
-    bicycle::function<int (int error)> onError = [connection, request](int error){
+    bicycle::function<void(int error)> onError = [connection, request](int error){
         connection->Link()->SendMessage([request, error](void *context){
             Interface_Response *response = (Interface_Response*)context;
             response->Fill(request);
             response->status = error;
             return true;
         });
-        return 0;
     };
     switch (request->type) {
         case Interface_BinaryImage::Request::GetChunks:
@@ -373,7 +365,7 @@ void ImageLoader::OutputConnectionMessage(OutputConnection *connection, KernelBu
                 onError(Interface_BinaryImage::Response::InvalidChunk);
             } else {
                 ImageLoader_Segment *segment = (ImageLoader_Segment*)_segments->ObjectAt(readChunk->chunk);
-                bicycle::function<int(void *read, int length)> onRead = [readChunk, connection](void *read, int length){
+                bicycle::function<void(void *read, int length)> onRead = [readChunk, connection](void *read, int length){
                     connection->Link()->SendMessage([readChunk, read, length](void *context){
                         Interface_BinaryImage::ReadChunk *response = (Interface_BinaryImage::ReadChunk*)context;
                         response->Fill(readChunk);
@@ -400,7 +392,6 @@ void ImageLoader::OutputConnectionMessage(OutputConnection *connection, KernelBu
                         position->encoding = Interface_BinaryImage::ReadChunk::RLE::eEnd;
                         return true;
                     });
-                    return 0;
                 };
                 mapping->AddRef();
                 if (segment->FileLength() > readChunk->offset) {
@@ -412,7 +403,6 @@ void ImageLoader::OutputConnectionMessage(OutputConnection *connection, KernelBu
                         read->length = segment->FileLength();
                         if (read->length > readChunk->length)
                             read->length = readChunk->length;
-                        return 0;
                     }, [onRead, onError, mapping](Interface_Response *response){
                         BlockResponseRead *blockResponse = (BlockResponseRead*)response;
                         if (blockResponse->status == BlockResponseRead::Success)
@@ -420,7 +410,6 @@ void ImageLoader::OutputConnectionMessage(OutputConnection *connection, KernelBu
                         else
                             onError(blockResponse->status);
                         mapping->Release();
-                        return 0;
                     });
                 } else {
                     // It's just empty space

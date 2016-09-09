@@ -38,20 +38,17 @@ protected:
             read->chunk = _chunk;
             read->offset = (UInt32(linearAddress) & ~(PAGE_SIZE - 1)) - UInt32(LinearBase());
             read->length = PAGE_SIZE;
-            return 0;
         }, [this, linearAddress](Interface_Response *response){
             Interface_BinaryImage::ReadChunk *read = (Interface_BinaryImage::ReadChunk*)response;
             if (read->status != Interface_BinaryImage::ReadChunk::Success) {
                 // TODO: Failed to read, game's a bogey for this process
-                return 0;
+                return;
             }
             // Get a new page
             Map(fmWritable, linearAddress, CPhysicalMemory::AllocateContiguousPages(), [read](void *address){
                 // Fill it in
                 read->Populate((UInt8*)((UInt32(address) & ~(PAGE_SIZE - 1))));
-                return 0;
             });
-            return 0;
         });
     }
     
@@ -110,29 +107,22 @@ void Process::AttachImage(IpcService *binaryImageService)
     _runloop->AddTask([this, binaryImageService]{
         // Already mapped? Ignore it!
         if (_binaries->ObjectFor(binaryImageService) != NULL)
-            return 0;
-        ConvenientSink *sink = new ConvenientSink();
-        IpcClient *client = sink->CreateInput("input"_ko, [=](IpcEndpoint *endpoint){
+            return;
+        ConvenientSink *sink = new ConvenientSink(_runloop, _helper);
+        sink->CreateInput("input"_ko, [=](IpcEndpoint *endpoint){
             StrongKernelObject<IpcEndpoint> strongEndpoint(endpoint);
             _runloop->AddTask([=]{
                 // Connect the service
                 _binaries->Set(binaryImageService, strongEndpoint.Value());
-                _runloop->AddSource(endpoint, [this, endpoint](BlockableObject *watching, KernelArray *signals){
-                    _helper->HandleMessage(endpoint->Read(false), [](Interface_Response *response){
-                        return 0;
-                    });
-                    return 0;
-                });
                 // Request initial data
                 _helper->PerformTask(endpoint, [](Interface_Request *request){
                     Interface_BinaryImage::Request *requestChunks = (Interface_BinaryImage::Request*)request;
                     requestChunks->type = Interface_BinaryImage::Request::GetChunks;
-                    return 0;
                 }, [this, binaryImageService, endpoint](Interface_Response *response){
                     Interface_BinaryImage::GotChunks *gotChunks = (Interface_BinaryImage::GotChunks*)response;
                     if (gotChunks->status != Interface_BinaryImage::GotChunks::Success) {
                         // Failed in some way
-                        return 0;
+                        return;
                     }
                     // Add entry
                     KernelArray *objects = new KernelArray();
@@ -147,7 +137,6 @@ void Process::AttachImage(IpcService *binaryImageService)
                     // Launch any threads
                     _helper->PerformTask(endpoint, [](Interface_Request *request){
                         request->type= Interface_BinaryImage::Request::GetSymbols;
-                        return 0;
                     }, [this](Interface_Response *response){
                         Interface_BinaryImage::GotSymbols *symbols = (Interface_BinaryImage::GotSymbols*)response;
                         FlatString *launchKey = FlatString::CreateDynamic(Symbol_Launch);
@@ -166,16 +155,13 @@ void Process::AttachImage(IpcService *binaryImageService)
                         }
                         launchKey->ReleaseDynamic();
                         entryKey->ReleaseDynamic();
-                        return 0;
                     });
-                    return 0;
                 });
-                return 0;
             });
-            return 0;
+            return true;
+        }, [=](IpcClient *client){
+            client->Connect(binaryImageService);
         });
-        client->Connect(binaryImageService);
-        return 0;
     });
     // this is all wrongh
     

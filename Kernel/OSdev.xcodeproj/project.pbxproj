@@ -11,6 +11,7 @@
 		3B493E0C1B8DA07D00AE972F /* pci.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B493E0A1B8DA07D00AE972F /* pci.cpp */; };
 		3B4A92961BB059A20063E5CA /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B4A92931BB059A20063E5CA /* Console.cpp */; };
 		3B51253F1D71904E00C9A8FE /* GenericMouse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B51253D1D71904E00C9A8FE /* GenericMouse.cpp */; };
+		3B5125BA1D827B9600C9A8FE /* ConvenientSink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B5125B81D827B9600C9A8FE /* ConvenientSink.cpp */; };
 		3B7405FE1D0C169800E0C531 /* IPC_Manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7405FC1D0C169800E0C531 /* IPC_Manager.cpp */; };
 		3B762FFF1B12A9AD00C41D62 /* test.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3B762FFE1B12A9AD00C41D62 /* test.1 */; };
 		3B7630031B12A9D600C41D62 /* Provider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2706881AD8FE3C00C2178E /* Provider.cpp */; };
@@ -113,6 +114,8 @@
 		3B51253D1D71904E00C9A8FE /* GenericMouse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GenericMouse.cpp; path = Kernel/GenericMouse.cpp; sourceTree = "<group>"; };
 		3B51253E1D71904E00C9A8FE /* GenericMouse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GenericMouse.h; path = Kernel/GenericMouse.h; sourceTree = "<group>"; };
 		3B5125401D71906600C9A8FE /* Interface_Mouse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Interface_Mouse.h; path = Kernel/Interface_Mouse.h; sourceTree = "<group>"; };
+		3B5125B81D827B9600C9A8FE /* ConvenientSink.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConvenientSink.cpp; path = Kernel/ConvenientSink.cpp; sourceTree = "<group>"; };
+		3B5125B91D827B9600C9A8FE /* ConvenientSink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConvenientSink.h; path = Kernel/ConvenientSink.h; sourceTree = "<group>"; };
 		3B5420E91B943BDF00C37954 /* Interface_Console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Interface_Console.h; path = Kernel/Interface_Console.h; sourceTree = "<group>"; };
 		3B5E06BE1AD265B900280BDD /* fs_iso9660.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fs_iso9660.cpp; path = Kernel/fs_iso9660.cpp; sourceTree = "<group>"; };
 		3B5E06BF1AD265B900280BDD /* fs_iso9660.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fs_iso9660.h; path = Kernel/fs_iso9660.h; sourceTree = "<group>"; };
@@ -250,6 +253,8 @@
 				3B7713361A6C353500556361 /* KernelObject.cpp */,
 				3BE43F6419B1B95A009B16F3 /* KernelObject.h */,
 				3B27068C1ADF766B00C2178E /* KernelFunction.h */,
+				3B5125B81D827B9600C9A8FE /* ConvenientSink.cpp */,
+				3B5125B91D827B9600C9A8FE /* ConvenientSink.h */,
 			);
 			name = "Core system";
 			sourceTree = "<group>";
@@ -489,6 +494,7 @@
 				3B7D1B861BF0A4FF00C380C9 /* Collections_Service.cpp in Sources */,
 				3B7630131B12A9D600C41D62 /* mem_virtual.cpp in Sources */,
 				3B7630141B12A9D600C41D62 /* runtime.cpp in Sources */,
+				3B5125BA1D827B9600C9A8FE /* ConvenientSink.cpp in Sources */,
 				3B7630151B12A9D600C41D62 /* Scheduler.cpp in Sources */,
 				3BB523FA1BB1B29B008344C8 /* Video_Multiboot.cpp in Sources */,
 				3B7D1B831BF0993C00C380C9 /* Blocking_Service.cpp in Sources */,

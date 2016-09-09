@@ -15,7 +15,6 @@ FileNubbin::FileNubbin()
         GenericProvider::Input *input = new GenericProvider::Input(this, "filesystem"_ko);
         _serviceList->AddInput(input);
 //        input->Release();
-        return 0;
     });
 }
 
@@ -64,7 +63,7 @@ class NubbinHandle : public NubbinService
 public:
     CLASSNAME(NubbinService, NubbinHandle);
     
-    typedef bicycle::function<int(bicycle::function<int(Interface_Request*)>, bicycle::function<int(Interface_Response*)>)> RequesterFunction;
+    typedef bicycle::function<void(bicycle::function<void(Interface_Request*)>, bicycle::function<void(Interface_Response*)>)> RequesterFunction;
 private:
     RequesterFunction _requester;
     
@@ -76,7 +75,7 @@ private:
     UInt32 _handle;
     
 public:
-    NubbinHandle(FileNubbin *owner, IpcService *service, Interface_File_Nubbin::Expose *request, RequesterFunction requester, bicycle::function<int(int, NubbinHandle*)> completion)
+    NubbinHandle(FileNubbin *owner, IpcService *service, Interface_File_Nubbin::Expose *request, RequesterFunction requester, bicycle::function<void(int, NubbinHandle*)> completion)
     :NubbinService(owner, service)
     {
         _requester = requester;
@@ -89,14 +88,12 @@ public:
             openRequest->type = NodeRequest::OpenFile;
             openRequest->rootNode = request->rootNode;
             openRequest->subpath.CopyFrom(&request->subpath);
-            return 0;
         }, [this, completion](Interface_Response *response){
             OpenResponse *openResponse = (OpenResponse*)response;
             if (openResponse->status == Interface_Response::Success)
                 _handle = openResponse->handle;
             completion(openResponse->status, this);
             Release();
-            return 0;
         });
     }
     
@@ -141,12 +138,10 @@ protected:
             FileRequest *closeRequest = (FileRequest*)newRequest;
             closeRequest->type = NodeRequest::CloseFile;
             closeRequest->handle = _handle;
-            return 0;
         }, [](Interface_Response *response){
             NodeResponse *closeResponse = (NodeResponse*)response;
             if (closeResponse->status != Interface_Response::Success)
                 /* Whoops, should probably do something */;
-            return 0;
         });
     }
 };
@@ -163,7 +158,6 @@ GenericProvider::InputConnection* FileNubbin::InputConnectionStart(KernelString 
         ipcService->Release();
         Launch(service);
         service->Release();
-        return 0;
     });
     return newConnection;
 }
@@ -172,7 +166,6 @@ void FileNubbin::InputConnectionReceived(GenericProvider::InputConnection *conne
 {
     _tasks->HandleMessage(message, [](Interface_Response *response){
         // TODO: Non-response message from the service
-        return 0;
     });
 }
 
@@ -182,7 +175,6 @@ void FileNubbin::InputConnectionEnd(GenericProvider::InputConnection *connection
         // We lost our file service, so kill all of the files we're exporting along with the control service
         while (_services->Count() != 0)
             Kill((Service*)_services->ObjectAt(0));
-        return 0;
     });
     connection->Release();
 }
@@ -238,7 +230,7 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
     message->AddRef();
     NubbinService *service = (NubbinService*)connection->Source();
     Interface_Request *request = (Interface_Request*)mapping->LinearBase();
-    bicycle::function<int(int state)> doError = [connection, request, mapping, message](int state){
+    bicycle::function<void(int state)> doError = [connection, request, mapping, message](int state){
         connection->Link()->SendMessage([request, state](void *context){
             Interface_Response *response = (Interface_Response*)context;
             response->Fill(request);
@@ -247,15 +239,13 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
         });
         mapping->Release();
         message->Release();
-        return 0;
     };
     switch (request->type | (service->IsCommand() ? INDICATE_COMMAND : INDICATE_FILE)) {
         case Interface_File_Nubbin::Command::ExposeFile | INDICATE_COMMAND:
         {
             IpcService *service = new IpcService(/*name*/"0"_ko, SERVICE_TYPE_BLOCK);
-            new NubbinHandle(this, service, (Interface_File_Nubbin::Expose*)request, [this](bicycle::function<int(Interface_Request*)> request, bicycle::function<int(Interface_Response*)> response){
+            new NubbinHandle(this, service, (Interface_File_Nubbin::Expose*)request, [this](bicycle::function<void(Interface_Request*)> request, bicycle::function<void(Interface_Response*)> response){
                 _tasks->PerformTask(Input()->Link(), request, response);
-                return 0;
             }, [this, connection, request, mapping, message](int state, NubbinHandle *handle){
                 if (state == Interface_Response::Success)
                     Launch(handle);
@@ -269,7 +259,6 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
                 });
                 mapping->Release();
                 message->Release();
-                return 0;
             });
             service->Release();
         }
@@ -303,7 +292,6 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
                 fileReadRequest->handle = ((NubbinHandle*)service)->Value();
                 fileReadRequest->offset = blockReadRequest->offset;
                 fileReadRequest->length = blockReadRequest->length;
-                return 0;
             }, [connection, request, mapping, message](Interface_Response *response){
                 ReadResponse *fileReadResponse = (ReadResponse*)response;
                 connection->Link()->SendMessage([request, fileReadResponse](void *context){
@@ -322,7 +310,6 @@ void FileNubbin::OutputConnectionMessage(GenericProvider::OutputConnection *conn
                 });
                 mapping->Release();
                 message->Release();
-                return 0;
             });
             break;
 //        case BlockRequest::Write | INDICATE_FILE:
@@ -349,7 +336,6 @@ void FileNubbin::OutputConnectionEnd(GenericProvider::OutputConnection *oldConne
         if (handleService->TryDisconnect()) {
             _runloop->AddTask([this, handleService](){
                 Kill(handleService);
-                return 0;
             });
         }
     }

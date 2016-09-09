@@ -114,10 +114,9 @@ bool GenericVideo::Start(Driver *parent)
                 }
                     break;
             }
-            return 0;
         };
         connection->stop = []{
-            return 0;
+            // TODO?
         };
         return connection;
     };
@@ -139,7 +138,6 @@ void GenericVideo::Stop(void)
         }
         _ports->Release();
         _ports = new KernelDictionary();
-        return 0;
     });
     ProviderDriver::Stop();
 }
@@ -204,12 +202,10 @@ void GenericVideo::UpdatePort(int index)
                             }
                             break;
                     }
-                    return 0;
                 };
                 connection->stop = [localMap, localMemory]{
                     localMap->Release();
                     localMemory->Release();
-                    return 0;
                 };
                 return connection;
             };
@@ -225,12 +221,11 @@ void GenericVideo::UpdatePort(int index)
                 Console::WriteCharacters::Move direction = Console::WriteCharacters::Move::mRight;
                 int width, height;
                 GetConsole(index, &width, &height, NULL, NULL);
-                bicycle::function<int(Console::WriteCharacters::Move)> updateCursor = [this,&outputCursor,index, width, height](Console::WriteCharacters::Move direction){
-                    bicycle::function<int(int,int,int,int)> blank = [this, index](int x, int y, int w, int h){
+                bicycle::function<void(Console::WriteCharacters::Move)> updateCursor = [this,&outputCursor,index, width, height](Console::WriteCharacters::Move direction){
+                    bicycle::function<void(int,int,int,int)> blank = [this, index](int x, int y, int w, int h){
                         for (int ix = 0; ix < w; ix++)
                             for (int iy = 0; iy < h; iy++)
                                 SetCharacter(index, ix + x, iy + y, ' ');
-                        return 0;
                     };
                     switch (direction) {
                         case Console::WriteCharacters::mNone:
@@ -248,7 +243,6 @@ void GenericVideo::UpdatePort(int index)
                             }
                             break;
                     }
-                    return 0;
                 };
                 Connection *connection = new Connection(this, service, endpoint);
                 connection->message = [this, index, endpoint, &outputCursor, &direction, updateCursor](KernelBufferMemory *message){
@@ -309,10 +303,9 @@ void GenericVideo::UpdatePort(int index)
                             });
                             break;
                     }
-                    return 0;
                 };
                 connection->stop = []{
-                    return 0;
+                    // TODO?
                 };
                 return connection;
             };

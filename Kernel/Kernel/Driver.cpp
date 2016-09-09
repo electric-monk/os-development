@@ -199,10 +199,10 @@ void ProviderDriver::Launch(Service *service)
         _runloop->AddSource(service->ServiceObject(), [this, service](BlockableObject *watching, KernelArray *signals){
             IpcEndpoint *endpoint = service->ServiceObject()->NextConnection(false);
             if (endpoint == NULL)
-                return 0;
+                return;
             Connection *connection = ConnectionStart(service, endpoint);
             if (connection == NULL)
-                return 0;
+                return;
             _connections->Add(connection);
             _runloop->AddSource(connection->Link(), [this, connection](BlockableObject *watching, KernelArray *signals){
                 KernelBufferMemory *buffer = connection->Link()->Read(false);
@@ -212,12 +212,10 @@ void ProviderDriver::Launch(Service *service)
                     _connections->Remove(connection);
                 } else
                     ConnectionReceive(connection, buffer);
-                return 0;
+                return;
             });
-            return 0;
         });
         service->Release();
-        return 0;
     });
 }
 
@@ -241,7 +239,6 @@ void ProviderDriver::Terminate(Service *service)
         }
         // Finally, dump the service object
         _services->Remove(service);
-        return 0;
     });
 }
 

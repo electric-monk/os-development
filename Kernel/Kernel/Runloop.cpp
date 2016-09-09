@@ -3,7 +3,7 @@
 #include "Thread.h"
 #include "debug.h"
 
-typedef KernelFunction<int(BlockableObject *watching, KernelArray *signals)> RunloopFunction;
+typedef KernelFunction<void(BlockableObject *watching, KernelArray *signals)> RunloopFunction;
 
 Runloop::Runloop()
 {
@@ -27,11 +27,10 @@ void Runloop::AddSource(SelfHandlingBlockableObject *blocker)
 {
     AddSource(blocker, [this, blocker](BlockableObject *watching, KernelArray *signals){
         blocker->ProcessSignal(this, watching, signals);
-        return 0;
     });
 }
 
-void Runloop::AddSource(BlockableObject *blocker, bicycle::function<int(BlockableObject *watching, KernelArray *signals)> handler)
+void Runloop::AddSource(BlockableObject *blocker, bicycle::function<void(BlockableObject *watching, KernelArray *signals)> handler)
 {
     RunloopFunction *function = new RunloopFunction(handler);
     _sourceMap->Set(blocker, function);
@@ -43,6 +42,17 @@ void Runloop::RemoveSource(BlockableObject *blocker)
 {
     _sourceList->RemoveSource(blocker);
     _sourceMap->Set(blocker, NULL);
+}
+
+void Runloop::AddDelayedTask(UInt32 microseconds, bicycle::function<void(void)> task)
+{
+    Timer *timer = new Timer();
+    AddSource(timer, [=](BlockableObject*, KernelArray*){
+        RemoveSource(timer);
+        timer->Release();
+        task();
+    });
+    timer->Reset(microseconds, false);
 }
 
 void Runloop::Run(void)
@@ -78,7 +88,7 @@ void Runloop::Stop(void)
 class SyncTask : public Runloop::SelfHandlingBlockableObject
 {
 public:
-    SyncTask(bicycle::function<int(void)> task)
+    SyncTask(bicycle::function<void(void)> task)
     {
         _task = task;
         _done = new SimpleSignal(false);
@@ -104,11 +114,11 @@ protected:
     }
     
 private:
-    bicycle::function<int(void)> _task;
+    bicycle::function<void(void)> _task;
     SimpleSignal *_done;
 };
 
-void Runloop::Sync(bicycle::function<int(void)> synchronousCode)
+void Runloop::Sync(bicycle::function<void(void)> synchronousCode)
 {
     // Hopefully, assuming this is the most recently added blocking object, it will have lower priority than e.g. any pending tasks.
     SyncTask *sync = new SyncTask(synchronousCode);
@@ -118,7 +128,7 @@ void Runloop::Sync(bicycle::function<int(void)> synchronousCode)
     sync->Release();
 }
 
-typedef KernelFunction<int(void)> TaskQueueFunction;
+typedef KernelFunction<void(void)> TaskQueueFunction;
 
 TaskQueue::TaskQueue()
 :_taskLock("TaskQueue")
@@ -131,7 +141,7 @@ TaskQueue::~TaskQueue()
     _tasks->Release();
 }
 
-void TaskQueue::AddTask(bicycle::function<int(void)> task)
+void TaskQueue::AddTask(bicycle::function<void(void)> task)
 {
     TaskQueueFunction *function = new TaskQueueFunction(task);
     {

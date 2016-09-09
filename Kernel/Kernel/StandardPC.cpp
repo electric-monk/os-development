@@ -402,11 +402,11 @@ namespace StandardPC_Internal {
         
     private:
         void Reset(bool retry);
-        void SetSampleRate(UInt8 rate, bicycle::function<int(bool success)> onCompletion);
-        void GetMouseID(bicycle::function<int(UInt8 result)> onCompletion);
-        void RequestSinglePacket(bicycle::function<int(UInt8 *data)> onCompletion);
+        void SetSampleRate(UInt8 rate, bicycle::function<void(bool success)> onCompletion);
+        void GetMouseID(bicycle::function<void(UInt8 result)> onCompletion);
+        void RequestSinglePacket(bicycle::function<void(UInt8 *data)> onCompletion);
         void SendReset(void);
-        void SetStreaming(bool enabled, bicycle::function<int(bool success)> onCompletion);
+        void SetStreaming(bool enabled, bicycle::function<void(bool success)> onCompletion);
         
         UInt8 _mouseID;
         UInt8 _butans;
@@ -478,7 +478,6 @@ namespace StandardPC_Internal {
                                 array->Remove(current);
                             }
                         }
-                        return 0;
                     });
                 }
                 return processed;
@@ -511,7 +510,7 @@ namespace StandardPC_Internal {
             Driver::Stop();
         }
         
-        void SendCommand(bool aux, UInt8 command, UInt8 *data, int datalen, int responselen, bicycle::function<int(UInt8 *response)> response)
+        void SendCommand(bool aux, UInt8 command, UInt8 *data, int datalen, int responselen, bicycle::function<void(UInt8 *response)> response)
         {
             // TODO: ADD TIMEOUT
             UInt8 outdata[10];
@@ -537,13 +536,12 @@ namespace StandardPC_Internal {
                             count--;
                         }
                     }
-                    return 0;
                 }, [=](UInt8 *data){
                     if (aux)
                         _mouse->ResetInput();
                     else
                         _keyboard->ResetInput();
-                    return response(data);
+                    response(data);
                 }, responselen);
                 KernelArray *array = aux ? _commandMouse : _commandKeyboard;
                 bool start = array->Count() == 0;
@@ -557,7 +555,6 @@ namespace StandardPC_Internal {
                     }
                 }
                 commandItem->Release();
-                return 0;
             });
         }
         
@@ -598,7 +595,7 @@ namespace StandardPC_Internal {
         class Command : public KernelObject
         {
         public:
-            Command(bicycle::function<int(void)> send, bicycle::function<int(UInt8*)> response, int expected)
+            Command(bicycle::function<void(void)> send, bicycle::function<void(UInt8*)> response, int expected)
             {
                 _send = send;
                 _response = response;
@@ -629,8 +626,8 @@ namespace StandardPC_Internal {
             }
             
         private:
-            bicycle::function<int(void)> _send;
-            bicycle::function<int(UInt8*)> _response;
+            bicycle::function<void(void)> _send;
+            bicycle::function<void(UInt8*)> _response;
             UInt8 _buf[10];
             int _bufSize, _bufNeed;
         };
@@ -661,18 +658,17 @@ namespace StandardPC_Internal {
             _butans = 0;
             _received = 0;
             // Activate scroll wheel
-            SetSampleRate(200, [=](bool success){ return 0; });
-            SetSampleRate(100, [=](bool success){ return 0; });
-            SetSampleRate(80, [=](bool success){ return 0; });
-            GetMouseID([=](UInt8 value){ return 0; });
+            SetSampleRate(200, [=](bool success){});
+            SetSampleRate(100, [=](bool success){});
+            SetSampleRate(80, [=](bool success){});
+            GetMouseID([=](UInt8 value){});
             // Activate buttons
-            SetSampleRate(200, [=](bool success){ return 0; });
-            SetSampleRate(200, [=](bool success){ return 0; });
-            SetSampleRate(80, [=](bool success){ return 0; });
+            SetSampleRate(200, [=](bool success){});
+            SetSampleRate(200, [=](bool success){});
+            SetSampleRate(80, [=](bool success){});
             GetMouseID([=](UInt8 value){
                 _mouseID = value;
-                SetStreaming(true, [=](bool success){ return 0; });
-                return 0;
+                SetStreaming(true, [=](bool success){});
             });
         }
     }
@@ -772,37 +768,34 @@ namespace StandardPC_Internal {
     void PS2Mouse::SendReset(void)
     {
         PS2Controller *controller = (PS2Controller*)Parent();
-        controller->SendCommand(true, 0xFF /* Reset */, NULL, 0, 0, [=](UInt8 *response) { return 0; });
+        controller->SendCommand(true, 0xFF /* Reset */, NULL, 0, 0, [=](UInt8 *response) {});
     }
     
-    void PS2Mouse::SetStreaming(bool enabled, bicycle::function<int(bool success)> onCompletion)
+    void PS2Mouse::SetStreaming(bool enabled, bicycle::function<void(bool success)> onCompletion)
     {
         PS2Controller *controller = (PS2Controller*)Parent();
         controller->SendCommand(true, enabled ? 0xF4 : 0xF5, NULL, 0, 1, [=](UInt8 *response){
             onCompletion(response[0] == 0xFA);
-            return 0;
         });
     }
     
-    void PS2Mouse::SetSampleRate(UInt8 rate, bicycle::function<int(bool success)> onCompletion)
+    void PS2Mouse::SetSampleRate(UInt8 rate, bicycle::function<void(bool success)> onCompletion)
     {
         PS2Controller *controller = (PS2Controller*)Parent();
         controller->SendCommand(true, 0xF3 /* Set Sample Rate */, &rate, sizeof(rate), 2, [=](UInt8 *response){
             onCompletion(response && (response[0] == 0xFA) && (response[1] == 0xFA));
-            return 0;
         });
     }
     
-    void PS2Mouse::GetMouseID(bicycle::function<int(UInt8 result)> onCompletion)
+    void PS2Mouse::GetMouseID(bicycle::function<void(UInt8 result)> onCompletion)
     {
         PS2Controller *controller = (PS2Controller*)Parent();
         controller->SendCommand(true, 0xF2 /* Get MouseID */, NULL, 0, 2, [=](UInt8 *response){
             onCompletion((response && (response[0] == 0xFA)) ? response[1] : -1);
-            return 0;
         });
     }
     
-    void PS2Mouse::RequestSinglePacket(bicycle::function<int(UInt8 *data)> onCompletion)
+    void PS2Mouse::RequestSinglePacket(bicycle::function<void(UInt8 *data)> onCompletion)
     {
         PS2Controller *controller = (PS2Controller*)Parent();
         int packetLength = 3;
@@ -810,7 +803,6 @@ namespace StandardPC_Internal {
             packetLength++;
         controller->SendCommand(true, 0xEB, NULL, 0, 1 + packetLength, [=](UInt8 *response){
             onCompletion((response[0] == 0xFA) ? (response + 1) : NULL);
-            return 0;
         });
     }
     

@@ -25,13 +25,15 @@ public:
     Runloop();
     
     void AddSource(SelfHandlingBlockableObject *blocker);
-    void AddSource(BlockableObject *blocker, bicycle::function<int(BlockableObject *watching, KernelArray *signals)> handler);
+    void AddSource(BlockableObject *blocker, bicycle::function<void(BlockableObject *watching, KernelArray *signals)> handler);
     void RemoveSource(BlockableObject *blocker);
+    
+    void AddDelayedTask(UInt32 microseconds, bicycle::function<void(void)> task);
     
     void Run(void);     // Blocks until stopped
     void Stop(void);
     
-    void Sync(bicycle::function<int(void)> synchronousCode);
+    void Sync(bicycle::function<void(void)> synchronousCode);
     
 protected:
     ~Runloop();
@@ -51,7 +53,7 @@ public:
     
     TaskQueue();
     
-    void AddTask(bicycle::function<int(void)> task);
+    void AddTask(bicycle::function<void(void)> task);
     
 protected:
     ~TaskQueue();
@@ -72,7 +74,7 @@ public:
     RunloopThread(Process *owner = NULL);
     
     // For convenience, a task queue is also provided
-    void AddTask(bicycle::function<int(void)> task) { _tasks->AddTask(task); }
+    void AddTask(bicycle::function<void(void)> task) { _tasks->AddTask(task); }
     TaskQueue* Queue(void) { return _tasks; }
     
 protected:

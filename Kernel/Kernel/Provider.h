@@ -17,8 +17,8 @@ class GenericProvider : public KernelObject
 public:
     CLASSNAME(KernelObject, GenericProvider);
     
-    GenericProvider();
-
+    GenericProvider(RunloopThread *runloop = NULL);
+    
 //protected:
     /* The factory object that creates instances of this provider */
     class Factory : public KernelObject
@@ -187,8 +187,8 @@ public:
     
     InterfaceHelper();
     
-    void PerformTask(IpcEndpoint *destination, bicycle::function<int(Interface_Request*)> generate, bicycle::function<int(Interface_Response*)> response);
-    void HandleMessage(KernelBufferMemory *responseMemory, bicycle::function<int(Interface_Response*)> onUnhandled);
+    void PerformTask(IpcEndpoint *destination, bicycle::function<void(Interface_Request*)> generate, bicycle::function<void(Interface_Response*)> response);
+    void HandleMessage(KernelBufferMemory *responseMemory, bicycle::function<void(Interface_Response*)> onUnhandled);
 
 protected:
     ~InterfaceHelper();

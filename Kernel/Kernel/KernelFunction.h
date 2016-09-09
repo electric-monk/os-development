@@ -86,6 +86,49 @@ namespace bicycle
             delete f;
         }
     };
+
+    template<typename ...Args>
+    class function<void(Args...)>
+    {
+        abstract_function<void,Args...> *f;
+    public:
+        function()
+        : f(nullptr)
+        {}
+        template<typename Func> function(const Func &x)
+        : f(new concrete_function<typename func_filter<Func>::type,void,Args...>(x))
+        {}
+        function(const function &rhs)
+        : f(rhs.f ? rhs.f->clone() : nullptr)
+        {}
+        function &operator=(const function &rhs)
+        {
+            if( (&rhs != this ) && (rhs.f) )
+            {
+                auto *temp = rhs.f->clone();
+                delete f;
+                f = temp;
+            }
+            return *this;
+        }
+        template<typename Func> function &operator=(const Func &x)
+        {
+            auto *temp = new concrete_function<typename func_filter<Func>::type,void,Args...>(x);
+            delete f;
+            f = temp;
+            return *this;
+        }
+        void operator()(Args... args) const
+        {
+            if(f)
+                (*f)(args...);
+        }
+        ~function()
+        {
+            delete f;
+        }
+    };
+
 }
 
 #endif // __KERNELFUNCTION_H__

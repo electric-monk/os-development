@@ -8,14 +8,14 @@ class ConvenientSink : public GenericProvider
 public:
     CLASSNAME(GenericProvider, ConvenientSink);
     
-    ConvenientSink();
+    ConvenientSink(RunloopThread *runloop = NULL, InterfaceHelper *helper = NULL);
     
-    bicycle::function<int(IpcEndpoint *source, Interface_Response *response)> unhandledMessageHandler;
+    bicycle::function<void(IpcEndpoint *source, Interface_Response *response)> unhandledMessageHandler;
     // Only call the following on destinations acquired from CreateInput's handler
-    void PerformTask(IpcEndpoint *destination, bicycle::function<int(Interface_Request*)> generate, bicycle::function<int(Interface_Response*)> response);
-    void AddTask(bicycle::function<int(void)> task);
+    void PerformTask(IpcEndpoint *destination, bicycle::function<void(Interface_Request*)> generate, bicycle::function<void(Interface_Response*)> response);
+    void AddTask(bicycle::function<void(void)> task);
     
-    IpcClient* CreateInput(KernelString *name, bicycle::function<bool(IpcEndpoint*)> connectionHandler);
+    void CreateInput(KernelString *name, bicycle::function<bool(IpcEndpoint*)> connectionHandler, bicycle::function<void(IpcClient*)> completion);
     void StopInput(IpcClient *input);
     
     // For GenericProvider

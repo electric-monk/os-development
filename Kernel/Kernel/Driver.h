@@ -132,8 +132,8 @@ public:
         IpcEndpoint* Link(void) { return _connection; }
 
         // If you don't override ConnectionStart/ConnectionReceive/ConnectionStop, these blocks can get called.
-        bicycle::function<int(KernelBufferMemory*)> message;
-        bicycle::function<int(void)> stop;
+        bicycle::function<void(KernelBufferMemory*)> message;
+        bicycle::function<void(void)> stop;
         
     protected:
         ~Connection();

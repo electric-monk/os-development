@@ -43,15 +43,19 @@ public:
     }
 };
 
-GenericProvider::GenericProvider()
+GenericProvider::GenericProvider(RunloopThread *runloop)
 {
-    _runloop = new RunloopThread();
+    if (runloop) {
+        _runloop = runloop;
+        _runloop->AddRef();
+    } else {
+        _runloop = new RunloopThread();
+    }
     _inputs = new KernelDictionary();
     _services = new KernelArray();
     _connections = new KernelArray();
     _runloop->AddTask([this]{
         _serviceList = new IpcServiceProxy(this);
-        return 0;
     });
 }
 
@@ -103,7 +107,7 @@ void GenericProvider::Input::Connect(IpcService *service)
         // Get our new object
         _connection = GenericProvider_Thunk::InputConnect(_owner, Name(), link);
         if (_connection == NULL)
-            return 0;
+            return;
         // Begin monitoring
         StrongKernelObject<GenericProvider::InputConnection> strongConnection(_connection);
         StrongKernelObject<IpcEndpoint> strongEndpoint(_connection->Link());
@@ -115,12 +119,10 @@ void GenericProvider::Input::Connect(IpcService *service)
             } else {
                 GenericProvider_Thunk::InputMessage(_owner, strongConnection.Value(), message);
             }
-            return 0;
         });
         // Add it to the list
         GenericProvider_Thunk::Inputs(_owner)->Set(Name(), _connection);
         _connection->Release();  // Dictionary owns it
-        return 0;
     });
 }
 
@@ -128,7 +130,6 @@ void GenericProvider::Input::Disconnect(void)
 {
     _owner->_runloop->AddTask([=]{
         DoDisconnect();
-        return 0;
     });
 }
 
@@ -167,11 +168,11 @@ void GenericProvider::Service::SetActive(bool active)
         _owner->_runloop->AddSource(_service, [this, strongService, deleteConnection](BlockableObject *, KernelArray *){
             IpcEndpoint *link = strongService.Value()->NextConnection(false);
             if (link == NULL)
-                return 0;
+                return;
             // Create the object
             GenericProvider::OutputConnection *connection = GenericProvider_Thunk::OutputConnect(_owner, this, link);
             if (connection == NULL)
-                return 0;
+                return;
             // Set up the monitoring
             StrongKernelObject<GenericProvider::OutputConnection> strongConnnection(connection);
             _owner->_runloop->AddSource(link, [this, link, strongConnnection, deleteConnection](BlockableObject*, KernelArray*){
@@ -180,11 +181,9 @@ void GenericProvider::Service::SetActive(bool active)
                     deleteConnection(strongConnnection.Value());
                 else
                     GenericProvider_Thunk::OutputMessage(_owner, strongConnnection.Value(), message);
-                return 0;
             });
             // Add to the connection list
             GenericProvider_Thunk::Connections(_owner)->Add(connection);
-            return 0;
         });
     } else {
         KernelArray *toRemove = new KernelArray();
@@ -258,14 +257,14 @@ void GenericProvider::Stash::Unregister(Factory *factory)
     
 }
 
-class InterfaceHelper_Handler : public KernelFunction<int(Interface_Response*)>
+class InterfaceHelper_Handler : public KernelFunction<void(Interface_Response*)>
 {
 private:
     IpcEndpoint *_connection;
 public:
     CLASSNAME(KernelFunction, InterfaceHelper_Handler);
     
-    InterfaceHelper_Handler(IpcEndpoint *connection, bicycle::function<int(Interface_Response*)> callback) : KernelFunction<int(Interface_Response*)>(callback)
+    InterfaceHelper_Handler(IpcEndpoint *connection, bicycle::function<void(Interface_Response*)> callback) : KernelFunction<void(Interface_Response*)>(callback)
     {
         _connection = connection;
         _connection->AddRef();
@@ -289,7 +288,7 @@ InterfaceHelper::~InterfaceHelper()
     _tasks->Release();
 }
 
-void InterfaceHelper::PerformTask(IpcEndpoint *destination, bicycle::function<int(Interface_Request*)> generate, bicycle::function<int(Interface_Response*)> response)
+void InterfaceHelper::PerformTask(IpcEndpoint *destination, bicycle::function<void(Interface_Request*)> generate, bicycle::function<void(Interface_Response*)> response)
 {
     // Select identifier
     KernelNumber *number = new KernelNumber(_identifier++);
@@ -313,7 +312,7 @@ void InterfaceHelper::PerformTask(IpcEndpoint *destination, bicycle::function<in
     request->Release();
 }
 
-void InterfaceHelper::HandleMessage(KernelBufferMemory *responseMemory, bicycle::function<int(Interface_Response*)> onUnhandled)
+void InterfaceHelper::HandleMessage(KernelBufferMemory *responseMemory, bicycle::function<void(Interface_Response*)> onUnhandled)
 {
     // Map it in
     KernelBufferMemory::Map *mapping = new KernelBufferMemory::Map(NULL, responseMemory, true);

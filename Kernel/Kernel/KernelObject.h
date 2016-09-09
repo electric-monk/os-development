@@ -62,7 +62,7 @@ public:
     public:
         virtual ~DestructionWatcherHandle() {}
     };
-    DestructionWatcherHandle* Watch(bicycle::function<int(void)> onDestroy);
+    DestructionWatcherHandle* Watch(bicycle::function<void(void)> onDestroy);
     
 protected:
     virtual ~KernelObject();

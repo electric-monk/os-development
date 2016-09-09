@@ -181,7 +181,7 @@ namespace IPC_Manager_Internal {
                 _last->_next = this;
         }
         
-        static void PerformOnAll(bicycle::function<int(State*)> handler)
+        static void PerformOnAll(bicycle::function<void(State*)> handler)
         {
             // TODO: lock here?
             for (State *start = _stateStart; start != NULL; start = start->_next)
@@ -203,7 +203,7 @@ namespace IPC_Manager_Internal {
                 onChanged(_total);
         }
         
-        void ReadOut(bicycle::function<int(Entry*)> handler, bool reset)
+        void ReadOut(bicycle::function<void(Entry*)> handler, bool reset)
         {
             bool changed;
             {
@@ -232,13 +232,13 @@ namespace IPC_Manager_Internal {
             return _stateGlobal;
         }
         
-        bicycle::function<int(int amount)> onChanged;
+        bicycle::function<void(int amount)> onChanged;
         
-        void AddTask(bicycle::function<int(void)> task)
+        void AddTask(bicycle::function<void(void)> task)
         {
             s_runloop->AddTask(task);
         }
-        void Sync(bicycle::function<int(void)> task)
+        void Sync(bicycle::function<void(void)> task)
         {
             s_runloop->Sync(task);
         }
@@ -301,11 +301,9 @@ void IpcServiceProxy::Start(void)
         if (!that->_active) {
             IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
                 state->AddEntry(selfHandle, NULL, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeProvider));
-                return 0;
             });
             that->_active = true;
         }
-        return 0;
     });
 }
 
@@ -318,11 +316,9 @@ void IpcServiceProxy::Stop(void)
         if (that->_active) {
             IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
                 state->AddEntry(selfHandle, NULL, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeProvider));
-                return 0;
             });
             that->_active = false;
         }
-        return 0;
     });
 }
 
@@ -336,9 +332,7 @@ void IpcServiceProxy::AddInput(IpcClient *client)
         strongClient.Value()->Start(strongSelf.Value());
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeInput));
-            return 0;
         });
-        return 0;
     });
 }
 
@@ -350,10 +344,8 @@ void IpcServiceProxy::RemoveInput(IpcClient *client)
     IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, strongClient]{
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeInput));
-            return 0;
         });
         strongClient.Value()->Stop();
-        return 0;
     });
 }
 
@@ -367,9 +359,7 @@ void IpcServiceProxy::AddOutput(IpcService *output)
         strongService.Value()->Start(strongSelf.Value());
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, NULL, TYPE_START(IPC_Manager_Internal::Entry::typeOutput));
-            return 0;
         });
-        return 0;
     });
 }
 
@@ -381,10 +371,8 @@ void IpcServiceProxy::RemoveOutput(IpcService *output)
     IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, strongService]{
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, NULL, TYPE_STOP(IPC_Manager_Internal::Entry::typeOutput));
-            return 0;
         });
         strongService.Value()->Stop();
-        return 0;
     });
 }
 
@@ -396,19 +384,14 @@ void IpcServiceProxy::StartInput(IpcClient *client, IpcEndpoint *endpoint)
     IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, endpointHandle]{
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, endpointHandle, TYPE_START(IPC_Manager_Internal::Entry::typeInputConnection));
-            return 0;
         });
-        return 0;
     });
     endpoint->Watch([selfHandle, clientHandle, endpointHandle]{
         IPC_Manager_Internal::State::GlobalState()->AddTask([=]{
             IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
                 state->AddEntry(selfHandle, clientHandle, endpointHandle, TYPE_STOP(IPC_Manager_Internal::Entry::typeInputConnection));
-                return 0;
             });
-            return 0;
         });
-        return 0;
     });
 }
 
@@ -420,19 +403,14 @@ void IpcServiceProxy::StartOutput(IpcService *output, IpcEndpoint *endpoint)
     IPC_Manager_Internal::State::GlobalState()->AddTask([selfHandle, clientHandle, endpointHandle]{
         IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
             state->AddEntry(selfHandle, clientHandle, endpointHandle, TYPE_START(IPC_Manager_Internal::Entry::typeOutputConnection));
-            return 0;
         });
-        return 0;
     });
     endpoint->Watch([selfHandle, clientHandle, endpointHandle]{
         IPC_Manager_Internal::State::GlobalState()->AddTask([=]{
             IPC_Manager_Internal::State::PerformOnAll([=](IPC_Manager_Internal::State *state){
                 state->AddEntry(selfHandle, clientHandle, endpointHandle, TYPE_STOP(IPC_Manager_Internal::Entry::typeOutputConnection));
-                return 0;
             });
-            return 0;
         });
-        return 0;
     });
 }
 
@@ -465,15 +443,12 @@ KernelArray* IpcServiceMonitor::Changes(void)
             _state = new IPC_Manager_Internal::State();
             _state->onChanged = [this](int amount){
                 SetTrigger(amount != 0);
-                return 0;
             };
             SetTrigger(false);
         }
         state->ReadOut([result](IPC_Manager_Internal::Entry *entry){
             result->Add(entry->GetInfo());
-            return 0;
         }, reset);
-        return 0;
     });
     result->Autorelease();
     return result;
