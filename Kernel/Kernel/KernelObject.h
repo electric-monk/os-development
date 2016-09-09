@@ -8,7 +8,7 @@ typedef UInt32 Handle;  // Used to represent a KernelObject in userspace
 
 class KernelDictionary;
 
-#define CLASSNAME(super,name)         const char* GetClassName(int level) { if (level == 0) return #name; return super::GetClassName(level - 1); }
+#define CLASSNAME(super,name)         const char* GetClassName(UInt32 level) { if (level == 0) return #name; return super::GetClassName(level - 1); }
 
 class KernelObject
 {
@@ -46,7 +46,7 @@ public:
     }
     
     // Anybody wanting to use a class with some home-made RTTI needs to make sure the relevant classes implement this method
-    virtual const char* GetClassName(int level)
+    virtual const char* GetClassName(UInt32 level)
     {
         if (level != 0)
             return NULL;
