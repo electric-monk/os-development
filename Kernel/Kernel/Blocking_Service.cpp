@@ -98,6 +98,7 @@ namespace Blocking_Internal {
                     else
                         signal->Reset();
                 }
+                    break;
                     
                     /* Actual blocking */
                     
