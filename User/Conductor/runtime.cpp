@@ -151,3 +151,30 @@ extern "C" {
     }
     
 }
+
+void CopyMemory(void *output, const void *input, UInt32 length)
+{
+    char *cDest = (char*)output;
+    char *cSrc = (char*)input;
+    if (cDest == cSrc)
+        return;
+    if (UInt64(cDest) > UInt64(cSrc)) {
+        // Copy up
+        while (length) {
+            *cDest = *cSrc;
+            cDest++;
+            cSrc++;
+            length--;
+        }
+    } else {
+        // Copy down
+        cDest += length - 1;
+        cSrc += length - 1;
+        while (length) {
+            *cDest = *cSrc;
+            cDest--;
+            cSrc--;
+            length--;
+        }
+    }
+}

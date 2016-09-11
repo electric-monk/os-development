@@ -13,6 +13,10 @@ typedef unsigned long size_t;
 namespace std {
     typedef unsigned long size_t;
 }
+inline void* operator new  (std::size_t, void* __p) noexcept {return __p;}
+inline void* operator new[](std::size_t, void* __p) noexcept {return __p;}
+inline void  operator delete  (void*, void*) {}
+inline void  operator delete[](void*, void*) {}
 #endif
 
 typedef unsigned char UInt8;
@@ -26,5 +30,7 @@ typedef signed int SInt32;
 typedef signed long long SInt64;
 
 extern BasicHeap *s_coreHeap;
+
+void CopyMemory(void *output, const void *input, UInt32 length);
 
 #endif // __RUNTIME_H__

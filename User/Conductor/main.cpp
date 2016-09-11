@@ -1,8 +1,11 @@
+#include "Runtime.h"
+#include "EventLoop.h"
+
 #include "Blocking.h"
 #include "Collections.h"
 #include "System.h"
 #include "IPC.h"
-#include "Runtime.h"
+
 #include "../../Kernel/Kernel/Interface_Mouse.h"
 #include "../../Kernel/Kernel/Interface_Keyboard.h"
 #include "../../Kernel/Kernel/Interface_VideoMode.h"
@@ -176,250 +179,251 @@ extern "C" void sysmain(void)
     SimpleSink *keyboardSink = NULL;
     SimpleSink *videoBuffer = NULL;
     SimpleSink *videoMode = NULL;
+    Video::Buffer *screen = NULL;
     
-    Kernel::Blocking::List *collection = Kernel::Blocking::List::CreateOr();
-    collection->Add(monitor);
+    EventLoop loop;
     
-    while(true) {
-        Kernel::Collections::Array *result = collection->Block();
-        if (result->Find(monitor) != -1) {
-            Kernel::Collections::Array *array = monitor->Changes();
-            int length = array->Count();
-            for (int i = 0; i < length; i++) {
-                Kernel::Collections::Dictionary *data = (Kernel::Collections::Dictionary*)array->ObjectAt(i);
-                // State==Start; Type==Input/Output; Connector
-                if (Compare((Kernel::Collections::String*)data->ObjectFor(stateStr), "Start")) {
-                    Kernel::Collections::String *typeName = (Kernel::Collections::String*)data->ObjectFor(typeStr);
-                    if (Compare(typeName, "Input")) {
+    EventLoop::Handler mouseEvent = [&](Kernel::Blocking::Blockable *trigger, Kernel::Collections::Array *others){
+        Kernel::IPC::Connection *connection = NULL;
+        Kernel::IPC::Memory *message = NULL;
+        Kernel::IPC::ProviderIO *io = NULL;
+        Kernel::IPC::Provider::EventType providerEvent = mouseSink->Provider()->GetEvent(&connection, &message, &io);
+        if (providerEvent == Kernel::IPC::Provider::eventInputMessage) {
+            Kernel::Handle *releaser;
+            Interface_Mouse::Event *event = (Interface_Mouse::Event*)message->GetPointer(&releaser);
+            switch(event->type) {
+                case Interface_Mouse::Event::Button:
+                {
+                    Interface_Mouse::Button *button = (Interface_Mouse::Button*)event;
+                    // BUTAN
+                    break;
+                }
+                case Interface_Mouse::Event::Motion:
+                {
+                    Interface_Mouse::Motion *motion = (Interface_Mouse::Motion*)event;
+                    // MOVE
+                    if (screen)
+                        SetCursor(screen->Framebuffer(), screen->lineSpan, screen->width, screen->height, motion->x, motion->y);
+                    break;
+                }
+            }
+            releaser->Release();
+        }
+        if (io)
+            io->Release();
+        if (message)
+            message->Release();
+        if (connection)
+            connection->Release();
+    };
+    EventLoop::Handler keyboardEvent = [&](Kernel::Blocking::Blockable *trigger, Kernel::Collections::Array *others){
+        Kernel::IPC::Connection *connection = NULL;
+        Kernel::IPC::Memory *message = NULL;
+        Kernel::IPC::ProviderIO *io = NULL;
+        Kernel::IPC::Provider::EventType providerEvent = keyboardSink->Provider()->GetEvent(&connection, &message, &io);
+        if (providerEvent == Kernel::IPC::Provider::eventInputMessage) {
+            Kernel::Handle *releaser;
+            Interface_Keyboard::Event *event = (Interface_Keyboard::Event*)message->GetPointer(&releaser);
+            switch(event->type) {
+                case Interface_Keyboard::Event::KeyEvent:
+                {
+                    Interface_Keyboard::Event *keyEvent = (Interface_Keyboard::Event*)event;
+                    // KEY
+                    break;
+                }
+            }
+            releaser->Release();
+        }
+        if (io)
+            io->Release();
+        if (message)
+            message->Release();
+        if (connection)
+            connection->Release();
+    };
+    EventLoop::Handler videoModeEvent = [&](Kernel::Blocking::Blockable *trigger, Kernel::Collections::Array *others){
+        Kernel::IPC::Connection *connection = NULL;
+        Kernel::IPC::Memory *message = NULL;
+        Kernel::IPC::ProviderIO *io = NULL;
+        Kernel::IPC::Provider::EventType providerEvent = videoMode->Provider()->GetEvent(&connection, &message, &io);
+        switch(providerEvent) {
+            case Kernel::IPC::Provider::eventInputConnect:
+            {
+                Kernel::IPC::Memory *message = Kernel::IPC::Memory::Create(16384);
+                Kernel::Handle *releaser;
+                VideoMode::Request *getModes = (VideoMode::Request*)message->GetPointer(&releaser);
+                getModes->packetClass = Interface_Packet::Request;
+                getModes->identifier = 0;
+                getModes->type = VideoMode::Request::GetModes;
+                releaser->Release();
+                connection->Send(message);
+                message->Release();
+            }
+                break;
+            case Kernel::IPC::Provider::eventInputMessage:
+            {
+                Kernel::Handle *releaser;
+                Interface_Response *response = (Interface_Response*)message->GetPointer(&releaser);
+                FlatString *mw = FlatString::CreateDynamic(Mode_Width);
+                FlatString *mh = FlatString::CreateDynamic(Mode_Height);
+                FlatString *mt = FlatString::CreateDynamic(Mode_Type);
+                FlatString *mi = FlatString::CreateDynamic(Mode_Identifier);
+                switch(response->type) {
+                    case VideoMode::Request::GetModes:
+                    {
+                        VideoMode::ModeList *ports = (VideoMode::ModeList*)response;
+                        FlatInteger *best = NULL;
+                        int bestSize = 0;
+                        for (int i = 0; i < ports->ports.Count(); i++) {
+                            FlatArray *modes = (FlatArray*)ports->ports.ItemAt(i);
+                            for (int j = 0; j < modes->Count(); j++) {
+                                FlatDictionary *dictionary = (FlatDictionary*)modes->ItemAt(j);
+                                FlatInteger *width = (FlatInteger*)dictionary->ItemFor(mw);
+                                FlatInteger *height = (FlatInteger*)dictionary->ItemFor(mh);
+                                FlatString *type = (FlatString*)dictionary->ItemFor(mt);
+                                if (Compare(type->Value(), Mode_Type_Graphical)) {
+                                    int size = width->Value() * height->Value();
+                                    if (size > bestSize) {
+                                        bestSize = size;
+                                        best = (FlatInteger*)dictionary->ItemFor(mi);
+                                    }
+                                }
+                            }
+                        }
+                        if (best) {
+                            Kernel::IPC::Memory *message = Kernel::IPC::Memory::Create(16384);
+                            Kernel::Handle *releaser;
+                            VideoMode::SetMode *setMode = (VideoMode::SetMode*)message->GetPointer(&releaser);
+                            setMode->packetClass = Interface_Packet::Request;
+                            setMode->identifier = 0;
+                            setMode->type = VideoMode::Request::SetMode;
+                            setMode->port = 0;
+                            setMode->modeIdentifier = best->Value();
+                            releaser->Release();
+                            connection->Send(message);
+                            message->Release();
+                        }
                     }
-                    if (Compare(typeName, "Output")) {
-                        Kernel::IPC::Service *service = (Kernel::IPC::Service*)monitor->ObjectForIdentifier(((Kernel::Collections::Number*)data->ObjectFor(connectorStr))->Value());
-                        if (Compare(service->Type(), "core.provider.mouse")) {
-                            mouseSink = new SimpleSink();
-                            mouseSink->Input()->Connect(service);
-                            collection->Add(mouseSink->Provider());
+                        break;
+                }
+                releaser->Release();
+            }
+                break;
+        }
+        if (io)
+            io->Release();
+        if (message)
+            message->Release();
+        if (connection)
+            connection->Release();
+    };
+    EventLoop::Handler videoEvent = [&](Kernel::Blocking::Blockable *trigger, Kernel::Collections::Array *others){
+        Kernel::IPC::Connection *connection = NULL;
+        Kernel::IPC::Memory *message = NULL;
+        Kernel::IPC::ProviderIO *io = NULL;
+        Kernel::IPC::Provider::EventType providerEvent = videoBuffer->Provider()->GetEvent(&connection, &message, &io);
+        switch(providerEvent) {
+            case Kernel::IPC::Provider::eventInputConnect:
+            {
+                Kernel::IPC::Memory *message = Kernel::IPC::Memory::Create(16384);
+                Kernel::Handle *releaser;
+                Video::GetBuffer *getBuffer = (Video::GetBuffer*)message->GetPointer(&releaser);
+                getBuffer->packetClass = Interface_Packet::Request;
+                getBuffer->identifier = 0;
+                getBuffer->type = Video::Request::GetBuffer;
+                getBuffer->requestedWidth = getBuffer->requestedHeight = getBuffer->requestedDepth = 0;
+                releaser->Release();
+                connection->Send(message);
+                message->Release();
+            }
+                break;
+            case Kernel::IPC::Provider::eventInputMessage:
+            {
+                Kernel::Handle *releaser;
+                Video::Response *event = (Video::Response*)message->GetPointer(&releaser);
+                switch(event->type) {
+                    case Video::Response::Buffer:
+                    {
+                        Video::Buffer *buffer = (Video::Buffer*)event;
+                        if (event->status == Interface_Response::Success) {
+                            // SCREEN
+                            screen = buffer;
+                            releaser->AddRef();
+                            
+                            switch(screen->pixelSpan) {
+                                case 4:
+                                default:
+                                    pixelSet = SetPixel32;
+                                    break;
+                                case 3:
+                                    pixelSet = SetPixel24;
+                                    break;
+                            }
+                            int amount = 0;
+                            for (int y = 0; y < buffer->height; y++) {
+                                for (int x = 0; x < buffer->width; x++) {
+                                    pixelSet((unsigned char*)buffer->Framebuffer(), buffer->lineSpan, x, y, background);
+                                }
+                            }
+                            SetCursor(screen->Framebuffer(), screen->lineSpan, screen->width, screen->height, 10, 10);
                         }
-                        if (Compare(service->Type(), "core.provider.keyboard")) {
-                            keyboardSink = new SimpleSink();
-                            keyboardSink->Input()->Connect(service);
-                            collection->Add(keyboardSink->Provider());
-                        }
-                        if (Compare(service->Type(), "core.provider.video.mode")) {
-                            videoMode = new SimpleSink();
-                            videoMode->Input()->Connect(service);
-                            collection->Add(videoMode->Provider());
-                        }
-                        if (Compare(service->Type(), "core.provider.video")) {
-                            videoBuffer = new SimpleSink();
-                            videoBuffer->Input()->Connect(service);
-                            collection->Add(videoBuffer->Provider());
-                        }
+                        break;
+                    }
+                }
+                releaser->Release();
+            }
+                break;
+        }
+        if (io)
+            io->Release();
+        if (message)
+            message->Release();
+        if (connection)
+            connection->Release();
+    };
+    
+    loop.AddSource(monitor, [&](Kernel::Blocking::Blockable *trigger, Kernel::Collections::Array *others){
+        Kernel::Collections::Array *array = monitor->Changes();
+        int length = array->Count();
+        for (int i = 0; i < length; i++) {
+            Kernel::Collections::Dictionary *data = (Kernel::Collections::Dictionary*)array->ObjectAt(i);
+            // State==Start; Type==Input/Output; Connector
+            if (Compare((Kernel::Collections::String*)data->ObjectFor(stateStr), "Start")) {
+                Kernel::Collections::String *typeName = (Kernel::Collections::String*)data->ObjectFor(typeStr);
+                if (Compare(typeName, "Input")) {
+                }
+                if (Compare(typeName, "Output")) {
+                    Kernel::IPC::Service *service = (Kernel::IPC::Service*)monitor->ObjectForIdentifier(((Kernel::Collections::Number*)data->ObjectFor(connectorStr))->Value());
+                    if (Compare(service->Type(), "core.provider.mouse")) {
+                        mouseSink = new SimpleSink();
+                        mouseSink->Input()->Connect(service);
+                        loop.AddSource(mouseSink->Provider(), mouseEvent);
+                    }
+                    if (Compare(service->Type(), "core.provider.keyboard")) {
+                        keyboardSink = new SimpleSink();
+                        keyboardSink->Input()->Connect(service);
+                        loop.AddSource(keyboardSink->Provider(), keyboardEvent);
+                    }
+                    if (Compare(service->Type(), "core.provider.video.mode")) {
+                        videoMode = new SimpleSink();
+                        videoMode->Input()->Connect(service);
+                        loop.AddSource(videoMode->Provider(), videoModeEvent);
+                    }
+                    if (Compare(service->Type(), "core.provider.video")) {
+                        videoBuffer = new SimpleSink();
+                        videoBuffer->Input()->Connect(service);
+                        loop.AddSource(videoBuffer->Provider(), videoEvent);
                     }
                 }
             }
-            array->Release();
         }
-        if (videoBuffer && result->Find(videoBuffer->Provider()) != -1) {
-            Kernel::IPC::Connection *connection = NULL;
-            Kernel::IPC::Memory *message = NULL;
-            Kernel::IPC::ProviderIO *io = NULL;
-            Kernel::IPC::Provider::EventType providerEvent = videoBuffer->Provider()->GetEvent(&connection, &message, &io);
-            switch(providerEvent) {
-                case Kernel::IPC::Provider::eventInputConnect:
-                {
-                    Kernel::IPC::Memory *message = Kernel::IPC::Memory::Create(16384);
-                    Kernel::Handle *releaser;
-                    Video::GetBuffer *getBuffer = (Video::GetBuffer*)message->GetPointer(&releaser);
-                    getBuffer->packetClass = Interface_Packet::Request;
-                    getBuffer->identifier = 0;
-                    getBuffer->type = Video::Request::GetBuffer;
-                    getBuffer->requestedWidth = getBuffer->requestedHeight = getBuffer->requestedDepth = 0;
-                    releaser->Release();
-                    connection->Send(message);
-                    message->Release();
-                }
-                    break;
-                case Kernel::IPC::Provider::eventInputMessage:
-                {
-                    Kernel::Handle *releaser;
-                    Video::Response *event = (Video::Response*)message->GetPointer(&releaser);
-                    switch(event->type) {
-                        case Video::Response::Buffer:
-                        {
-                            Video::Buffer *buffer = (Video::Buffer*)event;
-                            if (event->status == Interface_Response::Success) {
-                                // SCREEN
-                                screen = buffer;
-                                releaser->AddRef();
+        array->Release();
+    });
+    
+    testprint("Running\n");
+    loop.Run();
 
-                                switch(screen->pixelSpan) {
-                                    case 4:
-                                    default:
-                                        pixelSet = SetPixel32;
-                                        break;
-                                    case 3:
-                                        pixelSet = SetPixel24;
-                                        break;
-                                }
-                                int amount = 0;
-                                for (int y = 0; y < buffer->height; y++) {
-                                    for (int x = 0; x < buffer->width; x++) {
-                                        pixelSet((unsigned char*)buffer->Framebuffer(), buffer->lineSpan, x, y, background);
-                                    }
-                                }
-                                SetCursor(screen->Framebuffer(), screen->lineSpan, screen->width, screen->height, 10, 10);
-                            }
-                            break;
-                        }
-                    }
-                    releaser->Release();
-                }
-                    break;
-            }
-            if (io)
-                io->Release();
-            if (message)
-                message->Release();
-            if (connection)
-                connection->Release();
-        }
-        if (mouseSink && result->Find(mouseSink->Provider()) != -1) {
-            Kernel::IPC::Connection *connection = NULL;
-            Kernel::IPC::Memory *message = NULL;
-            Kernel::IPC::ProviderIO *io = NULL;
-            Kernel::IPC::Provider::EventType providerEvent = mouseSink->Provider()->GetEvent(&connection, &message, &io);
-            if (providerEvent == Kernel::IPC::Provider::eventInputMessage) {
-                Kernel::Handle *releaser;
-                Interface_Mouse::Event *event = (Interface_Mouse::Event*)message->GetPointer(&releaser);
-                switch(event->type) {
-                    case Interface_Mouse::Event::Button:
-                    {
-                        Interface_Mouse::Button *button = (Interface_Mouse::Button*)event;
-                        // BUTAN
-                        break;
-                    }
-                    case Interface_Mouse::Event::Motion:
-                    {
-                        Interface_Mouse::Motion *motion = (Interface_Mouse::Motion*)event;
-                        // MOVE
-                        if (screen)
-                            SetCursor(screen->Framebuffer(), screen->lineSpan, screen->width, screen->height, motion->x, motion->y);
-                        break;
-                    }
-                }
-                releaser->Release();
-            }
-            if (io)
-                io->Release();
-            if (message)
-                message->Release();
-            if (connection)
-                connection->Release();
-        }
-        if (keyboardSink && result->Find(keyboardSink->Provider()) != -1) {
-            Kernel::IPC::Connection *connection = NULL;
-            Kernel::IPC::Memory *message = NULL;
-            Kernel::IPC::ProviderIO *io = NULL;
-            Kernel::IPC::Provider::EventType providerEvent = keyboardSink->Provider()->GetEvent(&connection, &message, &io);
-            if (providerEvent == Kernel::IPC::Provider::eventInputMessage) {
-                Kernel::Handle *releaser;
-                Interface_Keyboard::Event *event = (Interface_Keyboard::Event*)message->GetPointer(&releaser);
-                switch(event->type) {
-                    case Interface_Keyboard::Event::KeyEvent:
-                    {
-                        Interface_Keyboard::Event *keyEvent = (Interface_Keyboard::Event*)event;
-                        // KEY
-                        break;
-                    }
-                }
-                releaser->Release();
-            }
-            if (io)
-                io->Release();
-            if (message)
-                message->Release();
-            if (connection)
-                connection->Release();
-        }
-        if (videoMode && result->Find(videoMode->Provider()) != -1) {
-            Kernel::IPC::Connection *connection = NULL;
-            Kernel::IPC::Memory *message = NULL;
-            Kernel::IPC::ProviderIO *io = NULL;
-            Kernel::IPC::Provider::EventType providerEvent = videoMode->Provider()->GetEvent(&connection, &message, &io);
-            switch(providerEvent) {
-                case Kernel::IPC::Provider::eventInputConnect:
-                {
-                    Kernel::IPC::Memory *message = Kernel::IPC::Memory::Create(16384);
-                    Kernel::Handle *releaser;
-                    VideoMode::Request *getModes = (VideoMode::Request*)message->GetPointer(&releaser);
-                    getModes->packetClass = Interface_Packet::Request;
-                    getModes->identifier = 0;
-                    getModes->type = VideoMode::Request::GetModes;
-                    releaser->Release();
-                    connection->Send(message);
-                    message->Release();
-                }
-                    break;
-                case Kernel::IPC::Provider::eventInputMessage:
-                {
-                    Kernel::Handle *releaser;
-                    Interface_Response *response = (Interface_Response*)message->GetPointer(&releaser);
-                    FlatString *mw = FlatString::CreateDynamic(Mode_Width);
-                    FlatString *mh = FlatString::CreateDynamic(Mode_Height);
-                    FlatString *mt = FlatString::CreateDynamic(Mode_Type);
-                    FlatString *mi = FlatString::CreateDynamic(Mode_Identifier);
-                    switch(response->type) {
-                        case VideoMode::Request::GetModes:
-                        {
-                            VideoMode::ModeList *ports = (VideoMode::ModeList*)response;
-                            FlatInteger *best = NULL;
-                            int bestSize = 0;
-                            for (int i = 0; i < ports->ports.Count(); i++) {
-                                FlatArray *modes = (FlatArray*)ports->ports.ItemAt(i);
-                                for (int j = 0; j < modes->Count(); j++) {
-                                    FlatDictionary *dictionary = (FlatDictionary*)modes->ItemAt(j);
-                                    FlatInteger *width = (FlatInteger*)dictionary->ItemFor(mw);
-                                    FlatInteger *height = (FlatInteger*)dictionary->ItemFor(mh);
-                                    FlatString *type = (FlatString*)dictionary->ItemFor(mt);
-                                    if (Compare(type->Value(), Mode_Type_Graphical)) {
-                                        int size = width->Value() * height->Value();
-                                        if (size > bestSize) {
-                                            bestSize = size;
-                                            best = (FlatInteger*)dictionary->ItemFor(mi);
-                                        }
-                                    }
-                                }
-                            }
-                            if (best) {
-                                Kernel::IPC::Memory *message = Kernel::IPC::Memory::Create(16384);
-                                Kernel::Handle *releaser;
-                                VideoMode::SetMode *setMode = (VideoMode::SetMode*)message->GetPointer(&releaser);
-                                setMode->packetClass = Interface_Packet::Request;
-                                setMode->identifier = 0;
-                                setMode->type = VideoMode::Request::SetMode;
-                                setMode->port = 0;
-                                setMode->modeIdentifier = best->Value();
-                                releaser->Release();
-                                connection->Send(message);
-                                message->Release();
-                            }
-                        }
-                            break;
-                    }
-                    releaser->Release();
-                }
-                    break;
-            }
-            if (io)
-                io->Release();
-            if (message)
-                message->Release();
-            if (connection)
-                connection->Release();
-        }
-        result->Release();
-    }
-    
+    // test
     asm("cli");
     
     while(true);
