@@ -8,6 +8,8 @@
 #include "../../Kernel/Kernel/Interface_VideoMode.h"
 #include "../../Kernel/Kernel/Interface_Video.h"
 
+#include "Squirrel.h"
+
 extern "C" void testprint(const char*);
 
 static char* PrintInt(char *bob, int value)
@@ -38,26 +40,6 @@ static char* PrintHex(char *bob, int value)
     return bob;
 }
 
-static void HandleDriver(Kernel::System::Driver *driver, int level)
-{
-    char buf[100];
-    
-    for (int i = 1; i < level; i++)
-        testprint(" | ");
-    if (level != 0)
-        testprint(" +-");
-    int len = driver->GetClassName(0, buf, sizeof(buf));
-    buf[len] = '\0';
-    testprint(buf);
-    testprint("\n");
-    
-    Kernel::Collections::Array *children = driver->Children();
-    int j = children->Count();
-    for (int i = 0; i < j; i++)
-        HandleDriver((Kernel::System::Driver*)children->ObjectAt(i), level + 1);
-    children->Release();
-}
-
 static bool IsType(Kernel::Handle *object, const char *name)
 {
     char buffer[100];
@@ -75,67 +57,6 @@ static void Wait(int time)
     timer->Reset(time, true);
     timer->Block()->Release();
     timer->Release();
-}
-
-static void Handle(Kernel::Handle *object, int indent = 0)
-{
-    char buf[100];
-    
-    buf[sizeof(buf) - 1] = '\0';
-    for (int i = 0; i < indent; i++)
-        testprint("    ");
-    if (IsType(object, "KernelArray")) {
-        Kernel::Collections::Array *array = (Kernel::Collections::Array*)object;
-        int length = array->Count();
-        testprint("<Array: ");
-        testprint(PrintInt(buf + sizeof(buf) - 2, length));
-        testprint(" items>\n");
-        for (int i = 0; i < length; i++) {
-            Kernel::Handle *object = array->ObjectAt(i);
-            Handle(object, indent + 1);
-        }
-        Wait(SECONDS(2));
-    } else if (IsType(object, "KernelDictionary")) {
-        Kernel::Collections::Dictionary *dictionary = (Kernel::Collections::Dictionary*)object;
-        testprint("<Dictionary>\n");
-        Kernel::Collections::Array *keys = dictionary->AllKeys();
-        int length = keys->Count();
-        for (int i = 0; i < length; i++) {
-            Kernel::Handle *key = keys->ObjectAt(i);
-            Handle(key, indent + 1);
-            Kernel::Handle *value = dictionary->ObjectFor(key);
-            Handle(value, indent + 2);
-        }
-        keys->Release();
-        Wait(SECONDS(2));
-    } else if(IsType(object, "KernelNumber")) {
-        Kernel::Collections::Number *number = (Kernel::Collections::Number*)object;
-        testprint("<Number: ");
-        testprint(PrintInt(buf + sizeof(buf) - 2, number->Value()));
-        testprint(">\n");
-    } else if (IsType(object, "KernelString")) {
-        Kernel::Collections::String *string = (Kernel::Collections::String*)object;
-        testprint("<String: ");
-        string->Copy(buf, sizeof(buf));
-        testprint(buf);
-        testprint(">\n");
-    } else {
-        testprint("<");
-        object->GetClassName(0, buf, sizeof(buf));
-        testprint(buf);
-        testprint(">\n");
-    }
-}
-
-static void funkprint(Kernel::Collections::String *str)
-{
-    if (!str) {
-        testprint("<null>");
-        return;
-    }
-    char buf[100];
-    str->Copy(buf, sizeof(buf));
-    testprint(buf);
 }
 
 static bool Compare(const char *a, const char *b)
@@ -186,39 +107,68 @@ private:
     Kernel::IPC::Client *_input;
 };
 
+static void SetPixel24(unsigned char *buffer, int widthSpan, int x, int y, Pixel colour)
+{
+    UInt32 colour24 = (colour.r << 0) | (colour.g << 8) | (colour.b << 16);
+    buffer += (y * widthSpan) + (3 * x);
+    buffer[0] = colour24 & 0xFF;
+    buffer[1] = (colour24 >> 8) & 0xFF;
+    buffer[2] = (colour24 >> 16) & 0xFF;
+}
+
+static void SetPixel32(unsigned char *buffer, int widthSpan, int x, int y, Pixel colour)
+{
+    buffer += y * widthSpan;
+    buffer += x * /*pixelSpan*/4;
+    ((UInt32*)buffer)[0] =  (colour.r << 0) | (colour.g << 8) | (colour.b << 16);
+}
+
+Pixel background = {130, 130, 250, 255};
+
+void(*pixelSet)(unsigned char *buffer, int widthSpan, int x, int y, Pixel colour);
+int localX, localY;
+bool localSet = false;
+
+static void SetCursor(void *framebuffer, int linespan, int width, int height, int offsetX, int offsetY)
+{
+    if (localSet) {
+        for (int y = 0; y < nat299.h; y++) {
+            for (int x = 0; x < nat299.w; x++) {
+                pixelSet((unsigned char*)framebuffer, linespan, x + localX, y + localY, background);
+            }
+        }
+        localX += offsetX;
+        localY -= offsetY;
+        if (localX < 0)
+            localX = 0;
+        else if (localX > (width - nat299.w))
+            localX = width - nat299.w;
+        if (localY < 0)
+            localY = 0;
+        else if (localY > (height - nat299.h))
+            localY = height - nat299.h;
+    } else {
+        localX = offsetX;
+        localY = offsetY;
+        localSet = true;
+    }
+    for (int y = 0; y < nat299.h; y++) {
+        for (int x = 0; x < nat299.w; x++) {
+            int bx = x % nat299.w;
+            int by = y % nat299.h;
+            int index = (by * nat299.w) + bx;
+            if (nat299.data[index].a == 255)
+                pixelSet((unsigned char*)framebuffer, linespan, x + localX, y + localY, nat299.data[index]);
+        }
+    }
+}
+
 extern "C" void sysmain(void)
 {
     char buf[100];
     int x = 0;
-//
-//bob:
-//    buf[sizeof(buf) - 1] = '\0';
-//    
-//    testprint("Userspace taunt! ");
-//    testprint(PrintInt(buf - 1, x++));
-//    testprint("\n");
-//    for (int i = 0; i <100000; i++)
-//        for (int j = 0; j <1000; j++);
-//    goto bob;
-    
-//    Kernel::Blocking::Timer *timer = Kernel::Blocking::Timer::Create();
-//    testprint("Created timer ");
-//    testprint(PrintHex(buf - 1, (int)timer));
-//    testprint("\n");
-//    timer->Reset(SECONDS(2), true);
-//    while(true) {
-//        timer->Block()->Release();
-//        testprint("Userspace bling! ");
-//        testprint(PrintInt(buf - 1, x++));
-//        testprint("\n");
-//    }
-
-    Kernel::System::Driver *root = Kernel::System::Driver::GetRootDriver();
-    HandleDriver(root, 0);
-    root->Release();
     
     Kernel::System::Monitor *monitor = Kernel::System::Monitor::Create();
-//    Handle(monitor->Changes());
     Kernel::Collections::String *stateStr = Kernel::Collections::String::Create("State");
     Kernel::Collections::String *typeStr = Kernel::Collections::String::Create("Type");
     Kernel::Collections::String *connectorStr = Kernel::Collections::String::Create("Connector");
@@ -244,10 +194,6 @@ extern "C" void sysmain(void)
                     }
                     if (Compare(typeName, "Output")) {
                         Kernel::IPC::Service *service = (Kernel::IPC::Service*)monitor->ObjectForIdentifier(((Kernel::Collections::Number*)data->ObjectFor(connectorStr))->Value());
-                        funkprint(service->Name());
-                        testprint(" (");
-                        funkprint(service->Type());
-                        testprint(")\n");
                         if (Compare(service->Type(), "core.provider.mouse")) {
                             mouseSink = new SimpleSink();
                             mouseSink->Input()->Connect(service);
@@ -302,7 +248,26 @@ extern "C" void sysmain(void)
                         {
                             Video::Buffer *buffer = (Video::Buffer*)event;
                             if (event->status == Interface_Response::Success) {
-                                testprint("Video buffer acquired\n");
+                                // SCREEN
+                                screen = buffer;
+                                releaser->AddRef();
+
+                                switch(screen->pixelSpan) {
+                                    case 4:
+                                    default:
+                                        pixelSet = SetPixel32;
+                                        break;
+                                    case 3:
+                                        pixelSet = SetPixel24;
+                                        break;
+                                }
+                                int amount = 0;
+                                for (int y = 0; y < buffer->height; y++) {
+                                    for (int x = 0; x < buffer->width; x++) {
+                                        pixelSet((unsigned char*)buffer->Framebuffer(), buffer->lineSpan, x, y, background);
+                                    }
+                                }
+                                SetCursor(screen->Framebuffer(), screen->lineSpan, screen->width, screen->height, 10, 10);
                             }
                             break;
                         }
@@ -330,23 +295,20 @@ extern "C" void sysmain(void)
                     case Interface_Mouse::Event::Button:
                     {
                         Interface_Mouse::Button *button = (Interface_Mouse::Button*)event;
-                        testprint("Button ");
-                        testprint(PrintInt(buf + sizeof(buf) - 2, button->index));
-                        testprint(button->down ? " down" : " up");
+                        // BUTAN
                         break;
                     }
                     case Interface_Mouse::Event::Motion:
                     {
                         Interface_Mouse::Motion *motion = (Interface_Mouse::Motion*)event;
-                        testprint("Motion ");
-                        testprint(PrintInt(buf + sizeof(buf) - 2, motion->x));
-                        testprint(", ");
-                        testprint(PrintInt(buf + sizeof(buf) - 2, motion->y));
+                        // MOVE
+                        if (screen)
+                            SetCursor(screen->Framebuffer(), screen->lineSpan, screen->width, screen->height, motion->x, motion->y);
                         break;
                     }
                 }
                 releaser->Release();
-            } else testprint(PrintInt(buf + sizeof(buf) - 2, providerEvent));
+            }
             if (io)
                 io->Release();
             if (message)
@@ -366,16 +328,12 @@ extern "C" void sysmain(void)
                     case Interface_Keyboard::Event::KeyEvent:
                     {
                         Interface_Keyboard::Event *keyEvent = (Interface_Keyboard::Event*)event;
-                        testprint("Key ");
-                        buf[0] = keyEvent->keyValue;
-                        buf[1] = '\0';
-                        testprint(buf);
-                        testprint(keyEvent->keyDown ? " down" : " up");
+                        // KEY
                         break;
                     }
                 }
                 releaser->Release();
-            } else testprint(PrintInt(buf + sizeof(buf) - 2, providerEvent));
+            }
             if (io)
                 io->Release();
             if (message)
@@ -391,7 +349,6 @@ extern "C" void sysmain(void)
             switch(providerEvent) {
                 case Kernel::IPC::Provider::eventInputConnect:
                 {
-                    testprint("Sending mode list request\n");
                     Kernel::IPC::Memory *message = Kernel::IPC::Memory::Create(16384);
                     Kernel::Handle *releaser;
                     VideoMode::Request *getModes = (VideoMode::Request*)message->GetPointer(&releaser);
@@ -418,24 +375,12 @@ extern "C" void sysmain(void)
                             FlatInteger *best = NULL;
                             int bestSize = 0;
                             for (int i = 0; i < ports->ports.Count(); i++) {
-                                testprint("Port ");
-                                testprint(PrintInt(buf + sizeof(buf) - 2, i));
-                                testprint("\n");
                                 FlatArray *modes = (FlatArray*)ports->ports.ItemAt(i);
                                 for (int j = 0; j < modes->Count(); j++) {
-                                    testprint("Mode ");
-                                    testprint(PrintInt(buf + sizeof(buf) - 2, j));
-                                    testprint(": ");
                                     FlatDictionary *dictionary = (FlatDictionary*)modes->ItemAt(j);
                                     FlatInteger *width = (FlatInteger*)dictionary->ItemFor(mw);
                                     FlatInteger *height = (FlatInteger*)dictionary->ItemFor(mh);
                                     FlatString *type = (FlatString*)dictionary->ItemFor(mt);
-                                    testprint(PrintInt(buf + sizeof(buf) - 2, width->Value()));
-                                    testprint("x");
-                                    testprint(PrintInt(buf + sizeof(buf) - 2, height->Value()));
-                                    testprint(" [");
-                                    testprint(type->Value());
-                                    testprint("]\n");
                                     if (Compare(type->Value(), Mode_Type_Graphical)) {
                                         int size = width->Value() * height->Value();
                                         if (size > bestSize) {
@@ -446,7 +391,6 @@ extern "C" void sysmain(void)
                                 }
                             }
                             if (best) {
-                                testprint("Sending graphics request\n");
                                 Kernel::IPC::Memory *message = Kernel::IPC::Memory::Create(16384);
                                 Kernel::Handle *releaser;
                                 VideoMode::SetMode *setMode = (VideoMode::SetMode*)message->GetPointer(&releaser);
@@ -474,7 +418,6 @@ extern "C" void sysmain(void)
                 connection->Release();
         }
         result->Release();
-        testprint("\n");
     }
     
     asm("cli");
