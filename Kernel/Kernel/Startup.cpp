@@ -253,7 +253,7 @@ namespace Startup_Internal {
         
         void FoundOutput(KernelObject *provider, IpcService *service)
         {
-            if (service->ServiceType()->IsEqualTo(SERVICE_TYPE_BLOCK)) {
+            if (service->Name()->IsEqualTo("atapi0"_ko) && service->ServiceType()->IsEqualTo(SERVICE_TYPE_BLOCK)) {
                 _disk = service;
                 Check();
             }
