@@ -139,9 +139,17 @@ private:
 
 bool ATADriverNode::UpdateForInterrupt(void)
 {
-    _interruptStatus = inByte(CB_STAT); // This acknowledges the interrupt for the channel
-    _bmStatus = readBusMasterStatus();
-    return _bmStatus & BM_SR_MASK_INT;
+    bool dma = true;//DMAAvailable();
+    if (dma)
+        _bmStatus = readBusMasterStatus();
+    bool gotInt = dma && (_bmStatus & BM_SR_MASK_INT);
+    if (!dma || gotInt) {
+        _interruptStatus = inByte(CB_STAT); // This acknowledges the interrupt for the channel
+        if (gotInt)
+            writeBusMasterStatus(BM_SR_MASK_INT);
+        return true;
+    }
+    return false;
 }
 
 void ATADriverNode::UpdateBMIDEState(void)
@@ -249,8 +257,9 @@ public:
 
     bool Start(Driver *parent)
     {
+        PCI::Device *parentPCI = (PCI::Device*)parent;
         // Discover the configuration of the device
-        UInt32 classInfo = ((PCI::Device*)parent)->ReadPCIRegister(0x08);
+        UInt32 classInfo = parentPCI->ReadPCIRegister(0x08);
         UInt8 programmingInterface = (classInfo & 0x0000FF00) >> 8;
         bool nativeMode = programmingInterface & (_primary ? 0x01 : 0x04);
         bool configurable = programmingInterface & (_primary ? 0x02 : 0x08);
@@ -258,24 +267,45 @@ public:
         if (configurable && !nativeMode) {
             nativeMode = true;
             classInfo |= _primary ? 0x01 : 0x04;
-            ((PCI::Device*)parent)->WritePCIRegister(0x08, classInfo);
+            parentPCI->WritePCIRegister(0x08, classInfo);
         }
         // Get the device I/O ports
         int irq;
         _bmPort = ((PCI::Device*)parent)->ReadBAR(4) + (_primary ? 0 : (8 * sizeof(UInt32)));
+        int irq = -1;
+        _bmPort = parentPCI->ReadBAR(4) + (_primary ? 0 : 8);
         if (!PCI::BAR::IsIOMapped(_bmPort))
             /* Handle error? */;
         _bmPort = PCI::BAR::GetIOAddress(_bmPort);
         if (nativeMode) {
-            _ioPort = ((PCI::Device*)parent)->ReadBAR(_primary ? 0 : 2);
-            if (!PCI::BAR::IsIOMapped(_ioPort))
-                /* Handle error? */;
-            _ioPort = PCI::BAR::GetIOAddress(_ioPort);
-            _controlPort = ((PCI::Device*)parent)->ReadBAR(_primary ? 1 : 3);
-            if (!PCI::BAR::IsIOMapped(_controlPort))
-                /* Handle error? */;
-            _controlPort = PCI::BAR::GetIOAddress(_controlPort);
-            irq = -1;
+            _ioPort = parentPCI->ReadBAR(_primary ? 0 : 2);
+            if (_ioPort == 0) {
+                _ioPort = _primary ? 0x1F0 : 0x170;
+            } else {
+                if (!PCI::BAR::IsIOMapped(_ioPort))
+                    /* Handle error? */ kprintf("ERROR: IO is not IO mapped %.8x\n", _ioPort);
+                _ioPort = PCI::BAR::GetIOAddress(_ioPort);
+            }
+            _controlPort = parentPCI->ReadBAR(_primary ? 1 : 3);
+            if (_controlPort == 0) {
+                _controlPort = _primary ? 0x3F6 : 0x376;
+            } else {
+                if (!PCI::BAR::IsIOMapped(_controlPort))
+                    /* Handle error? */ kprintf("ERROR: control is not IO mapped %.8x\n", _controlPort);
+                _controlPort = PCI::BAR::GetIOAddress(_controlPort);
+            }
+            // Ascertain interrupt
+            parentPCI->WritePCIRegister(0x3C, 0xFE);
+            if ((parentPCI->ReadPCIRegister(0x3C) & 0xFF) == 0xFE) {
+                // IRQ assignment required
+                parentPCI->WritePCIRegister(0x3C, 15);
+                irq = PIC_IRQ_OFFSET + 15;
+            } else {
+                UInt8 ProgIF = (parentPCI->ReadPCIRegister(0x08) & 0x0000FF00) >> 8;
+                if ((parentPCI->BaseClass() == 0x01) && (parentPCI->SubClass() == 0x01) && ((ProgIF == 0x8A) || (ProgIF == 0x80))) {
+                    irq = PIC_IRQ_OFFSET + (_primary ? 14 : 15);
+                }
+            }
         } else {
             _ioPort = _primary ? 0x1F0 : 0x170;
             _controlPort = _primary ? 0x3F6 : 0x376;
@@ -302,11 +332,12 @@ public:
             }
             interruptSource = driver->InterruptSource();
         }
-        _interruptToken = interruptSource->RegisterHandler(irq, [this](void *state){
-            if (!UpdateForInterrupt())
-                /*return false*/;
-            _interrupt->Set();
-            return true;
+        _interruptToken = interruptSource->RegisterHandler(irq, [this, parentPCI](void *state){
+            if (UpdateForInterrupt()) {
+                _interrupt->Set();
+                return true;
+            } else
+            return false;
         });
         return ATADriverNode::Start(parent);
     }
@@ -380,16 +411,16 @@ public:
     
     bool DMAAvailable(void)
     {
-        return false;
         return _bmPort != 0;
     }
     UInt8 readBusMasterStatus(void)
     {
-        return 0;//inb(_bmPort + 0x02);
+        UInt8 b = inb(_bmPort + 0x02);
+        return b;
     }
     void writeBusMasterStatus(UInt8 x)
     {
-//        outb(_bmPort + 0x02, x);
+        outb(_bmPort + 0x02, x);
     }
 };
 
@@ -745,7 +776,8 @@ protected:
         }
         // Create nubs for child devices
         for (int i = 0; i < 2; i++)
-            _owner->_driveHandlers[i] = Instantiate(_owner, _owner->_serviceList, _owner->_mainQueue, i, _owner->_configInfo[i]);
+            if (_owner->_configInfo[i] != ATADriver::dcNone)
+                _owner->_driveHandlers[i] = Instantiate(_owner, _owner->_serviceList, _owner->_mainQueue, i, _owner->_configInfo[i]);
     }
     
 private:
@@ -790,7 +822,7 @@ bool ATADriver::Start(Driver *parent)
     _useInterrupts = interrupt != NULL;
     if (_useInterrupts)
         _waitObject->AddSource(interrupt);
-    bool useDMA = _useInterrupts && IOPort()->DMAAvailable();
+    bool useDMA = false;//_useInterrupts && IOPort()->DMAAvailable();
     // Launch thread
     _mainQueue = new DispatchQueue();
     // Start configure task
@@ -832,7 +864,7 @@ void ATADriver::StartTimer(void)
 // Fills in _configInfo, returns devices found
 int ATADriver::Configure(void)
 {
-    // Reset Bust Master Error bit
+    // Reset Bus Master Error bit
     IOPort()->writeBusMasterStatus(BM_SR_MASK_ERR);
     
     // Assume there are no devices
@@ -845,7 +877,7 @@ int ATADriver::Configure(void)
     // Look for devices
     if (_Configure_InitDevice(CB_DH_DEV0))
         _configInfo[0] = dcUnknown;
-    if (_Configure_InitDevice(CB_DH_DEV1))
+    if ((_configInfo[0] != dcNone) && _Configure_InitDevice(CB_DH_DEV1))
         _configInfo[1] = dcUnknown;
     
     // Soft reset
@@ -854,8 +886,10 @@ int ATADriver::Configure(void)
     Reset(0);
     
     // Check devices again
-    _configInfo[0] = _Configure_CheckDevice(CB_DH_DEV0);
-    _configInfo[1] = _Configure_CheckDevice(CB_DH_DEV1);
+    if (_configInfo[0] != dcNone)
+        _configInfo[0] = _Configure_CheckDevice(CB_DH_DEV0);
+    if (_configInfo[1] != dcNone)
+        _configInfo[1] = _Configure_CheckDevice(CB_DH_DEV1);
     
     // Select a device
     int count = 0, index = 1;
@@ -916,8 +950,10 @@ ATADriver::DEV_CONFIG ATADriver::_Configure_CheckDevice(UInt8 device)
 
 bool ATADriver::Reset(UInt32 deviceReturn)
 {
+    _regCommandInfo.errorCode = 0;
+    
     // Reset Bus Master Error bit
-    IOPort()->writeBusMasterStatus(BM_SR_MASK_ERR);
+    IOPort()->writeBusMasterStatus(BM_SR_MASK_ERR | BM_SR_MASK_INT);
     
     // Initiaise command timeout
     StartTimer();

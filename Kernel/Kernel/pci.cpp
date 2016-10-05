@@ -162,6 +162,11 @@ UInt32 PCI::Device::ReadBAR(UInt8 bar)
     return 0;
 }
 
+UInt16 PCI::Device::Status(void)
+{
+    return (ReadPCIRegister(0x04) & 0xFFFF0000) >> 16;
+}
+
 UInt32 PCI::Device::ReadPCIRegister(UInt8 reg)
 {
     return ReadLong(_bus, _device, _function, reg);

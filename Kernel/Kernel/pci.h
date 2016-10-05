@@ -21,6 +21,7 @@ namespace PCI {
         UInt8 BaseClass(void);
         UInt8 SubClass(void);
         UInt32 ReadBAR(UInt8 bar);
+        UInt16 Status(void);
         
         UInt32 ReadPCIRegister(UInt8 reg);
         void WritePCIRegister(UInt8 reg, UInt32 value);
