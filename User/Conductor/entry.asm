@@ -22,6 +22,9 @@ testprint:
   ; Process Start!
 entry:
 
+  ; Initialise FPU
+  fninit
+
   ; Call all C++ constructors for static objects
 
 static_ctors_loop:

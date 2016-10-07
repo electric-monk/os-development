@@ -11,7 +11,68 @@
 #include "../../Kernel/Kernel/Interface_VideoMode.h"
 #include "../../Kernel/Kernel/Interface_Video.h"
 
+#include "Context.h"
+namespace SquirrelTest {
 #include "Squirrel.h"
+    Graphics::FrameBuffer* Get(void)
+    {
+        Graphics::Bitmap *output = new Graphics::Bitmap(nat299.w, nat299.h, Graphics::Bitmap::Format32RGBA);
+        UInt8 *outputBuffer = output->Buffer();
+        for (int i = 0; i < (nat299.w * nat299.h); i++) {
+            *(outputBuffer++) = nat299.data[i].r;
+            *(outputBuffer++) = nat299.data[i].g;
+            *(outputBuffer++) = nat299.data[i].b;
+            *(outputBuffer++) = nat299.data[i].a;
+        }
+        return output;
+    }
+}
+class SystemFramebuffer : public Graphics::FrameBuffer
+{
+public:
+    SystemFramebuffer()
+    {
+        _handle = NULL;
+        _data = NULL;
+    }
+    ~SystemFramebuffer()
+    {
+        if (_handle)
+            _handle->Release();
+    }
+    
+    void SetBuffer(Kernel::Handle *owner, Video::Buffer *data)
+    {
+        Kernel::Handle *other = _handle;
+        _handle = owner;
+        if (_handle)
+            _handle->AddRef();
+        if (other)
+            other->Release();
+        _data = _handle ? data : NULL;
+    }
+
+    Format Type(void) const
+    {
+        switch(_data->format) {
+            case Video::Buffer::PixelFormat24RGB:
+                return Graphics::FrameBuffer::Format24RGB;
+            case Video::Buffer::PixelFormat24BGR:
+                return Graphics::FrameBuffer::Format24BGR;
+            case Video::Buffer::PixelFormat32RGBx:
+                return Graphics::FrameBuffer::Format32RGBx;
+            case Video::Buffer::PixelFormat32BGRx:
+                return Graphics::FrameBuffer::Format32BGRx;
+        }
+    }
+    UInt32 Width(void) const { return _data->width; }
+    UInt32 Height(void) const { return _data->height; }
+    UInt8* Buffer(void) const { return (UInt8*)_data->Framebuffer(); }
+    
+private:
+    Kernel::Handle *_handle;
+    Video::Buffer *_data;
+};
 
 extern "C" void testprint(const char*);
 
@@ -110,62 +171,6 @@ private:
     Kernel::IPC::Client *_input;
 };
 
-static void SetPixel24(unsigned char *buffer, int widthSpan, int x, int y, Pixel colour)
-{
-    UInt32 colour24 = (colour.r << 0) | (colour.g << 8) | (colour.b << 16);
-    buffer += (y * widthSpan) + (3 * x);
-    buffer[0] = colour24 & 0xFF;
-    buffer[1] = (colour24 >> 8) & 0xFF;
-    buffer[2] = (colour24 >> 16) & 0xFF;
-}
-
-static void SetPixel32(unsigned char *buffer, int widthSpan, int x, int y, Pixel colour)
-{
-    buffer += y * widthSpan;
-    buffer += x * /*pixelSpan*/4;
-    ((UInt32*)buffer)[0] =  (colour.r << 0) | (colour.g << 8) | (colour.b << 16);
-}
-
-Pixel background = {130, 130, 250, 255};
-
-void(*pixelSet)(unsigned char *buffer, int widthSpan, int x, int y, Pixel colour);
-int localX, localY;
-bool localSet = false;
-
-static void SetCursor(void *framebuffer, int linespan, int width, int height, int offsetX, int offsetY)
-{
-    if (localSet) {
-        for (int y = 0; y < nat299.h; y++) {
-            for (int x = 0; x < nat299.w; x++) {
-                pixelSet((unsigned char*)framebuffer, linespan, x + localX, y + localY, background);
-            }
-        }
-        localX += offsetX;
-        localY -= offsetY;
-        if (localX < 0)
-            localX = 0;
-        else if (localX > (width - nat299.w))
-            localX = width - nat299.w;
-        if (localY < 0)
-            localY = 0;
-        else if (localY > (height - nat299.h))
-            localY = height - nat299.h;
-    } else {
-        localX = offsetX;
-        localY = offsetY;
-        localSet = true;
-    }
-    for (int y = 0; y < nat299.h; y++) {
-        for (int x = 0; x < nat299.w; x++) {
-            int bx = x % nat299.w;
-            int by = y % nat299.h;
-            int index = (by * nat299.w) + bx;
-            if (nat299.data[index].a == 255)
-                pixelSet((unsigned char*)framebuffer, linespan, x + localX, y + localY, nat299.data[index]);
-        }
-    }
-}
-
 extern "C" void sysmain(void)
 {
     char buf[100];
@@ -179,7 +184,20 @@ extern "C" void sysmain(void)
     SimpleSink *keyboardSink = NULL;
     SimpleSink *videoBuffer = NULL;
     SimpleSink *videoMode = NULL;
-    Video::Buffer *screen = NULL;
+    SystemFramebuffer screenFramebuffer;
+    Graphics::Bitmap *offscreenFramebuffer;
+    
+    Graphics::FrameBuffer *_squirrel = SquirrelTest::Get();
+    int _count = 0;
+    Graphics::Path _star((Graphics::Point2D){50, 0});
+    _star.LineTo((Graphics::Point2D){65, 100});
+    _star.LineTo((Graphics::Point2D){0, 30});
+    _star.LineTo((Graphics::Point2D){100, 30});
+    _star.LineTo((Graphics::Point2D){35, 100});
+    
+    Graphics::Path _circle((Graphics::Point2D){50, 50});
+    for (Graphics::Unit i = 0; i < 2*3.1415; i+=0.1)
+        _circle.LineTo((Graphics::Point2D){50 + 40 * Library::Maths::Cosine(i), 50 + 40 * Library::Maths::Sine(i)});
     
     EventLoop loop;
     
@@ -202,8 +220,6 @@ extern "C" void sysmain(void)
                 {
                     Interface_Mouse::Motion *motion = (Interface_Mouse::Motion*)event;
                     // MOVE
-                    if (screen)
-                        SetCursor(screen->Framebuffer(), screen->lineSpan, screen->width, screen->height, motion->x, motion->y);
                     break;
                 }
             }
@@ -346,26 +362,37 @@ extern "C" void sysmain(void)
                     {
                         Video::Buffer *buffer = (Video::Buffer*)event;
                         if (event->status == Interface_Response::Success) {
+                            testprint("Got screen\n");
                             // SCREEN
-                            screen = buffer;
-                            releaser->AddRef();
-                            
-                            switch(screen->pixelSpan) {
-                                case 4:
-                                default:
-                                    pixelSet = SetPixel32;
-                                    break;
-                                case 3:
-                                    pixelSet = SetPixel24;
-                                    break;
-                            }
-                            int amount = 0;
-                            for (int y = 0; y < buffer->height; y++) {
-                                for (int x = 0; x < buffer->width; x++) {
-                                    pixelSet((unsigned char*)buffer->Framebuffer(), buffer->lineSpan, x, y, background);
-                                }
-                            }
-                            SetCursor(screen->Framebuffer(), screen->lineSpan, screen->width, screen->height, 10, 10);
+                            screenFramebuffer.SetBuffer(releaser, buffer);
+                            offscreenFramebuffer = new Graphics::Bitmap(screenFramebuffer.Width(), screenFramebuffer.Height(), screenFramebuffer.Type());
+                            Kernel::Blocking::Timer *timer = Kernel::Blocking::Timer::Create();
+                            loop.AddSource(timer, [&](Kernel::Blocking::Blockable *trigger, Kernel::Collections::Array *others){
+                                Graphics::Context context(*offscreenFramebuffer);
+                                Graphics::Path rect((Graphics::Point2D){0, 0});
+                                rect.LineTo((Graphics::Point2D){screenFramebuffer.Width(), 0});
+                                rect.LineTo((Graphics::Point2D){screenFramebuffer.Width(), screenFramebuffer.Height()});
+                                rect.LineTo((Graphics::Point2D){0, screenFramebuffer.Height()});
+                                context.DrawPolygon(rect, Graphics::Colour::White);
+                                context.Push();
+                                context.Translate(50, 50);
+                                context.Rotate(_count * 0.02);
+                                context.Translate(-50, -50);
+                                context.DrawLine(_circle, Graphics::Colour::Black, (_count & 0xFFF) / 32.0);
+                                context.Pop();
+                                context.Translate(200, 200);
+                                context.Rotate(_count * 0.01);
+                                context.Translate(-50, -50);
+                                context.DrawPolygon(_star, (Graphics::Colour){0xff,0x00,0x00,UInt8(_count)});//(Graphics::Colour){static_cast<UInt8>(_count), static_cast<UInt8>(_count >> 8), static_cast<UInt8>(_count >> 16), 0xff});
+                                context.DrawLine(_star, Graphics::Colour::Black, 4);
+                                context.Rotate(-_count * 0.01);
+                                context.Scale(Library::Maths::Cosine(_count * 0.05) + 1.5, Library::Maths::Cosine(_count * 0.05) + 1.5);
+                                context.Rotate(Library::Maths::Cosine(_count * 0.1) * 0.5);
+                                context.DrawBitmap(*_squirrel);
+                                _count += 3;
+                                CopyFast(screenFramebuffer.Buffer(), offscreenFramebuffer->Buffer(), screenFramebuffer.Width() * screenFramebuffer.Height() * screenFramebuffer.PixelSize());
+                            });
+                            timer->Reset(MILLISECONDS(1), true);
                         }
                         break;
                     }

@@ -6,6 +6,65 @@
 
 namespace Library {
     
+    template<class T> void Swap(T &a, T &b)
+    {
+        UInt8 temp[sizeof(T)];
+        CopyMemory(temp, &a, sizeof(T));
+        CopyMemory(&a, &b, sizeof(T));
+        CopyMemory(&b, temp, sizeof(T));
+    }
+    inline void Swap(UInt32 a, UInt32 b)
+    {
+        UInt32 temp = a;
+        a = b;
+        b = temp;
+    }
+    inline void Swap(double a, double b)
+    {
+        double temp = a;
+        a = b;
+        b = temp;
+    }
+    
+    template<class Iterator> UInt64 _QuickSortPartition(Iterator start, UInt64 lo, UInt64 hi, Function<bool(decltype(*start), decltype(*start))> comparator)
+    {
+        decltype(*start) pivot = *(start + lo);
+        UInt64 i = lo - 1;
+        UInt64 j = hi + 1;
+        while (true) {
+            do {
+                i++;
+            } while(comparator(*(start + i), pivot));
+            do {
+                j--;
+            } while(comparator(pivot, *(start + j)));
+            if (i >= j)
+                return j;
+            Swap(*(start + i), *(start + j));
+        }
+    }
+    
+    template<class Iterator> void _QuickSort(Iterator start, UInt64 lo, UInt64 hi, Function<bool(decltype(*start), decltype(*start))> comparator)
+    {
+        if (lo >= hi)
+            return;
+        UInt64 p = _QuickSortPartition(start, lo, hi, comparator);
+        _QuickSort(start, lo, p, comparator);
+        _QuickSort(start, p + 1, hi, comparator);
+    }
+    
+    template<class Iterator> void Sort(Iterator start, Iterator end, Function<bool(decltype(*start), decltype(*start))> comparator)
+    {
+        // TODO: Measure sensibly?
+        UInt64 length = 0;
+        for (Iterator temp = start; temp != end; temp++)
+            length++;
+        if (length == 0)
+            return;
+        // Quicksort
+        _QuickSort(start, 0, length - 1, comparator);
+    }
+    
     template<class T> UInt64 Hash(T value) { return UInt64(value); }
     
     template<class C> void ForEach(const C &iterable, Library::Function<bool(decltype(*iterable.Start())&)> handler)
@@ -20,6 +79,7 @@ namespace Library {
     {
     public:
         typedef ObjType* Iterator;
+        typedef const ObjType* ConstIterator;
         
         Array()
         {
@@ -59,17 +119,29 @@ namespace Library {
             return *this;
         }
         
-        Iterator Start(void) const
+        Iterator Start(void)
         {
             return reinterpret_cast<ObjType*>(_index);
         }
-        Iterator End(void) const
+        Iterator End(void)
         {
             return reinterpret_cast<ObjType*>(_index) + _count;
         }
-                      
+        ConstIterator Start(void) const
+        {
+            return reinterpret_cast<ObjType*>(_index);
+        }
+        ConstIterator End(void) const
+        {
+            return reinterpret_cast<ObjType*>(_index) + _count;
+        }
+        
         
         ObjType& operator[](UInt32 index)
+        {
+            return reinterpret_cast<ObjType*>(_index)[index];
+        }
+        const ObjType& operator[](UInt32 index) const
         {
             return reinterpret_cast<ObjType*>(_index)[index];
         }
@@ -194,6 +266,16 @@ namespace Library {
                 return _entries.End();
             }
 
+            typename Array<KeyValuePair>::ConstIterator Start(void) const
+            {
+                return _entries.Start();
+            }
+            
+            typename Array<KeyValuePair>::ConstIterator End(void) const
+            {
+                return _entries.End();
+            }
+
         private:
             Array<KeyValuePair> _entries;
         };
@@ -214,8 +296,8 @@ namespace Library {
         {
         private:
             const Dictionary &_owner;
-            typename Array<HashEntry>::Iterator _current;
-            typename Array<KeyValuePair>::Iterator _active;
+            typename Array<HashEntry>::ConstIterator _current;
+            typename Array<KeyValuePair>::ConstIterator _active;
         public:
             KvpIterator(const Dictionary &owner, bool end)
             :_owner(owner), _current(end ? owner._slots.End() : owner._slots.Start())
@@ -257,7 +339,7 @@ namespace Library {
                 this->operator++();
                 return ret;
             }
-            KeyValuePair& operator*()
+            const KeyValuePair& operator*() const
             {
                 return *_active;
             }
@@ -290,7 +372,7 @@ namespace Library {
         Array<KeyType> AllKeys(void) const
         {
             Array<KeyType> result;
-            ForEach(*this, [&result](KeyValuePair &kvp){
+            ForEach(*this, [&result](const KeyValuePair &kvp){
                 result.Add(kvp.key);
                 return true;
             });
@@ -300,7 +382,7 @@ namespace Library {
         Array<ValueType> AllValues(void) const
         {
             Array<ValueType> result;
-            ForEach(*this, [&result](KeyValuePair &kvp){
+            ForEach(*this, [&result](const KeyValuePair &kvp){
                 result.Add(kvp.value);
                 return true;
             });

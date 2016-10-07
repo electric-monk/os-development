@@ -152,13 +152,52 @@ extern "C" {
     
 }
 
+template<class T> UInt32 CopyChunks(void *output, const void *input, UInt32 length)
+{
+    if (length == 0)
+        return 0;
+    T *dest = (T*)output;
+    const T *src = (const T*)input;
+    if (dest == src)
+        return length;
+    UInt64 tLength = length / sizeof(T);
+    UInt64 doneLength = tLength * sizeof(T);
+    while (tLength) {
+        *dest = *src;
+        dest++;
+        src++;
+        tLength--;
+    }
+    return doneLength;
+}
+
+void CopyFast(void *output, const void *input, UInt32 length)
+{
+    UInt8 *dest = (UInt8*)output;
+    const UInt8 *src = (const UInt8*)input;
+    UInt64 got;
+    got = CopyChunks<UInt64>(dest, src, length);
+    dest += got;
+    src += got;
+    length -= got;
+    got = CopyChunks<UInt32>(dest, src, length);
+    dest += got;
+    src += got;
+    length -= got;
+    got = CopyChunks<UInt16>(dest, src, length);
+    dest += got;
+    src += got;
+    length -= got;
+    CopyChunks<UInt8>(dest, src, length);
+}
+
 void CopyMemory(void *output, const void *input, UInt32 length)
 {
     char *cDest = (char*)output;
     char *cSrc = (char*)input;
     if (cDest == cSrc)
         return;
-    if (UInt64(cDest) > UInt64(cSrc)) {
+    if (UInt64(cDest) < UInt64(cSrc)) {
         // Copy up
         while (length) {
             *cDest = *cSrc;
