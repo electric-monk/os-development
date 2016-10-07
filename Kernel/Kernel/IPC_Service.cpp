@@ -4,6 +4,7 @@
 #include "Process.h"
 #include "Provider.h"
 #include "IPC_Manager.h"
+#include "Runloop.h"
 
 namespace IPC_Service {
     
@@ -154,8 +155,10 @@ namespace IPC_Service {
         IpcClient* LaunchClient(KernelString *name)
         {
             Input *input = new Input(this, name);
-            _clientList->Add(input);
-            _serviceList->AddInput(input);
+            _runloop->Sync([=]{
+                _clientList->Add(input);
+                _serviceList->AddInput(input);
+            });
             return input;
         }
         
@@ -163,8 +166,10 @@ namespace IPC_Service {
         {
             if (!_clientList->Contains(client))
                 return false;
-            _serviceList->RemoveInput(client);
-            _clientList->Remove(client);
+            _runloop->Sync([=]{
+                _serviceList->RemoveInput(client);
+                _clientList->Remove(client);
+            });
             client->Release();
             return true;
         }
