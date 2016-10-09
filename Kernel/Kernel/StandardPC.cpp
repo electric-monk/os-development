@@ -1097,6 +1097,54 @@ CPU* StandardPC::GetCPU(int index)
     return s_CPUs + index;
 }
 
+void StandardPC::ContextSwitching::Initialise(void)
+{
+#ifdef FPU_LAZYISH
+    s_interrupts.RegisterHandler(peCoprocessorAbsent, [=](void *state)->bool{
+        if (!Thread::Active)
+            return false;
+        UInt32 value;
+        asm volatile("mov %%cr0, %0" : "=r" (value));
+        value &= ~0x08;
+        asm volatile("mov %0, %%cr0" :: "r" (value));
+        if (Thread::Active->_fpuContext.active) {
+            Thread::Active->_fpuContext.Restore();
+        } else {
+            Thread::Active->_fpuContext.active = true;
+            asm volatile("fninit");
+        }
+        return true;
+    });
+#endif // FPU_LAZYISH
+}
+
+void StandardPC::ContextSwitching::EnteringThread(Thread *thread)
+{
+#ifdef FPU_LAZYISH
+    UInt32 value;
+    asm volatile("mov %%cr0, %0" : "=r" (value));
+    if (thread && CPU::Active->lastFPUUser == thread->Hash())
+        value &= ~0x08;
+    else
+        value |= 0x08;
+    asm volatile("mov %0, %%cr0" :: "r" (value));
+#else // FPU_LAZYISH
+    thread->_fpuContext.Restore();
+#endif // FPU_LAZYISH
+}
+
+void StandardPC::ContextSwitching::ExitingThread(Thread *thread)
+{
+#ifdef FPU_LAZYISH
+    if (thread && thread->_fpuContext.active) {
+        thread->_fpuContext.Store();
+        CPU::Active->lastFPUUser = thread->Hash();
+    }
+#else //FPU_LAZYISH
+    thread->_fpuContext.Store();
+#endif // FPU_LAZYISH
+}
+
 void SystemService::Register(void)
 {
     int irq = Interrupt();

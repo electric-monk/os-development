@@ -76,6 +76,7 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     // Start root driver
     s_rootDevice = new StandardPC();
     s_rootDevice->Start(NULL);
+    StandardPC::ContextSwitching::Initialise();
 
     // Configure system services
     Thread::ConfigureService();

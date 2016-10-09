@@ -2,6 +2,7 @@
 #include "debug.h"
 #include "Interrupts.h"
 #include "StandardPC_traps.h"
+#include "StandardPC.h"
 #include "Scheduler.h"
 #include "Process.h"
 #include "mem_logical.h"
@@ -202,9 +203,11 @@ void Thread::Select(CPU::Context **scheduler)
             Process::Active = _process;
         }
     }
+    StandardPC::ContextSwitching::EnteringThread(this);
     Thread::Active = this;
     _context->SwitchFrom(scheduler);
     Thread::Active = NULL;
+    StandardPC::ContextSwitching::ExitingThread(this);
 }
 
 // Thread list

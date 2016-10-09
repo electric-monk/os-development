@@ -38,6 +38,7 @@ public:
     
     Process *_process;
     CPU::Context *_context;
+    CPU::FPUContext _fpuContext;
     THREADSTATE _state;
 
     static Thread *Active asm("%gs:8");

@@ -18,6 +18,23 @@ public:
         
         void SwitchFrom(Context **oldContext);
     };
+    class FPUContext
+    {
+    public:
+#ifdef FPU_LAZYISH
+        FPUContext():active(false){}
+        bool active;
+#endif
+        char data[108];
+        void Store(void)
+        {
+            asm volatile ("fnsave (%0)" :: "r"(data));
+        }
+        void Restore(void)
+        {
+            asm volatile ("frstor (%0)" :: "r"(data));
+        }
+    };
     
     Context *scheduler;
 
@@ -25,6 +42,10 @@ public:
     
     void PushInterruptFlag(void);
     void PopInterruptFlag(void);
+    
+#ifdef FPU_LAZYISH
+    UInt32 lastFPUUser;
+#endif
 
 private:
     GDT_SEGMENT gdt[SEGMENT_COUNT];

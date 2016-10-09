@@ -4,6 +4,7 @@
 #include "Driver.h"
 
 class CPU;
+class Thread;
 namespace StandardPC_Internal {
     class LegacyATA;
 }
@@ -37,6 +38,14 @@ typedef enum {  /* 0x00 to 0x1F */
 class StandardPC : public Driver
 {
 public:
+    class ContextSwitching
+    {
+    public:
+        static void Initialise(void);
+        static void EnteringThread(Thread *thread);
+        static void ExitingThread(Thread *thread);
+    };
+    
     CLASSNAME(Driver, StandardPC);
     
     StandardPC();
