@@ -75,6 +75,16 @@ namespace Library {
         }
     }
     
+    template<class Iterator, class T> Iterator Find(Iterator start, Iterator end, const T& find)
+    {
+        auto it = start;
+        for (; it != end; it++) {
+            if (find == *it)
+                break;
+        }
+        return it;
+    }
+    
     template<class ObjType> class Array
     {
     public:
@@ -136,6 +146,15 @@ namespace Library {
             return reinterpret_cast<ObjType*>(_index) + _count;
         }
         
+        Array Reverse(void) const
+        {
+            if (_count < 2)
+                return *this;
+            Array result(*this);
+            for (UInt32 i = 0, j = _count - 1; i < j; i++, j--)
+                Swap(reinterpret_cast<ObjType*>(result._index)[i], reinterpret_cast<ObjType*>(result._index)[j]);
+            return result;
+        }
         
         ObjType& operator[](UInt32 index)
         {
