@@ -14,13 +14,88 @@
 namespace Graphics {
     typedef double Unit;
     typedef struct { Unit x, y; } Point2D;
-    typedef struct {
+    typedef struct Rect2D {
         Point2D topLeft, bottomRight;
-        Point2D Size(void)
+        Rect2D Union(const Rect2D &other) const
         {
-            return (Point2D){bottomRight.x - topLeft.x, bottomRight.y - topLeft.y};
+            Rect2D result = *this;
+            if (other.topLeft.x < result.topLeft.x)
+                result.topLeft.x = other.topLeft.x;
+            if (other.topLeft.y < result.topLeft.y)
+                result.topLeft.y = other.topLeft.y;
+            if (other.bottomRight.x > result.bottomRight.x)
+                result.bottomRight.x = other.bottomRight.x;
+            if (other.bottomRight.y > result.bottomRight.y)
+                result.bottomRight.y = other.bottomRight.y;
+            return result;
+        }
+        bool Intersects(const Rect2D &other) const
+        {
+            int x1 = CategoriseEnd(other.topLeft.x, topLeft.x, bottomRight.x);
+            int x2 = CategoriseEnd(other.bottomRight.x, topLeft.x, bottomRight.x);
+            int y1 = CategoriseEnd(other.topLeft.y, topLeft.y, bottomRight.y);
+            int y2 = CategoriseEnd(other.bottomRight.y, topLeft.y, bottomRight.y);
+            bool h = (x1 != x2) || (x1 == 0) || (x2 == 0);
+            bool v = (y1 != y2) || (y1 == 0) || (y2 == 0);
+            return h && v;
+        }
+        Rect2D Offset(const Point2D &point) const
+        {
+            Rect2D result;
+            result.topLeft.x = topLeft.x + point.x;
+            result.topLeft.y = topLeft.y + point.y;
+            result.bottomRight.x = bottomRight.x + point.x;
+            result.bottomRight.y = bottomRight.y + point.y;
+            return result;
+        }
+        Rect2D Intersection(const Rect2D &other) const
+        {
+            Rect2D result;
+            int x1 = CategoriseEnd(other.topLeft.x, topLeft.x, bottomRight.x);
+            int x2 = CategoriseEnd(other.bottomRight.x, topLeft.x, bottomRight.x);
+            int y1 = CategoriseEnd(other.topLeft.y, topLeft.y, bottomRight.y);
+            int y2 = CategoriseEnd(other.bottomRight.y, topLeft.y, bottomRight.y);
+            if ((x1 == x2) && (x1 != 0)) {
+                // TODO: No intersection
+                result.topLeft.x = result.bottomRight.x = 0;
+            } else {
+                result.topLeft.x = (x1 == -1) ? topLeft.x : other.topLeft.x;
+                result.bottomRight.x = (x2 == 1) ? bottomRight.x : other.bottomRight.x;
+            }
+            if ((y1 == y2) && (y1 != 0)) {
+                // TODO: No intersection
+                result.topLeft.y = result.bottomRight.y = 0;
+            } else {
+                result.topLeft.y = (y1 == -1) ? topLeft.y : other.topLeft.y;
+                result.bottomRight.y = (y2 == 1) ? bottomRight.y : other.bottomRight.y;
+            }
+            return result;
+        }
+    private:
+        static int CategoriseEnd(Unit end, Unit a, Unit b)
+        {
+            if (end < a)
+                return -1;
+            if (end > b)
+                return 1;
+            return 0;   // It's between a and b
         }
     } Rect2D;
+    typedef struct Frame2D {
+        Point2D origin, size;
+        bool Contains(Point2D point) const
+        {
+            return (origin.x <= point.x) && (origin.y <= point.y) && ((point.x - origin.x) < size.x) && ((point.y - origin.y) < size.y);
+        }
+    } Frame2D;
+    static inline Frame2D Convert(const Rect2D &rect)
+    {
+        return (Frame2D){rect.topLeft, {rect.bottomRight.x - rect.topLeft.x, rect.bottomRight.y - rect.topLeft.y}};
+    }
+    static inline Rect2D Convert(const Frame2D &frame)
+    {
+        return (Rect2D){frame.origin, {frame.origin.x + frame.size.x, frame.origin.y + frame.size.y}};
+    }
     
     class Matrix2D : public Library::Maths::Matrix<Unit, 3>
     {
@@ -41,6 +116,27 @@ namespace Graphics {
                 ((*this)(2, 0) * point.x) + ((*this)(2, 1) * point.y) + (*this)(2, 2),
             };
             return (Point2D){result[0] / result[2], result[1] / result[2]};
+        }
+        Rect2D Apply(const Rect2D &area) const
+        {
+            Graphics::Point2D bounds[] = {
+                Apply(area.topLeft),
+                Apply(area.bottomRight),
+                Apply((Graphics::Point2D){area.topLeft.x, area.bottomRight.y}),
+                Apply((Graphics::Point2D){area.bottomRight.x, area.topLeft.y}),
+            };
+            Graphics::Rect2D result = (Graphics::Rect2D){bounds[0], bounds[0]};
+            for (int i = 1; i < 4; i++) {
+                if (bounds[i].x < result.topLeft.x)
+                    result.topLeft.x = bounds[i].x;
+                if (bounds[i].x > result.bottomRight.x)
+                    result.bottomRight.x = bounds[i].x;
+                if (bounds[i].y < result.topLeft.y)
+                    result.topLeft.y = bounds[i].y;
+                if (bounds[i].y > result.bottomRight.y)
+                    result.bottomRight.y = bounds[i].y;
+            }
+            return result;
         }
         Matrix2D Invert(void) const
         {
@@ -128,6 +224,14 @@ namespace Graphics {
             });
             
         }
+        static Path Rect(const Rect2D &rect)
+        {
+            Graphics::Path result(rect.topLeft);
+            result.LineTo((Graphics::Point2D){rect.bottomRight.x, rect.topLeft.y});
+            result.LineTo(rect.bottomRight);
+            result.LineTo((Graphics::Point2D){rect.topLeft.x, rect.bottomRight.y});
+            return result;
+        }
         Rect2D Bounds(void) const
         {
             Rect2D result;
@@ -193,45 +297,75 @@ namespace Graphics {
         UInt32 _width, _height;
         UInt8 *_data;
     };
+
+    /* Internal classes */
+    class Clipping
+    {
+    public:
+        Clipping(const Path &path, const Clipping *parent);
+        Clipping(const Clipping &other);
+        const Rect2D& Bounds(void) const { return _bounds; }
+        const Library::Array<Library::Array<int>>& Clippings(void) const { return _clippings; }
+    private:
+        Rect2D _bounds;
+        Library::Array<Library::Array<int>> _clippings;
+    };
+    class State
+    {
+    public:
+        State(Rect2D frame, const State *parent)
+        :matrix(true), clipping(Path::Rect(frame), parent ? &parent->clipping : NULL)
+        {
+            if (parent)
+                matrix = parent->matrix;
+        }
+        State(const State &other)
+        :matrix(other.matrix), clipping(other.clipping)
+        {
+        }
+        
+        Matrix2D matrix;
+        Clipping clipping;
+    };
     
+    /* A nice graphics context */
     class Context
     {
     private:
-        class State
-        {
-        public:
-            State()
-            :matrix(true)
-            {
-            }
-            State(const State &other)
-            :matrix(other.matrix)
-            {
-            }
-            
-            Matrix2D matrix;
-        };
         
         Library::Array<State> _states;
         FrameBuffer &_target;
+        const Context *_parent;
         
     public:
         Context(FrameBuffer &target)
-        :_target(target)
+        :_target(target), _parent(NULL)
         {
-            _states.Add(State());
+            _states.Add(State((Rect2D){{0, 0}, {Unit(target.Width()), Unit(target.Height())}}, NULL));
+        }
+        Context(const Context &parent)
+        :_target(parent._target), _parent(&parent)
+        {
+            _states.Add(State((Rect2D){{0, 0}, {Unit(_target.Width()), Unit(_target.Height())}}, &_parent->_states[0]));
         }
         
         // Management
         void Push(void)
         {
-            _states.Insert(0, _states[0]);
+            State state = _states[0];
+            _states.Insert(0, state);
         }
         void Pop(void)
         {
-            _states.Remove(0);
-            if (_states.Count() == 0)
+            if (_states.Count() == 1)
                 /* TODO: error */;
+            else
+                _states.Remove(0);
+        }
+        
+        void SetClipping(const Path &path)
+        {
+            _states[0].clipping = Clipping(path.Apply(_states[0].matrix), _parent ? &_parent->_states[0].clipping : NULL);
         }
         
         // Matrix
@@ -263,6 +397,15 @@ namespace Graphics {
                 0, 0, 1
             };
             _states[0].matrix *= Matrix2D(matrix);
+        }
+        void Apply(Matrix2D transform)
+        {
+            _states[0].matrix *= transform;
+        }
+        
+        const Matrix2D& CurrentTransform(void) const
+        {
+            return _states[0].matrix;
         }
         
         void DrawPolygon(const Path &path, const Colour &colour);  // Solid fill

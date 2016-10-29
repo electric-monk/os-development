@@ -221,29 +221,64 @@ namespace Graphics {
         }
     };
     
-    template<class Filler, class Source> void FillPolygon(Filler &output, Source &source, const Path &path)
+    static void ComputePolygonLine(Library::Array<int> &nodeX, const Path &path, Unit y)
     {
-        Rect2D bounds = path.Bounds();
+        Path::Entry *previous = (Path::Entry*)&(*(path.End() - 1));
+        Library::ForEach(path, [&](const Path::Entry &entry){
+            if (   ((entry._point.y < y)
+                    &&  (previous->_point.y >= y))
+                || ((previous->_point.y < y)
+                    &&  (entry._point.y >= y))) {
+                    nodeX.Add(entry._point.x + (y - entry._point.y) / (previous->_point.y - entry._point.y) * (previous->_point.x - entry._point.x));
+                }
+            previous = (Path::Entry*)&entry;
+            return true;
+        });
+        Library::Sort(nodeX.Start(), nodeX.End(), [](int &a, int &b){
+            return a < b;
+        });
+    }
+    
+    static Library::Array<int> CombinePolygonLines(const Library::Array<int> &first, const Library::Array<int> &second)
+    {
+        Library::Array<int> result;
+        
+        for (auto it = first.Start(); it != first.End();) {
+            // Read values
+            int a1 = *it;
+            it++;
+            int a2 = *it;
+            it++;
+            // Search in second set
+            for (auto jt = second.Start(); jt != second.End();) {
+                // Read values
+                int b1 = *jt;
+                jt++;
+                int b2 = *jt;
+                jt++;
+                // See if we're out of range
+                if (b1 > a2)
+                    break;
+                if (b2 < a1)
+                    continue;
+                // Add it apparently
+                result.Add((a1 > b1) ? a1 : b1);
+                result.Add((a2 > b2) ? b2 : a2);
+            }
+        }
+        return result;
+    }
+    
+    template<class Filler, class Source> void FillPolygon(Filler &output, Source &source, const State &state, const Path &path)
+    {
+        Rect2D bounds = path.Bounds().Intersection(state.clipping.Bounds());
         source.SetBounds(bounds);
 //        int leftX = bounds.topLeft.x, rightX = bounds.bottomRight.x;
         int topY = bounds.topLeft.y, bottomY = bounds.bottomRight.y;
-        for (int y = topY; y <= bottomY; y++) {
+        for (int y = topY; y < bottomY; y++) {
             Library::Array<int> nodeX;
-            Path::Entry *previous = (Path::Entry*)&(*(path.End() - 1));
-            Unit uY = y;
-            Library::ForEach(path, [&](const Path::Entry &entry){
-                if (   ((entry._point.y < uY)
-                    &&  (previous->_point.y >= uY))
-                    || ((previous->_point.y < uY)
-                    &&  (entry._point.y >= uY))) {
-                        nodeX.Add(entry._point.x + (uY - entry._point.y) / (previous->_point.y - entry._point.y) * (previous->_point.x - entry._point.x));
-                }
-                previous = (Path::Entry*)&entry;
-                return true;
-            });
-            Library::Sort(nodeX.Start(), nodeX.End(), [](int &a, int &b){
-                return a < b;
-            });
+            ComputePolygonLine(nodeX, path, y);
+            nodeX = CombinePolygonLines(nodeX, state.clipping.Clippings()[y - topY]);
             for (auto it = nodeX.Start(); it != nodeX.End();) {
                 // Read values
                 int x1 = *it;
@@ -257,6 +292,31 @@ namespace Graphics {
         }
     }
     
+    Clipping::Clipping(const Path &path, const Clipping *parent)
+    {
+        _bounds = path.Bounds();
+        Rect2D otherBounds;
+        if (parent) {
+            otherBounds = parent->Bounds();
+            _bounds = otherBounds.Intersection(_bounds);
+        }
+        int y0 = _bounds.topLeft.y;
+        int y1 = _bounds.bottomRight.y;
+        for (int y = y0; y < y1; y++) {
+            Library::Array<int> nodeX;
+            ComputePolygonLine(nodeX, path, y);
+            if (parent)
+                nodeX = CombinePolygonLines(nodeX, parent->_clippings[y - parent->_bounds.topLeft.y]);
+            _clippings.Add(nodeX);
+        }
+        _bounds.topLeft.y = y0;
+        _bounds.bottomRight.y = y1;
+    }
+    
+    Clipping::Clipping(const Clipping &other)
+    :_bounds(other._bounds), _clippings(other._clippings)
+    {
+    }
     
     class GradientColour
     {
@@ -300,39 +360,39 @@ namespace Graphics {
         }
     };
     
-    template<class Source> void DrawSomething(FrameBuffer &target, const Matrix2D &matrix, const Path &path, Source &source)
+    template<class Source> void DrawSomething(FrameBuffer &target, const State &state, const Path &path, Source &source)
     {
-        source.SetMatrix(matrix.Invert());
-        Path transformedPath = path.Apply(matrix);
+        source.SetMatrix(state.matrix.Invert());
+        Path transformedPath = path.Apply(state.matrix);
         switch (target.Type()) {
             case FrameBuffer::Format24RGB:
             {
                 PixelHelper<F24RGB, Source> helper(target, source);
-                FillPolygon(helper, source, transformedPath);
+                FillPolygon(helper, source, state, transformedPath);
             }
                 break;
             case FrameBuffer::Format24BGR:
             {
                 PixelHelper<F24BGR, Source> helper(target, source);
-                FillPolygon(helper, source, transformedPath);
+                FillPolygon(helper, source, state, transformedPath);
             }
                 break;
             case FrameBuffer::Format32RGBA:
             {
                 PixelHelper<F32RGBA, Source> helper(target, source);
-                FillPolygon(helper, source, transformedPath);
+                FillPolygon(helper, source, state, transformedPath);
             }
                 break;
             case FrameBuffer::Format32RGBx:
             {
                 PixelHelper<F32RGBx, Source> helper(target, source);
-                FillPolygon(helper, source, transformedPath);
+                FillPolygon(helper, source, state, transformedPath);
             }
                 break;
             case FrameBuffer::Format32BGRx:
             {
                 PixelHelper<F32BGRx, Source> helper(target, source);
-                FillPolygon(helper, source, transformedPath);
+                FillPolygon(helper, source, state, transformedPath);
             }
                 break;
         }
@@ -363,7 +423,7 @@ namespace Graphics {
     void Context::DrawPolygon(const Path &path, const Colour &colour)
     {
         ConstantColour helper(colour);
-        DrawSomething(_target, _states[0].matrix, path, helper);
+        DrawSomething(_target, _states[0], path, helper);
     }
 
     template<class Source> class BitmapDrawer
@@ -398,19 +458,31 @@ namespace Graphics {
             case FrameBuffer::Format24RGB:
             {
                 BitmapDrawer<F24RGB> reader(bitmap);
-                DrawSomething(_target, _states[0].matrix, path, reader);
+                DrawSomething(_target, _states[0], path, reader);
             }
                 break;
             case FrameBuffer::Format32RGBA:
             {
                 BitmapDrawer<F32RGBA> reader(bitmap);
-                DrawSomething(_target, _states[0].matrix, path, reader);
+                DrawSomething(_target, _states[0], path, reader);
             }
                 break;
             case FrameBuffer::Format32RGBx:
             {
                 BitmapDrawer<F32RGBx> reader(bitmap);
-                DrawSomething(_target, _states[0].matrix, path, reader);
+                DrawSomething(_target, _states[0], path, reader);
+            }
+                break;
+            case FrameBuffer::Format32BGRx:
+            {
+                BitmapDrawer<F32BGRx> reader(bitmap);
+                DrawSomething(_target, _states[0], path, reader);
+            }
+                break;
+            case FrameBuffer::Format24BGR:
+            {
+                BitmapDrawer<F24BGR> reader(bitmap);
+                DrawSomething(_target, _states[0], path, reader);
             }
                 break;
         }
