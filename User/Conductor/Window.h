@@ -1,5 +1,5 @@
 //
-//  Window.hpp
+//  Window.h
 //  TestOSGraphics
 //
 //  Created by Colin David Munro on 8/10/2016.
