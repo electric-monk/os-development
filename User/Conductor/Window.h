@@ -16,7 +16,7 @@ namespace Window {
     class Window
     {
     public:
-        Window(Graphics::Frame2D frame):_transform(true),_frame(frame),_parent(NULL),_level(0){}
+        Window(Graphics::Frame2D frame):_transform(true),_frame(frame),_parent(NULL),_level(0),_hidden(false){}
         virtual ~Window(); // any windows left in vector will be deleted
         
         // Frame is parent coordinates
@@ -38,8 +38,13 @@ namespace Window {
         void AddChild(Window *window);
         void RemoveChild(Window *window);
         
+        void SetHidden(bool hidden);
+        bool Hidden(void) const { return _hidden; }
+        
         void SetLevel(SInt32 level);
         SInt32 Level(void) const;
+        
+        virtual void SetFocused(bool focus) {}
         
         const Library::Array<Window*>& Children(void) const { return _children; }
         
@@ -53,6 +58,8 @@ namespace Window {
     protected:
         virtual void Draw(Graphics::Context &context, Graphics::Rect2D region) {/*for subclasses to implement*/}
         virtual bool IsOpaque(void) {return false;}
+        virtual void Resized(void) {}
+        virtual bool WantTouch(Graphics::Point2D location) const { return true; }
         
         void SetLevelWithoutDirty(SInt32 level) { _level = level; }
         
@@ -64,6 +71,7 @@ namespace Window {
         SInt32 _level;
         Library::Array<Window*> _children;
         Graphics::Matrix2D _transform;
+        bool _hidden;
     };
     
     class BitmapWindow : public Window
@@ -84,12 +92,16 @@ namespace Window {
         void SetStretchMode(Mode mode);
         Mode StretchMode(void);
         
+        void SetTint(const Graphics::Colour &tint);
+        const Graphics::Colour& Tint(void) const { return _tint; }
+        
     protected:
         void Draw(Graphics::Context &context, Graphics::Rect2D region);
         
     private:
         const Graphics::FrameBuffer *_bitmap;
         Mode _mode;
+        Graphics::Colour _tint;
     };
     
     class ColourWindow : public Window
@@ -176,11 +188,13 @@ namespace Window {
                     SInt32 levelGap = (LEVEL_MAX - LEVEL_MIN) / (adjustableChildren.Count() + 2);
                     SInt32 count = levelGap;
                     Library::ForEach(adjustableChildren, [&](const Window *window){
+                        ((Window*)window)->SetFocused(false);
                         ((Window*)window)->SetLevelWithoutDirty(count);
                         count += levelGap;
                         return true;
                     });
                     ((Window*)newTop)->SetLevel(count);
+                    ((Window*)newTop)->SetFocused(true);
                 }
             }
         }

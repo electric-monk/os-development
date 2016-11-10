@@ -6,7 +6,7 @@
 //  Copyright © 2016 MICE Software. All rights reserved.
 //
 
-#include "Window.hpp"
+#include "Window.h"
 #include <stdio.h>
 
 namespace Window {
@@ -22,6 +22,7 @@ namespace Window {
     {
         SetDirty();
         _frame = frame;
+        Resized();  // TODO: Only for size?
         SetDirty();
     }
     
@@ -29,6 +30,7 @@ namespace Window {
     {
         SetDirty();
         _frame.size = Convert(_transform.Invert().Apply(Convert(bounds))).size;
+        Resized();
         SetDirty();
     }
 
@@ -69,6 +71,8 @@ namespace Window {
         Draw(subcontext, projectedRegion);
         // TODO: Use opaque info to work out what to draw
         Library::ForEach(_children, [&](Window *child){
+            if (child->Hidden())
+                return true;
             subcontext.Push();
             Graphics::Frame2D frame = child->Frame();
             subcontext.Translate(frame.origin.x, frame.origin.y);
@@ -100,6 +104,14 @@ namespace Window {
         window->_parent = NULL;
     }
     
+    void Window::SetHidden(bool hidden)
+    {
+        if (_hidden == hidden)
+            return;
+        SetDirty();
+        _hidden = hidden;
+    }
+    
     void Window::SetLevel(SInt32 level)
     {
         if (level == _level)
@@ -125,9 +137,12 @@ namespace Window {
     
     void Window::HitTest(Library::Array<const Window*> &result, Graphics::Point2D location) const
     {
+        if (Hidden())
+            return;
         if (!Frame().Contains(location))
             return;
-        result.Add(this);
+        if (WantTouch(location))
+            result.Add(this);
         location.x -= _frame.origin.x;
         location.y -= _frame.origin.y;
         Graphics::Point2D transformed = _transform.Apply(location);
@@ -173,12 +188,12 @@ namespace Window {
     }
     
     BitmapWindow::BitmapWindow(Graphics::Frame2D frame)
-    :Window(frame), _bitmap(NULL), _mode(StretchNone)
+    :Window(frame), _bitmap(NULL), _mode(StretchNone), _tint((Graphics::Colour){0xff, 0xff, 0xff, 0xff})
     {
     }
     
     BitmapWindow::BitmapWindow(const Graphics::FrameBuffer &buffer)
-    :Window((Graphics::Frame2D){{0, 0}, {Graphics::Unit(buffer.Width()), Graphics::Unit(buffer.Height())}}), _bitmap(&buffer), _mode(StretchNone)
+    :Window((Graphics::Frame2D){{0, 0}, {Graphics::Unit(buffer.Width() + 1), Graphics::Unit(buffer.Height() + 1)}}), _bitmap(&buffer), _mode(StretchNone), _tint((Graphics::Colour){0xff, 0xff, 0xff, 0xff})
     {
     }
     
@@ -197,6 +212,12 @@ namespace Window {
         if (_mode == mode)
             return;
         _mode = mode;
+        SetDirty();
+    }
+    
+    void BitmapWindow::SetTint(const Graphics::Colour &tint)
+    {
+        _tint = tint;
         SetDirty();
     }
     
@@ -229,7 +250,7 @@ namespace Window {
             default:
                 break;
         }
-        context.DrawBitmap(Graphics::Path::Rect(Convert(Bounds())/*.Intersection(region)*/), *_bitmap);
+        context.DrawBitmapTinted(Graphics::Path::Rect(Convert(Bounds())/*.Intersection(region)*/), *_bitmap, _tint);
         context.Pop();
     }
 
