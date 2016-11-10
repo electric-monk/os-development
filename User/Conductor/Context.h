@@ -270,6 +270,7 @@ namespace Graphics {
             Format32RGBA,   // Fourth byte is alpha
             Format32RGBx,   // Fourth byte is nothing
             Format32BGRx,   // Fourth byte is nothing
+            Format8GA,      // Grayscale, gray + alpha
         } Format;
 
         virtual ~FrameBuffer() {}
@@ -283,9 +284,12 @@ namespace Graphics {
     class Bitmap : public FrameBuffer
     {
     public:
+        Bitmap();
         Bitmap(UInt32 width, UInt32 height, Format type, const UInt8 *data = NULL);
         Bitmap(const Bitmap &other);
         ~Bitmap();
+        
+        Bitmap& operator =(const Bitmap &other);
         
         Format Type(void) const;
         UInt32 Width(void) const;
@@ -411,6 +415,8 @@ namespace Graphics {
         void DrawPolygon(const Path &path, const Colour &colour);  // Solid fill
         void DrawBitmap(const Path &path, const FrameBuffer &bitmap); // Bitmap fill
         void DrawBitmap(const FrameBuffer &bitmap); // Bitmap fill
+        void DrawBitmapTinted(const Path &path, const FrameBuffer &bitmap, const Colour &tint); // Bitmap fill
+        void DrawBitmapTinted(const FrameBuffer &bitmap, const Colour &tint); // Bitmap fill
         void DrawLine(const Path &path, const Colour &colour, Unit width);  // Lines only
         // TODO: gradient
     };

@@ -20,6 +20,8 @@ namespace Graphics {
             case Bitmap::Format32BGRx:
             case Bitmap::Format32RGBA:
                 return 4;
+            case Bitmap::Format8GA:
+                return 2;
         }
     }
 
@@ -45,9 +47,29 @@ namespace Graphics {
         CopyMemory(_data, other._data, memSize);
     }
 
+    Bitmap::Bitmap()
+    :_width(0), _height(0), _format(Graphics::Bitmap::Format8GA)
+    {
+        _data = new UInt8[0];
+    }
+
     Bitmap::~Bitmap()
     {
         delete[] _data;
+    }
+    
+    Bitmap& Bitmap::operator =(const Bitmap &other)
+    {
+        if (this != &other) {
+            delete[] _data;
+            _width = other._width;
+            _height = other._height;
+            _format = other._format;
+            UInt32 memSize = _width * _height * ::Graphics::PixelSize(_format);
+            _data = new UInt8[memSize];
+            CopyMemory(_data, other._data, memSize);
+        }
+        return *this;
     }
     
     Bitmap::Format Bitmap::Type(void) const
@@ -156,6 +178,25 @@ namespace Graphics {
             return 4;
         }
     };
+    class F8GA {
+    public:
+        static inline Colour Read(UInt8 *pixel)
+        {
+            Colour result;
+            result.red = result.green = result.blue = pixel[0];
+            result.alpha = pixel[1];
+            return result;
+        }
+        static inline void Write(UInt8 *pixel, const Colour &value)
+        {
+            pixel[0] = UInt8((UInt32(value.red) + UInt32(value.green) + UInt32(value.blue)) / 3);
+            pixel[1] = value.alpha;
+        }
+        static inline int Size(void)
+        {
+            return 2;
+        }
+    };
     
     // Drawing functions
     
@@ -225,10 +266,11 @@ namespace Graphics {
     {
         Path::Entry *previous = (Path::Entry*)&(*(path.End() - 1));
         Library::ForEach(path, [&](const Path::Entry &entry){
-            if (   ((entry._point.y < y)
+            if (   (((entry._point.y <= y)
                     &&  (previous->_point.y >= y))
-                || ((previous->_point.y < y)
-                    &&  (entry._point.y >= y))) {
+                || ((previous->_point.y <= y)
+                    &&  (entry._point.y >= y)))
+                && (entry._point.y != previous->_point.y)) {
                     nodeX.Add(entry._point.x + (y - entry._point.y) / (previous->_point.y - entry._point.y) * (previous->_point.x - entry._point.x));
                 }
             previous = (Path::Entry*)&entry;
@@ -275,7 +317,7 @@ namespace Graphics {
         source.SetBounds(bounds);
 //        int leftX = bounds.topLeft.x, rightX = bounds.bottomRight.x;
         int topY = bounds.topLeft.y, bottomY = bounds.bottomRight.y;
-        for (int y = topY; y < bottomY; y++) {
+        for (int y = topY; y <= bottomY; y++) {
             Library::Array<int> nodeX;
             ComputePolygonLine(nodeX, path, y);
             nodeX = CombinePolygonLines(nodeX, state.clipping.Clippings()[y - topY]);
@@ -302,7 +344,7 @@ namespace Graphics {
         }
         int y0 = _bounds.topLeft.y;
         int y1 = _bounds.bottomRight.y;
-        for (int y = y0; y < y1; y++) {
+        for (int y = y0; y <= y1; y++) {
             Library::Array<int> nodeX;
             ComputePolygonLine(nodeX, path, y);
             if (parent)
@@ -392,6 +434,12 @@ namespace Graphics {
             case FrameBuffer::Format32BGRx:
             {
                 PixelHelper<F32BGRx, Source> helper(target, source);
+                FillPolygon(helper, source, state, transformedPath);
+            }
+                break;
+            case FrameBuffer::Format8GA:
+            {
+                PixelHelper<F8GA, Source> helper(target, source);
                 FillPolygon(helper, source, state, transformedPath);
             }
                 break;
@@ -485,6 +533,12 @@ namespace Graphics {
                 DrawSomething(_target, _states[0], path, reader);
             }
                 break;
+            case FrameBuffer::Format8GA:
+            {
+                BitmapDrawer<F8GA> reader(bitmap);
+                DrawSomething(_target, _states[0], path, reader);
+            }
+                break;
         }
     }
     void Context::DrawBitmap(const FrameBuffer &bitmap)
@@ -495,7 +549,77 @@ namespace Graphics {
         temp.LineTo((Graphics::Point2D){0, Graphics::Unit(bitmap.Height())});
         DrawBitmap(temp, bitmap);
     }
-    
+
+    template<class Source> class BitmapTinter : public BitmapDrawer<Source>
+    {
+    public:
+        BitmapTinter(const FrameBuffer &bitmap, const Colour &tint)
+        :BitmapDrawer<Source>(bitmap), _colour(tint)
+        {
+        }
+        const Colour Read(UInt32 x, UInt32 y) const
+        {
+            Colour temp = BitmapDrawer<Source>::Read(x, y);
+            return (Colour){
+                UInt8((UInt32(temp.red) * UInt32(_colour.red)) / 255),
+                UInt8((UInt32(temp.green) * UInt32(_colour.green)) / 255),
+                UInt8((UInt32(temp.blue) * UInt32(_colour.blue)) / 255),
+                UInt8((UInt32(temp.alpha) * UInt32(_colour.alpha)) / 255)
+            };
+        }
+    private:
+        Colour _colour;
+    };
+    void Context::DrawBitmapTinted(const Path &path, const FrameBuffer &bitmap, const Colour &tint)
+    {
+        switch (bitmap.Type()) {
+            case FrameBuffer::Format24RGB:
+            {
+                BitmapTinter<F24RGB> reader(bitmap, tint);
+                DrawSomething(_target, _states[0], path, reader);
+            }
+                break;
+            case FrameBuffer::Format32RGBA:
+            {
+                BitmapTinter<F32RGBA> reader(bitmap, tint);
+                DrawSomething(_target, _states[0], path, reader);
+            }
+                break;
+            case FrameBuffer::Format32RGBx:
+            {
+                BitmapTinter<F32RGBx> reader(bitmap, tint);
+                DrawSomething(_target, _states[0], path, reader);
+            }
+                break;
+            case FrameBuffer::Format32BGRx:
+            {
+                BitmapTinter<F32BGRx> reader(bitmap, tint);
+                DrawSomething(_target, _states[0], path, reader);
+            }
+                break;
+            case FrameBuffer::Format24BGR:
+            {
+                BitmapTinter<F24BGR> reader(bitmap, tint);
+                DrawSomething(_target, _states[0], path, reader);
+            }
+                break;
+            case FrameBuffer::Format8GA:
+            {
+                BitmapTinter<F8GA> reader(bitmap, tint);
+                DrawSomething(_target, _states[0], path, reader);
+            }
+                break;
+        }
+    }
+    void Context::DrawBitmapTinted(const FrameBuffer &bitmap, const Colour &tint)
+    {
+        Graphics::Path temp((Graphics::Point2D){0, 0});
+        temp.LineTo((Graphics::Point2D){Graphics::Unit(bitmap.Width()), 0});
+        temp.LineTo((Graphics::Point2D){Graphics::Unit(bitmap.Width()), Graphics::Unit(bitmap.Height())});
+        temp.LineTo((Graphics::Point2D){0, Graphics::Unit(bitmap.Height())});
+        DrawBitmapTinted(temp, bitmap, tint);
+    }
+
     static void LineRecurse(Path &result, Library::Array<Path::Entry>::ConstIterator start, Library::Array<Path::Entry>::ConstIterator end, const Path::Entry &previous, Unit width)
     {
 //        if (start == end)
