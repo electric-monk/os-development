@@ -8,7 +8,7 @@
 
 #include "TestFont.hpp"
 namespace ZeppFont {
-#include "kernel.font.h"
+#include "../../Kernel/Kernel/kernel.font.h"
 }
 
 TestFont::TestFont()

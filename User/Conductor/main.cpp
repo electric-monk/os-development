@@ -5,6 +5,8 @@
 #include "Collections.h"
 #include "System.h"
 #include "IPC.h"
+#include "Window.h"
+#include "Controls.h"
 
 #include "../../Kernel/Kernel/Interface_Mouse.h"
 #include "../../Kernel/Kernel/Interface_Keyboard.h"
@@ -186,8 +188,9 @@ extern "C" void sysmain(void)
     SimpleSink *videoMode = NULL;
     SystemFramebuffer screenFramebuffer;
     Graphics::Bitmap *offscreenFramebuffer;
+    Window::Desktop<Window::ColourWindow> *desktop = NULL;
+    Graphics::Point2D mouseLocation = (Graphics::Point2D){10, 10};
     
-    Graphics::FrameBuffer *_squirrel = SquirrelTest::Get();
     int _count = 0;
     Graphics::Path _star((Graphics::Point2D){50, 0});
     _star.LineTo((Graphics::Point2D){65, 100});
@@ -198,6 +201,28 @@ extern "C" void sysmain(void)
     Graphics::Path _circle((Graphics::Point2D){50, 50});
     for (Graphics::Unit i = 0; i < 2*3.1415; i+=0.1)
         _circle.LineTo((Graphics::Point2D){50 + 40 * Library::Maths::Cosine(i), 50 + 40 * Library::Maths::Sine(i)});
+    
+    auto refresh = [&]{
+        Graphics::Rect2D area;
+        if (desktop->Update(&area)) {
+            UInt32 pixelStep = screenFramebuffer.PixelSize();
+            UInt32 width = screenFramebuffer.Width();
+            UInt8 *outBuf = screenFramebuffer.Buffer();
+            UInt8 *inBuf = offscreenFramebuffer->Buffer();
+            UInt32 start = ((area.topLeft.y * width) + area.topLeft.x) * pixelStep;
+            outBuf += start;
+            inBuf += start;
+            UInt32 count = area.bottomRight.y - area.topLeft.y;
+            UInt32 copyWidth = (area.bottomRight.x - area.topLeft.x) * pixelStep;
+            UInt32 stepWidth = width * pixelStep;
+            while (count) {
+                CopyFast(outBuf, inBuf, copyWidth);
+                count--;
+                inBuf += stepWidth;
+                outBuf += stepWidth;
+            }
+        }
+    };
     
     EventLoop loop;
     
@@ -214,12 +239,33 @@ extern "C" void sysmain(void)
                 {
                     Interface_Mouse::Button *button = (Interface_Mouse::Button*)event;
                     // BUTAN
+                    if (!desktop)
+                        break;
+                    if (button->down)
+                        desktop->TouchDown(button->index, mouseLocation);
+                    else
+                        desktop->TouchUp(button->index, mouseLocation);
+                    refresh();
                     break;
                 }
                 case Interface_Mouse::Event::Motion:
                 {
                     Interface_Mouse::Motion *motion = (Interface_Mouse::Motion*)event;
                     // MOVE
+                    if (!desktop)
+                        break;
+                    mouseLocation.x += motion->x;
+                    mouseLocation.y -= motion->y;
+                    if (mouseLocation.x < 0)
+                        mouseLocation.x = 0;
+                    else if (mouseLocation.x > (desktop->Frame().size.x - 1))
+                        mouseLocation.x = desktop->Frame().size.x - 1;
+                    if (mouseLocation.y < 0)
+                        mouseLocation.y = 0;
+                    else if (mouseLocation.y > (desktop->Frame().size.y - 1))
+                        mouseLocation.y = desktop->Frame().size.y - 1;
+                    desktop->TouchMove(mouseLocation);
+                    refresh();
                     break;
                 }
             }
@@ -366,33 +412,28 @@ extern "C" void sysmain(void)
                             // SCREEN
                             screenFramebuffer.SetBuffer(releaser, buffer);
                             offscreenFramebuffer = new Graphics::Bitmap(screenFramebuffer.Width(), screenFramebuffer.Height(), screenFramebuffer.Type());
-                            Kernel::Blocking::Timer *timer = Kernel::Blocking::Timer::Create();
-                            loop.AddSource(timer, [&](Kernel::Blocking::Blockable *trigger, Kernel::Collections::Array *others){
-                                Graphics::Context context(*offscreenFramebuffer);
-                                Graphics::Path rect((Graphics::Point2D){0, 0});
-                                rect.LineTo((Graphics::Point2D){screenFramebuffer.Width(), 0});
-                                rect.LineTo((Graphics::Point2D){screenFramebuffer.Width(), screenFramebuffer.Height()});
-                                rect.LineTo((Graphics::Point2D){0, screenFramebuffer.Height()});
-                                context.DrawPolygon(rect, Graphics::Colour::White);
-                                context.Push();
-                                context.Translate(50, 50);
-                                context.Rotate(_count * 0.02);
-                                context.Translate(-50, -50);
-                                context.DrawLine(_circle, Graphics::Colour::Black, (_count & 0xFFF) / 32.0);
-                                context.Pop();
-                                context.Translate(200, 200);
-                                context.Rotate(_count * 0.01);
-                                context.Translate(-50, -50);
-                                context.DrawPolygon(_star, (Graphics::Colour){0xff,0x00,0x00,UInt8(_count)});//(Graphics::Colour){static_cast<UInt8>(_count), static_cast<UInt8>(_count >> 8), static_cast<UInt8>(_count >> 16), 0xff});
-                                context.DrawLine(_star, Graphics::Colour::Black, 4);
-                                context.Rotate(-_count * 0.01);
-                                context.Scale(Library::Maths::Cosine(_count * 0.05) + 1.5, Library::Maths::Cosine(_count * 0.05) + 1.5);
-                                context.Rotate(Library::Maths::Cosine(_count * 0.1) * 0.5);
-                                context.DrawBitmap(*_squirrel);
-                                _count += 3;
-                                CopyFast(screenFramebuffer.Buffer(), offscreenFramebuffer->Buffer(), screenFramebuffer.Width() * screenFramebuffer.Height() * screenFramebuffer.PixelSize());
-                            });
-                            timer->Reset(MILLISECONDS(1), true);
+                            desktop = new Window::Desktop<Window::ColourWindow>(*offscreenFramebuffer);
+                            desktop->SetColour((Graphics::Colour){128, 128, 255, 0xff});
+                            
+                            // Set up some mouse
+                            Window::Window *mouse = new Window::BitmapWindow(*SquirrelTest::Get());
+                            desktop->AddChild(mouse);
+                            desktop->SetMouseCursor(mouse, (Graphics::Point2D){0, 0});
+                            mouse->SetLevel(100000000);
+                            desktop->TouchMove(mouseLocation);
+                            
+                            // Add some windows
+                            Controls::MainWindow *mainWindow = new Controls::MainWindow((Graphics::Frame2D){{200, 200}, {100, 100}});
+                            desktop->AddChild(mainWindow);
+                            mainWindow->SetTitle("Hello");
+                            mainWindow->SetFlags(Controls::MainWindow::FlagClosable);
+                            
+                            Controls::MainWindow *secondWindow = new Controls::MainWindow((Graphics::Frame2D){{300, 300}, {150, 100}});
+                            desktop->AddChild(secondWindow);
+                            secondWindow->SetTitle("Taunt");
+                            secondWindow->SetFlags(Controls::MainWindow::FlagSizable);
+
+                            refresh();
                         }
                         break;
                     }

@@ -54,14 +54,14 @@ namespace Window {
         virtual bool TouchDown(Graphics::Point2D position, int button); // Return true if you want to handle this touch - false will fall through
         virtual void TouchDrag(Graphics::Point2D position, int button);
         virtual void TouchUp(Graphics::Point2D position, int button);
+
+        void SetLevelWithoutDirty(SInt32 level) { _level = level; }
         
     protected:
         virtual void Draw(Graphics::Context &context, Graphics::Rect2D region) {/*for subclasses to implement*/}
         virtual bool IsOpaque(void) {return false;}
         virtual void Resized(void) {}
         virtual bool WantTouch(Graphics::Point2D location) const { return true; }
-        
-        void SetLevelWithoutDirty(SInt32 level) { _level = level; }
         
     private:
         void UpdateLevels();
@@ -125,7 +125,7 @@ namespace Window {
     {
     public:
         Desktop(Graphics::FrameBuffer &output)
-        :Background((Graphics::Frame2D){{0, 0}, {Graphics::Unit(output.Width()), Graphics::Unit(output.Height())}}), _output(output), _dirty(false)
+        :Background((Graphics::Frame2D){{0, 0}, {Graphics::Unit(output.Width()), Graphics::Unit(output.Height())}}), _output(output), _dirty(false), _mousePointer(NULL)
         {
             Background::SetDirty();
         }
@@ -140,14 +140,17 @@ namespace Window {
             }
         }
         
-        void Update(void)
+        bool Update(Graphics::Rect2D *change = NULL)
         {
             if (!_dirty)
-                return;
+                return false;
             Graphics::Context context(_output);
             this->DrawAll(context, _dirtyRect);
 //            context.DrawPolygon(Graphics::Path::Rect(_dirtyRect), (Graphics::Colour){0xFF,0x00,0x00,0xa0});
             _dirty = false;
+            if (change)
+                *change = _dirtyRect;
+            return true;
         }
         
         void TouchDown(int button, Graphics::Point2D location)
@@ -198,7 +201,7 @@ namespace Window {
                 }
             }
         }
-        void TouchMove(int button, Graphics::Point2D location)
+        void TouchMove(Graphics::Point2D location)
         {
             if (_mousePointer) {
                 Graphics::Frame2D frame = _mousePointer->Frame();
@@ -206,9 +209,13 @@ namespace Window {
                 frame.origin.y = location.y - _mouseHotspot.y;
                 _mousePointer->SetFrame(frame);
             }
-            Window *window = _touches[button];
-            if (window)
-                window->TouchDrag(window->FullTransform().Invert().Apply(location), button);
+            Library::ForEach(_touches, [&](const Library::Dictionary<int, Window*>::KeyValuePair touch){
+                // TODO: stop NULL appearing
+                if (touch.value)
+                    touch.value->TouchDrag(touch.value->FullTransform().Invert().Apply(location), touch.key);
+                return true;
+            });
+            // TODO: TouchMove if not TouchDrag
         }
         void TouchUp(int button, Graphics::Point2D location)
         {

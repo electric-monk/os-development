@@ -94,7 +94,7 @@ namespace Library {
         Array()
         {
             _count = 0;
-            _max = 8;
+            _max = 512;
             _index = new char[sizeof(ObjType) * _max];
         }
         Array(const Array &other)
@@ -194,7 +194,7 @@ namespace Library {
             CheckSize();
         }
         
-        UInt32 Count(void)
+        UInt32 Count(void) const
         {
             return _count;
         }
@@ -257,7 +257,7 @@ namespace Library {
                         return;
                     }
                 }
-                _entries.Add(Entry(key, value));
+                _entries.Add(KeyValuePair(key, value));
             }
             void Remove(const KeyType &key)
             {
@@ -305,7 +305,8 @@ namespace Library {
             return _slots[index].Find(key);
         }
         
-        friend class KvpIterator;
+//        friend class KvpIterator;
+    public://for gcc
         Array<HashEntry> _slots;
         
         // TODO: resize slots
@@ -321,8 +322,13 @@ namespace Library {
             KvpIterator(const Dictionary &owner, bool end)
             :_owner(owner), _current(end ? owner._slots.End() : owner._slots.Start())
             {
-                if (!end)
+                if (!end) {
                     _active = (*_current).Start();
+                    while ((_active == (*_current).End()) && (_current != _owner._slots.End())) {
+                        _current++;
+                        _active = (*_current).Start();
+                    }
+                }
             }
             KvpIterator(const KvpIterator &other)
             :_owner(other._owner)
@@ -459,7 +465,7 @@ namespace Library {
                 return *this;
             }
             
-            operator ValueType const&()
+            operator ValueType &()
             {
                 return _entry.value;
             }

@@ -7,7 +7,6 @@
 //
 
 #include "Window.h"
-#include <stdio.h>
 
 namespace Window {
     Window::~Window()
