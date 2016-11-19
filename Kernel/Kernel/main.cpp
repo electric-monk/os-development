@@ -39,7 +39,7 @@ static inline void* FixAddress(void *address)
 
 extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
 {
-    BasicHeap mainHeap(64);
+    BasicHeap mainHeap;
 	multiboot_mmap_entry *map;
 
     s_coreHeap = &mainHeap;
