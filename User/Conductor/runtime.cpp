@@ -4,7 +4,7 @@
 
 #define DEFAULT_HEAP            64 * 1024 * 1024
 
-BasicHeap s_mainHeap(128);
+BasicHeap s_mainHeap;
 BasicHeap *s_coreHeap;
 
 extern "C" {
