@@ -38,12 +38,19 @@ protected:
         int depth;
     } MODE;
     typedef struct {
+        typedef enum {
+            Pixel24RGB,
+            Pixel24BGR,
+            Pixel32RGBx,
+            Pixel32BGRx,
+        } PixelFormat;
         // Basic data
         int width, height;
         TYPE mode;
         // Actual logistical data
         PhysicalPointer address;
-        int lineSpan, pixelSpan;
+        int lineSpan, bytesPerPixel;
+        PixelFormat format;
     } FRAMEBUFFER;
 
     // Convenient hooks

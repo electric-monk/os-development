@@ -182,7 +182,8 @@ void GenericVideo::UpdatePort(int index)
                             responseBuffer->width = info.width;
                             responseBuffer->height = info.height;
                             responseBuffer->lineSpan = info.lineSpan;
-                            responseBuffer->pixelSpan = info.pixelSpan;
+                            responseBuffer->bytesPerPixel = info.bytesPerPixel;
+                            responseBuffer->format = (Video::Buffer::PixelFormat)info.format;
                             responseMap->Release();
                             endpoint->SendBuffer(response);
                             response->Release();
@@ -192,15 +193,28 @@ void GenericVideo::UpdatePort(int index)
                             // Only do something if it's not memory mapped
                             if (message->PointerForOffset(PAGE_SIZE) != localMemory->PointerForOffset(PAGE_SIZE)) {
                                 Video::DirtyRequest *dirtyRequest = (Video::DirtyRequest*)packet;
-                                char *toPointer = ((char*)framebuffer) + ((dirtyRequest->y * info.lineSpan) + (dirtyRequest->x * info.pixelSpan));
-                                char *fromPointer = ((char*)dirtyRequest->Framebuffer()) + ((dirtyRequest->y * info.lineSpan) + (dirtyRequest->x * info.pixelSpan));
-                                int w = dirtyRequest->w * info.pixelSpan;
+                                char *toPointer = ((char*)framebuffer) + ((dirtyRequest->y * info.lineSpan) + (dirtyRequest->x * info.bytesPerPixel));
+                                char *fromPointer = ((char*)dirtyRequest->Framebuffer()) + ((dirtyRequest->y * info.lineSpan) + (dirtyRequest->x * info.bytesPerPixel));
+                                int w = dirtyRequest->w * info.bytesPerPixel;
                                 for (int i = dirtyRequest->h; i > 0; i--) {
                                     CopyMemory(toPointer, fromPointer, w);
                                     toPointer += info.lineSpan;
                                     fromPointer += info.lineSpan;
                                 }
                             }
+                            break;
+                        case Video::Request::CheckBuffer:
+                        {
+                            endpoint->SendMessage([=](void *buf){
+                                Video::Response *response = (Video::Response*)buf;
+                                response->Fill(packet);
+                                if (message->MaximumSize() < PAGE_SIZE)
+                                    response->status = Video::Response::Unsupported;
+                                else
+                                    response->status = (message->PointerForOffset(PAGE_SIZE) != localMemory->PointerForOffset(PAGE_SIZE)) ? Video::Response::Success : Video::Response::Unsupported;
+                                return true;
+                            });
+                        }
                             break;
                     }
                 };

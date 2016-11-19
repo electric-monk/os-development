@@ -178,7 +178,7 @@ void Init_Video_Multiboot(void *vbe_control_info, void *vbe_mode_info, UInt16 vb
     s_hasVBE = true;
     // Apparently we have values? Fire up the relevant console
     PhysicalPointer base = (PhysicalPointer)(s_modeInfo.phys_base & ~(PAGE_SIZE - 1));
-    void *framebuffer = rootAddressSpace.Map(fmWritable, pmKernel, base, ((s_modeInfo.phys_base - UInt32(base)) + (s_modeInfo.bytes_per_scanline * s_modeInfo.y_resolution) + PAGE_SIZE - 1) / PAGE_SIZE);
+    void *framebuffer = ((char*)rootAddressSpace.Map(fmWritable, pmKernel, base, ((s_modeInfo.phys_base - UInt32(base)) + (s_modeInfo.bytes_per_scanline * s_modeInfo.y_resolution) + PAGE_SIZE - 1) / PAGE_SIZE)) + UInt32(s_modeInfo.phys_base) - UInt32(base);
     ConfigureGraphicsConsole(framebuffer, s_modeInfo.x_resolution, s_modeInfo.y_resolution, s_modeInfo.bytes_per_scanline, s_modeInfo.bits_per_pixel);
     // Register a PCI video adapter
     MultibootVideo_Factory *mvf = new MultibootVideo_Factory();
@@ -198,12 +198,8 @@ MultibootVideo::~MultibootVideo()
 
 bool MultibootVideo::Start(Driver *parent)
 {
-    if (GenericVideo::Start(parent)) {
-        _graphical = false;
-        UpdatePort(0);
-        return true;
-    }
-    return false;
+    _graphical = false;
+    return GenericVideo::Start(parent);
 }
 
 void MultibootVideo::Stop(void)
@@ -269,7 +265,15 @@ void MultibootVideo::GetFramebuffer(int port, FRAMEBUFFER *info)
     info->width = s_modeInfo.x_resolution;
     info->height = s_modeInfo.y_resolution;
     info->lineSpan = s_modeInfo.bytes_per_scanline;
-    info->pixelSpan = s_modeInfo.bits_per_pixel / 8;
+    info->bytesPerPixel = s_modeInfo.bits_per_pixel / 8;
+    switch(s_modeInfo.bits_per_pixel) {
+        case 32:
+            info->format = (s_modeInfo.blue_field_position < s_modeInfo.red_field_position) ? FRAMEBUFFER::Pixel32BGRx : FRAMEBUFFER::Pixel32RGBx;
+            break;
+        case 24:
+            info->format = (s_modeInfo.blue_field_position < s_modeInfo.red_field_position) ? FRAMEBUFFER::Pixel24BGR : FRAMEBUFFER::Pixel24RGB;
+            break;
+    }
 }
 
 void MultibootVideo::GetConsole(int index, int *width, int *height, bool *colour, bool *cursor)

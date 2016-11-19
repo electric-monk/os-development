@@ -13,6 +13,7 @@ namespace Video {
         // To service
         static const UInt32 GetBuffer = Interface_Request::MAX + 0;         // GetBuffer -> Buffer
         static const UInt32 Dirty = Interface_Request::MAX + 1;             // DirtyRequest -> <nothing>
+        static const UInt32 CheckBuffer = Interface_Request::MAX + 2;       // DirtyRequest -> Response
         // From service
 //        static const UInt32 Buffer
     };
@@ -33,7 +34,7 @@ namespace Video {
         int requestedWidth, requestedHeight, requestedDepth;
     };
     
-    class DirtyRequest : public Request // You can cache the Buffer response and reuse it to ensure good performance
+    class DirtyRequest : public Request // You may be able to cache the Buffer response and reuse it to ensure good performance (dirty requests may still be required, for double buffering/etc.)
     {
     public:
         // The area of the buffer that was dirtied
@@ -49,10 +50,16 @@ namespace Video {
     class Buffer : public Response
     {
     public:
+        typedef enum {
+            PixelFormat24RGB,
+            PixelFormat24BGR,
+            PixelFormat32RGBx,
+            PixelFormat32BGRx,
+        } PixelFormat;
         int width, height;
-        int lineSpan, pixelSpan;
-        int depth;
-        // Following the page containing this response will be pages mapping in the video memory, which may be reused.
+        int lineSpan, bytesPerPixel;
+        PixelFormat format;
+        // Following the page containing this response may be pages mapping in the video memory, which may be reused.
         void* Framebuffer(void) { return ((unsigned char*)this) + 4096; }
     };
     
