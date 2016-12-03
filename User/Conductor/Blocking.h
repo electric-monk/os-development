@@ -38,7 +38,7 @@ namespace Kernel {
         public:
             static Timer* Create(void);
             
-            void Reset(int milliseconds, bool repeating);
+            void Reset(int microseconds, bool repeating);
             void Cancel(void);
         };
         

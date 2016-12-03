@@ -98,12 +98,12 @@ namespace Kernel {
             return (Timer*)handle;
         }
         
-        void Timer::Reset(int milliseconds, bool repeating)
+        void Timer::Reset(int microseconds, bool repeating)
         {
             int result;
             asm volatile ("int %[interrupt]"
                           : /* outputs */ "=a"(result)
-                          : /* inputs */ [interrupt]"N"(BLOCKING_SYSCALL), "a"(BLOCKING_FUNCTION_TIMER_RESET), "b"((int)this), "c"(milliseconds), "d"(repeating ? 1 : 0)
+                          : /* inputs */ [interrupt]"N"(BLOCKING_SYSCALL), "a"(BLOCKING_FUNCTION_TIMER_RESET), "b"((int)this), "c"(microseconds), "d"(repeating ? 1 : 0)
                           : /* clobbers */);
             CheckResult(BLOCKING_SYSCALL, BLOCKING_FUNCTION_TIMER_RESET, result);
         }

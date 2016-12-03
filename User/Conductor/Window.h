@@ -20,14 +20,14 @@ namespace Window {
         virtual ~Window(); // any windows left in vector will be deleted
         
         // Frame is parent coordinates
-        void SetFrame(Graphics::Frame2D frame);
+        virtual void SetFrame(Graphics::Frame2D frame);
         const Graphics::Frame2D& Frame(void) const { return _frame; }
         
         // Bounds is own coordinates
-        void SetBounds(Graphics::Frame2D bounds);
+        virtual void SetBounds(Graphics::Frame2D bounds);
         const Graphics::Frame2D Bounds(void) const;
         
-        void SetTransform(const Graphics::Matrix2D& transform);
+        virtual void SetTransform(const Graphics::Matrix2D& transform);
         const Graphics::Matrix2D& Transform(void) const { return _transform; }
         
         void SetDirty(void);
@@ -35,8 +35,8 @@ namespace Window {
         void DrawAll(Graphics::Context &context, Graphics::Rect2D region);
         
         Window* Parent(void) const { return _parent; }
-        void AddChild(Window *window);
-        void RemoveChild(Window *window);
+        virtual void AddChild(Window *window);
+        virtual void RemoveChild(Window *window);
         
         void SetHidden(bool hidden);
         bool Hidden(void) const { return _hidden; }
