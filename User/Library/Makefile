@@ -1,13 +1,13 @@
 CC = i386-elf-gcc
 AS = nasm
-LD = i386-elf-ld
+AR = i386-elf-ar
 
 #CFLAGS = -m32 -g -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
-CFLAGS = -I../Library -m32 -O3 -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
+CFLAGS = -m32 -O3 -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
 AFLAGS = -f elf
-LFLAGS = -static -L../Library -q -melf_i386
+LFLAGS = -q -melf_i386
 
-OBJS = main.o Window.o Controls.o TestFont.o
+OBJS = entry.so runtime.o Handle_x86.o Collections_x86.o Blocking_x86.o Thread_x86.o System_x86.o IPC_x86.o BasicHeap.o Locking.o EventLoop.o Context.o
 
 SRC = $(patsubst %.so,%.asm,$(patsubst %.o,%.cpp,$(OBJS)))
 
@@ -17,11 +17,11 @@ SRC = $(patsubst %.so,%.asm,$(patsubst %.o,%.cpp,$(OBJS)))
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
-Conductor.task: $(OBJS)
-	$(LD) $(LFLAGS) -T User.ld -o $@ $^ -lsystem
+libsystem.a: $(OBJS)
+	$(AR) rcs $@ $^
 
 clean:
-	rm *.o *.so Conductor.task
+	rm *.o *.so libsystem.a
 
 depend: .depend
 .depend: $(SRC)
