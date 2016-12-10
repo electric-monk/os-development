@@ -3,7 +3,7 @@ AS = nasm
 LD = i386-elf-ld
 
 #CFLAGS = -m32 -g -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
-CFLAGS = -I../Library -m32 -O3 -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
+CFLAGS = -I../../Interfaces -I../Library -m32 -O3 -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
 AFLAGS = -f elf
 LFLAGS = -static -L../Library -q -melf_i386
 

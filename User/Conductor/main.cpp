@@ -8,10 +8,10 @@
 #include "Window.h"
 #include "Controls.h"
 
-#include "../../Kernel/Kernel/Interface_Mouse.h"
-#include "../../Kernel/Kernel/Interface_Keyboard.h"
-#include "../../Kernel/Kernel/Interface_VideoMode.h"
-#include "../../Kernel/Kernel/Interface_Video.h"
+#include "Interface_Mouse.h"
+#include "Interface_Keyboard.h"
+#include "Interface_VideoMode.h"
+#include "Interface_Video.h"
 
 #include "Context.h"
 namespace SquirrelTest {
