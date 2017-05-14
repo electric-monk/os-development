@@ -52,6 +52,7 @@
 		3B99C3F31B7C72A800C6DD38 /* GenericKeyboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B99C3F11B7C72A800C6DD38 /* GenericKeyboard.cpp */; };
 		3BB523FA1BB1B29B008344C8 /* Video_Multiboot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BB523F81BB1B29B008344C8 /* Video_Multiboot.cpp */; };
 		3BB523FF1BC1D08D008344C8 /* GenericVideo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BB523FD1BC1D08D008344C8 /* GenericVideo.cpp */; };
+		3BEBBE561EC868160084CDCF /* elfsyms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BEBBE551EC868160084CDCF /* elfsyms.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -186,6 +187,9 @@
 		3BE43F7A19B6FB1B009B16F3 /* CPU_LAPIC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU_LAPIC.cpp; path = Kernel/CPU_LAPIC.cpp; sourceTree = "<group>"; };
 		3BE43F7B19B6FB1B009B16F3 /* CPU_PICIRQ.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CPU_PICIRQ.cpp; path = Kernel/CPU_PICIRQ.cpp; sourceTree = "<group>"; };
 		3BE6C2991B7477F6008A16E2 /* Startup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Startup.h; path = Kernel/Startup.h; sourceTree = "<group>"; };
+		3BEBBE531EC865920084CDCF /* elf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = elf.h; path = Kernel/elf.h; sourceTree = "<group>"; };
+		3BEBBE541EC8680A0084CDCF /* elfsyms.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = elfsyms.h; path = Kernel/elfsyms.h; sourceTree = "<group>"; };
+		3BEBBE551EC868160084CDCF /* elfsyms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = elfsyms.cpp; path = Kernel/elfsyms.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -204,6 +208,9 @@
 			children = (
 				3B2706A81AEDFB3A00C2178E /* ImageLoader.cpp */,
 				3B2706A91AEDFB3A00C2178E /* ImageLoader.h */,
+				3BEBBE531EC865920084CDCF /* elf.h */,
+				3BEBBE551EC868160084CDCF /* elfsyms.cpp */,
+				3BEBBE541EC8680A0084CDCF /* elfsyms.h */,
 			);
 			name = "Image loading";
 			sourceTree = "<group>";
@@ -505,6 +512,7 @@
 				3BB523FF1BC1D08D008344C8 /* GenericVideo.cpp in Sources */,
 				3B7630181B12A9D600C41D62 /* tools.cpp in Sources */,
 				3B2DE0211C941E810001668E /* System_Service.cpp in Sources */,
+				3BEBBE561EC868160084CDCF /* elfsyms.cpp in Sources */,
 				3B7630191B12A9D600C41D62 /* debug.cpp in Sources */,
 				3B76301A1B12A9D600C41D62 /* KernelObject.cpp in Sources */,
 				3B76301C1B12A9D600C41D62 /* Process.cpp in Sources */,

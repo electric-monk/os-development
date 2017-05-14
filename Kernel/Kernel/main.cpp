@@ -14,6 +14,7 @@
 #include "Video_Multiboot.h"
 #include "Thread.h"
 #include "IPC_Manager.h"
+#include "elfsyms.h"
 
 // Values from the linker
 extern UInt32 kern_start, kern_end;
@@ -21,6 +22,8 @@ extern UInt32 virt, phys;
 // System heap
 BasicHeap *s_coreHeap;
 static unsigned char s_coreMemory[65535*8*2];
+// System data
+ElfSymbols *s_symbols;
 // Global root device driver
 Driver *s_rootDevice;
 
@@ -36,6 +39,38 @@ static inline void* FixAddress(void *address)
 {
     return ((char*)address) + (UInt32)&virt - (UInt32)&phys;
 }
+
+class SymbolLoader : public ElfProvider
+{
+public:
+    SymbolLoader(multiboot_elf_section_header_table_t *table)
+    :_table(table)
+    {
+    }
+    
+    UInt64 Header(void)
+    {
+        return _table->addr;
+    }
+    
+    UInt64 Count(void)
+    {
+        return _table->num;
+    }
+    
+    UInt64 Strndx(void)
+    {
+        return _table->shndx;
+    }
+    
+    void* GetAddress(UInt64 address)
+    {
+        return FixAddress((void*)address);
+    }
+    
+private:
+    multiboot_elf_section_header_table_t *_table;
+};
 
 extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
 {
@@ -71,7 +106,15 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     Init_Video_Multiboot(FixAddress((void*)mbd->vbe_control_info), FixAddress((void*)mbd->vbe_mode_info), mbd->vbe_mode);
 
     // Splash
-	kprintf("Munro Systems\nCopyright (C) 2008-2016 Colin Munro\n");
+	kprintf("Munro Systems\nCopyright (C) 2008-2017 Colin Munro\n");
+    
+    // Load kernel symbols
+    s_symbols = new ElfSymbols();
+    if (mbd->flags & MULTIBOOT_INFO_ELF_SHDR) {
+        SymbolLoader loader(&mbd->u.elf_sec);
+        int got = s_symbols->Parse(&loader);
+//        kprintf("Loaded %i kernel symbols\n", got);
+    }
     
     // Start root driver
     s_rootDevice = new StandardPC();

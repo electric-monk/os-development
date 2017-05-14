@@ -17,6 +17,9 @@ inline void* operator new[](std::size_t, void* __p) noexcept {return __p;}
 inline void  operator delete  (void*, void*) {}
 inline void  operator delete[](void*, void*) {}
 
+class ElfSymbols;
+extern ElfSymbols *s_symbols;
+
 #endif
 
 typedef unsigned char UInt8;
