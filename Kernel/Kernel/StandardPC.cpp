@@ -16,6 +16,7 @@
 #include "pci.h"
 #include "Console.h"
 #include "Runloop.h"
+#include "elfsyms.h"
 
 static bool s_schedulerEnabled = false;
 
@@ -974,17 +975,39 @@ static void AlternateCPU(void)
 #include "Process.h"
 #include "Thread.h"
 
-static void PrintStack(void **stackBottom)
+static void PrintStack(void **stackBottom, void **stackTop)
 {
-    kprintf("Stack:");
-    for (int i = 0; i < 24; i++, stackBottom++)
-        kprintf(" %.8x", *stackBottom);
+    kprintf("Stack [ESP %.8x, top %.8x]:", (int)stackBottom, (int)stackTop);
+    if (stackTop < stackBottom)
+        stackTop = stackBottom + 24;
+    for (void **s = stackBottom; s < stackTop; s++) {
+        void *addr = *s;
+        ElfSymbols::Symbol *sym = s_symbols->Find(addr);
+        if (sym)
+            kprintf("\n %.8x %s+%i\n", addr, sym->Name()->CString(), (int)sym->Offset(addr));
+        else
+            kprintf(" %.8x", addr);
+    }
     kprintf("\n");
 }
 
-static void HandleUserspaceException(int number)
+static void PrintRegisters(TrapFrame *tf)
 {
+    kprintf("EAX=%.8x EBX=%.8x ECX=%.8x EDX=%.8x\n", tf->EAX, tf->EBX, tf->ECX, tf->EDX);
+    kprintf("EDI=%.8x ESI=%.8x EBP=%.8x EIP=%.8x\n", tf->EDI, tf->ESI, tf->EBP, tf->EIP);
+//    kprintf("Currently %s\n", Thread::Active ? (Thread::Active->IsCurrentlyUserspace() ? "userspace" : "kernel") : "threadless");
+    ElfSymbols::Symbol *sym = s_symbols->Find((void*)tf->EIP);
+    if (sym)
+        kprintf("Crash in %s+%i\n", sym->Name()->CString(), (int)sym->Offset((void*)tf->EIP));
+    PrintStack((void**)tf->ESP, (Thread::Active ? (void**)Thread::Active->StackTop(Thread::Active->IsCurrentlyUserspace()) : (((void**)tf->ESP) + 24)));
+    kprintf("CPU %.8x Process %.8x Thread %.8x %s\n", CPU::Active, Process::Active, Thread::Active, Thread::Active ? (Thread::Active->IsUserspace() ? "[userspace]" : "[kernel]") : "");
+}
+
+static void HandleUserspaceException(void *state, int number)
+{
+    TrapFrame *tf = (TrapFrame*)state;
     kprintf("Process %.8x crashed (%.2x: %s)\n", Process::Active, number, StandardPC::NameForTrap(number));
+    PrintRegisters(tf);
     Thread *start = Thread::ThreadCursor();
     Thread *current = start;
     do {
