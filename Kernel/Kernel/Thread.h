@@ -51,12 +51,18 @@ public:
     
     KernelDictionary* KernelThreadLocalStorage(void) { return _kernelStorage; }
     
+    bool IsUserspace(void) { return _stackInProcess != NULL; }
+    
     // Thread list control
     static Thread* ThreadCursor(void);
     static void ThreadNext(void);
     static void ThreadLast(void);
     
     static void DebugPrint(void);
+    
+    // Debug
+    bool IsCurrentlyUserspace(void);
+    void* StackTop(bool userspace);
     
 protected:
     ~Thread();

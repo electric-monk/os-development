@@ -255,6 +255,19 @@ void Thread::DebugPrint(void)
         kprintf("\n");
     }
 }
+bool Thread::IsCurrentlyUserspace(void)
+{
+    return _trapFrame->CS & DPL_USER;
+}
+
+void* Thread::StackTop(bool userspace)
+{
+//    kprintf("Kernel stack %.8x length %i\n", UInt32(_kernelStack), _kernelStackLength);
+    if (userspace)
+        return _stackInProcess->StackTop();
+    else
+        return _kernelStack + _kernelStackLength;
+}
 
 void Thread::Attach(void)
 {
