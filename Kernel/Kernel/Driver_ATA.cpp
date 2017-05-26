@@ -1549,6 +1549,7 @@ bool ATADriver::Packet(UInt8 device, char *controlBuffer, UInt32 controlBufferLe
     }
     
     // Data transfer loop
+    int count = 0;
     while (!_regCommandInfo.errorCode) {
         // Wait for something
         _Wait(53, 54);
@@ -1574,11 +1575,18 @@ bool ATADriver::Packet(UInt8 device, char *controlBuffer, UInt32 controlBufferLe
             dir = -1;
             break;
         }
+        // check overflow
+        if ((count + byteCount) > dataBufferLength) {
+            _regCommandInfo.errorCode = 61;
+            dir = -1;
+            break;
+        }
         // increment counter
         _regCommandInfo.drqPackets++;
         // transfer data
         UInt16 wordCount = (byteCount >> 1) + (byteCount & 0x0001);
         _regCommandInfo.totalBytes += wordCount << 1;
+        count += wordCount << 1;
         if (dir)
             _drqBlockOut(CB_DATA, (UInt8*)dataBuffer, wordCount);
         else
