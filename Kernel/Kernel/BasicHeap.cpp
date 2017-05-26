@@ -200,34 +200,46 @@ void* BasicHeap::Alloc(BasicHeap::h_size amount)
     HEAP_LOCK;
     Internal::FreeSpace *freespace;
     BasicHeap::h_size totalAmount = amount + sizeof(Internal::Allocation);
-    freespace = _freeStart;
-    while (freespace != NULL) {
-        Internal::FreeSpace *nextspace = freespace->next;   // Make a note of next, as Merge() may change it
-        freespace->Merge();
-        BasicHeap::h_size available = freespace->Size();
-        if (available >= totalAmount) {
-            if (available > (totalAmount + 30))
-                freespace = freespace->Split(totalAmount);
-            break;
-        }
-        freespace = nextspace;
-    }
-    if (!freespace) {
-#ifndef USERSPACE
-        kprintf("ALLOCATION OF %i FAILED\n", amount);
-        Test();
-        int i = 0;
-        for (freespace = _freeStart; freespace != NULL; freespace = freespace->next, i++) {
+    while(true) {
+        // First, find a potential blob
+        for (freespace = _freeStart; freespace; freespace = freespace->next) {
             BasicHeap::h_size available = freespace->Size();
             if (available >= totalAmount) {
-                kprintf("Item %i: %i would have fit %i\n", i, available, totalAmount);
+                if (available > (totalAmount + 30))
+                    freespace = freespace->Split(totalAmount);
+                break;
             }
         }
-        CPU_Interrupt_Disable();
-        kprintf("Halted");
-        while(1) asm("hlt");
+        // Second, check if we found something
+        if (freespace)
+            break;
+        // Third, try to merge
+        bool noMerges = false;
+        for (int tidyCount = 0; tidyCount < 3; tidyCount++) {
+            for (freespace = _freeStart; freespace && !freespace->Merge(); freespace = freespace->next);
+            if (!freespace) {
+                noMerges = true;
+                break;
+            }
+        }
+        // Fourth, fail if necessary
+        if (noMerges) {
+#ifndef USERSPACE
+            kprintf("ALLOCATION OF %i FAILED\n", amount);
+            Test();
+            int i = 0;
+            for (freespace = _freeStart; freespace != NULL; freespace = freespace->next, i++) {
+                BasicHeap::h_size available = freespace->Size();
+                if (available >= totalAmount) {
+                    kprintf("Item %i: %i would have fit %i\n", i, available, totalAmount);
+                }
+            }
+            CPU_Interrupt_Disable();
+            kprintf("Halted");
+            while(true) asm("hlt");
 #endif
-        return NULL;
+            return NULL;
+        }
     }
     totalAmount = freespace->Size();    // You might be getting more than you asked for
     freespace->~FreeSpace();
