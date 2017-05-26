@@ -375,11 +375,13 @@ public:
     
     void inByteRep(UInt32 address, void *buffer, UInt32 length)
     {
-        asm("rep insb"::"c"(length / sizeof(UInt8)), "d"(GetPort(address)), "D"(buffer));
+        length /= sizeof(UInt8);
+        asm volatile("rep insb":"+c"(length), "+D"(buffer):"d"(GetPort(address)));
     }
     void inShortRep(UInt32 address, void *buffer, UInt32 length)
     {
-        asm("rep insw"::"c"(length / sizeof(UInt16)), "d"(GetPort(address)), "D"(buffer));
+        length /= sizeof(UInt16);
+        asm volatile("rep insw":"+c"(length), "+D"(buffer):"d"(GetPort(address)));
     }
     void inLongRep(UInt32 address, void *buffer, UInt32 length)
     {
@@ -388,11 +390,13 @@ public:
     }
     void outByteRep(UInt32 address, void *buffer, UInt32 length)
     {
-        asm("rep outsb"::"c"(length / sizeof(UInt8)), "d"(GetPort(address)), "S"(buffer));
+        length /= sizeof(UInt8);
+        asm volatile("rep outsb":"+c"(length), "+S"(buffer):"d"(GetPort(address)));
     }
     void outShortRep(UInt32 address, void *buffer, UInt32 length)
     {
-        asm("rep outsw"::"c"(length / sizeof(UInt16)), "d"(GetPort(address)), "S"(buffer));
+        length /= sizeof(UInt16);
+        asm volatile("rep outsw":"+c"(length), "+S"(buffer):"d"(GetPort(address)));
     }
     void outLongRep(UInt32 address, void *buffer, UInt32 length)
     {
