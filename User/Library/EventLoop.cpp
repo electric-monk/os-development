@@ -37,6 +37,7 @@ void EventLoop::AddTask(Library::Function<void(void)> handler)
     _sources[signal] = [=](Kernel::Blocking::Blockable *trigger, Kernel::Collections::Array *others){
         _waiting->Remove(signal);
         _sources.Reset(signal);
+        signal->Release();
         handler();
     };
     _waiting->Add(signal);
