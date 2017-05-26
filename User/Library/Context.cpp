@@ -36,7 +36,7 @@ namespace Graphics {
         UInt32 memSize = width * height * ::Graphics::PixelSize(format);
         _data = new UInt8[memSize];
         if (data)
-            CopyMemory(_data, data, memSize);
+            CopyFast(_data, data, memSize);
     }
     
     Bitmap::Bitmap(const Bitmap &other)
@@ -44,7 +44,7 @@ namespace Graphics {
     {
         UInt32 memSize = _width * _height * ::Graphics::PixelSize(_format);
         _data = new UInt8[memSize];
-        CopyMemory(_data, other._data, memSize);
+        CopyFast(_data, other._data, memSize);
     }
 
     Bitmap::Bitmap()
@@ -67,7 +67,7 @@ namespace Graphics {
             _format = other._format;
             UInt32 memSize = _width * _height * ::Graphics::PixelSize(_format);
             _data = new UInt8[memSize];
-            CopyMemory(_data, other._data, memSize);
+            CopyFast(_data, other._data, memSize);
         }
         return *this;
     }
