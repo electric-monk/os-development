@@ -154,8 +154,9 @@ namespace Internal {
             return new (base) FreeSpace(owner, size);
         }
         
-        void Merge(void)
+        int Merge(void)
         {
+            int count = 0;
             BasicHeap *heap = _heap;
             FreeSpace *freespace = this;
             while (true) {
@@ -168,7 +169,9 @@ namespace Internal {
                 total += next->Size();
                 next->~FreeSpace();
                 freespace = new (address) FreeSpace(heap, total);
+                count++;
             }
+            return count;
         }
     };
 }
@@ -197,17 +200,35 @@ void* BasicHeap::Alloc(BasicHeap::h_size amount)
     HEAP_LOCK;
     Internal::FreeSpace *freespace;
     BasicHeap::h_size totalAmount = amount + sizeof(Internal::Allocation);
-    for (freespace = _freeStart; freespace != NULL; freespace = freespace->next) {
-        freespace->Merge(); // Just in case
-        BasicHeap::h_size available = freespace->Size() - sizeof(Internal::Allocation);
+    freespace = _freeStart;
+    while (freespace != NULL) {
+        Internal::FreeSpace *nextspace = freespace->next;   // Make a note of next, as Merge() may change it
+        freespace->Merge();
+        BasicHeap::h_size available = freespace->Size();
         if (available >= totalAmount) {
             if (available > (totalAmount + 30))
                 freespace = freespace->Split(totalAmount);
             break;
         }
+        freespace = nextspace;
     }
-    if (!freespace)
+    if (!freespace) {
+#ifndef USERSPACE
+        kprintf("ALLOCATION OF %i FAILED\n", amount);
+        Test();
+        int i = 0;
+        for (freespace = _freeStart; freespace != NULL; freespace = freespace->next, i++) {
+            BasicHeap::h_size available = freespace->Size();
+            if (available >= totalAmount) {
+                kprintf("Item %i: %i would have fit %i\n", i, available, totalAmount);
+            }
+        }
+        CPU_Interrupt_Disable();
+        kprintf("Halted");
+        while(1) asm("hlt");
+#endif
         return NULL;
+    }
     totalAmount = freespace->Size();    // You might be getting more than you asked for
     freespace->~FreeSpace();
     _used += totalAmount;
