@@ -149,7 +149,7 @@ namespace Window {
 //            context.DrawPolygon(Graphics::Path::Rect(_dirtyRect), (Graphics::Colour){0xFF,0x00,0x00,0xa0});
             _dirty = false;
             if (change)
-                *change = _dirtyRect;
+                *change = _dirtyRect.Intersection(Convert(this->Bounds()));
             return true;
         }
         
