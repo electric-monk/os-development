@@ -227,13 +227,6 @@ void* BasicHeap::Alloc(BasicHeap::h_size amount)
 #ifndef USERSPACE
             kprintf("ALLOCATION OF %i FAILED\n", amount);
             Test();
-            int i = 0;
-            for (freespace = _freeStart; freespace != NULL; freespace = freespace->next, i++) {
-                BasicHeap::h_size available = freespace->Size();
-                if (available >= totalAmount) {
-                    kprintf("Item %i: %i would have fit %i\n", i, available, totalAmount);
-                }
-            }
             CPU_Interrupt_Disable();
             kprintf("Halted");
             while(true) asm("hlt");
