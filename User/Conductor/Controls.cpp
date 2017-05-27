@@ -370,6 +370,12 @@ namespace Controls {
         _sizeBit->SetLevel(2);
         AddChild(_sizeBit);
     }
+
+    MainWindow::~MainWindow()
+    {
+        if (_title)
+            delete[] _title;
+    }
     
     void MainWindow::SetFlags(WindowFlags newFlags)
     {
