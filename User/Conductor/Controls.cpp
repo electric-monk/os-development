@@ -281,6 +281,75 @@ namespace Controls {
             Graphics::Point2D _referencePoint;
         };
     }
+    
+    static int tempcount(const char *s)
+    {
+        int total = 0;
+        while(*s) {
+            s++;
+            total++;
+        }
+        return total;
+    }
+    
+    Label::Label(Graphics::Frame2D frame)
+    :Window(frame), _text(NULL)
+    {
+        _colour = (Graphics::Colour){0x00, 0x00, 0x00, 0xFF};
+    }
+    
+    Label::~Label()
+    {
+        if (_text)
+            delete[] _text;
+    }
+    
+    void Label::SetText(const char *text)
+    {
+        if (_text == text)
+            return;
+        if (_text)
+            delete[] _text;
+        int amount = tempcount(text) + 1;
+        _text = new char[amount];
+        CopyMemory((char*)_text, text, amount);
+        SetDirty();
+    }
+    
+    void Label::SetColour(const Graphics::Colour &colour)
+    {
+        _colour = colour;
+        SetDirty();
+    }
+    
+    Graphics::Point2D Label::RequiredSize(void)
+    {
+        if (_text) {
+            TestFont font;
+            return font.Size(_text);
+        }
+        return (Graphics::Point2D){0, 0};
+    }
+    
+    void Label::AutoSize(void)
+    {
+        Graphics::Frame2D frame = Frame();
+        frame.size = RequiredSize();
+        SetFrame(frame);
+    }
+    
+    void Label::Draw(Graphics::Context &context, Graphics::Rect2D region)
+    {
+        if (_text) {
+            TestFont font;
+            Graphics::Point2D windowSize = Bounds().size;
+            Graphics::Point2D size = font.Size(_text);
+            context.Push();
+            context.Translate(0, (windowSize.y - size.y) / 2);
+            font.Render(context, _colour, _text);
+            context.Pop();
+        }
+    }
 
     MainWindow::MainWindow(Graphics::Frame2D frame)
     :Window(frame), _title(NULL), _flags(WindowFlags(0))
@@ -306,16 +375,6 @@ namespace Controls {
     {
         _flags = newFlags;
         Resized();
-    }
-    
-    static int tempcount(const char *s)
-    {
-        int total = 0;
-        while(*s) {
-            s++;
-            total++;
-        }
-        return total;
     }
     
     void MainWindow::SetTitle(const char *title)
