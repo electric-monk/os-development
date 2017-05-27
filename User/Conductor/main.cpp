@@ -423,10 +423,30 @@ extern "C" void sysmain(void)
                             desktop->TouchMove(mouseLocation);
                             
                             // Add some windows
-                            Controls::MainWindow *mainWindow = new Controls::MainWindow((Graphics::Frame2D){{200, 200}, {100, 100}});
+                            Controls::MainWindow *mainWindow = new Controls::MainWindow((Graphics::Frame2D){{200, 200}, {250, 90}});
                             desktop->AddChild(mainWindow);
-                            mainWindow->SetTitle("Hello");
+                            mainWindow->SetTitle("About");
                             mainWindow->SetFlags(Controls::MainWindow::FlagClosable);
+                            
+                            Controls::Label *label;
+                            Graphics::Frame2D previousFrame;
+                            // a
+                            label = new Controls::Label((Graphics::Frame2D){{10, 10}, {0, 0}});
+                            label->SetText("Munro Systems");
+                            label->AutoSize();
+                            mainWindow->Content()->AddChild(label);
+                            // b
+                            previousFrame = label->Frame();
+                            label = new Controls::Label((Graphics::Frame2D){{10, previousFrame.origin.y + previousFrame.size.y}, {0, 0}});
+                            label->SetText("MunrOS 1.0");
+                            label->AutoSize();
+                            mainWindow->Content()->AddChild(label);
+                            // c
+                            previousFrame = label->Frame();
+                            label = new Controls::Label((Graphics::Frame2D){{10, previousFrame.origin.y + previousFrame.size.y}, {0, 0}});
+                            label->SetText("Copyright \xa9 2017 Colin Munro");
+                            label->AutoSize();
+                            mainWindow->Content()->AddChild(label);
                             
                             Controls::MainWindow *secondWindow = new Controls::MainWindow((Graphics::Frame2D){{300, 300}, {150, 100}});
                             desktop->AddChild(secondWindow);
