@@ -98,6 +98,8 @@ namespace Controls {
         
         void SetFocused(bool focus);
         
+        ::Window::Window* Content(void) const { return _content; }
+        
     protected:
         void Resized(void);
         
