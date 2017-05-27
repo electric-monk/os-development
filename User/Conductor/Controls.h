@@ -54,6 +54,28 @@ namespace Controls {
         ButtonState _state;
     };
     
+    class Label : public Window::Window
+    {
+    public:
+        Label(Graphics::Frame2D frame);
+        ~Label();
+
+        const char* Text(void) const { return _text; }
+        void SetText(const char *text);
+        
+        Graphics::Colour TextColour(void) const { return _colour; }
+        void SetColour(const Graphics::Colour &colour);
+
+        Graphics::Point2D RequiredSize(void);
+        void AutoSize(void);
+        
+        void Draw(Graphics::Context &context, Graphics::Rect2D region);
+        
+    private:
+        const char *_text;
+        Graphics::Colour _colour;
+    };
+    
     class MainWindow : public Window::Window
     {
     public:
@@ -63,6 +85,7 @@ namespace Controls {
         } WindowFlags;
 
         MainWindow(Graphics::Frame2D frame);
+        ~MainWindow();
         
         WindowFlags Flags(void) const { return _flags; }
         void SetFlags(WindowFlags newFlags);
