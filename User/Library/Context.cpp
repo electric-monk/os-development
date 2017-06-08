@@ -347,8 +347,13 @@ namespace Graphics {
         for (int y = y0; y <= y1; y++) {
             Library::Array<int> nodeX;
             ComputePolygonLine(nodeX, path, y);
-            if (parent)
-                nodeX = CombinePolygonLines(nodeX, parent->_clippings[y - parent->_bounds.topLeft.y]);
+            if (parent) {
+                int offset = y - parent->_bounds.topLeft.y;
+                if ((offset >= 0) && (offset  < parent->_clippings.Count()))
+                    nodeX = CombinePolygonLines(nodeX, parent->_clippings[offset]);
+                else
+                    nodeX = Library::Array<int>();
+            }
             _clippings.Add(nodeX);
         }
         _bounds.topLeft.y = y0;
