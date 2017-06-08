@@ -17,19 +17,19 @@ namespace Collections_Internal {
                     return;
                     
                 case COLLECTIONS_FUNCTION_CREATE_ARRAY:
-                    parameters[1] = Process::Mapper()->Map(new KernelArray());
+                    parameters[1] = Process::Mapper()->Map(new KernelArray(), 1);
                     break;
                 case COLLECTIONS_FUNCTION_CREATE_DICT:
-                    parameters[1] = Process::Mapper()->Map(new KernelDictionary());
+                    parameters[1] = Process::Mapper()->Map(new KernelDictionary(), 1);
                     break;
                 case COLLECTIONS_FUNCTION_CREATE_FIFO:
-                    parameters[1] = Process::Mapper()->Map(new KernelFIFO());
+                    parameters[1] = Process::Mapper()->Map(new KernelFIFO(), 1);
                     break;
                 case COLLECTIONS_FUNCTION_CREATE_NUMBER:
-                    parameters[1] = Process::Mapper()->Map(new KernelNumber((UInt32)parameters[1]));
+                    parameters[1] = Process::Mapper()->Map(new KernelNumber((UInt32)parameters[1]), 1);
                     break;
                 case COLLECTIONS_FUNCTION_CREATE_STRING:
-                    parameters[1] = Process::Mapper()->Map(new KernelString((char*)parameters[1], (UInt32)parameters[2]));
+                    parameters[1] = Process::Mapper()->Map(new KernelString((char*)parameters[1], (UInt32)parameters[2]), 1);
                     break;
                     
                     /* Strings */
@@ -114,7 +114,7 @@ namespace Collections_Internal {
                         return;
                     }
                     result->AddRef();
-                    parameters[1] = Process::Mapper()->Map(result);
+                    parameters[1] = Process::Mapper()->Map(result, 1);
                 }
                     break;
                     
@@ -157,7 +157,7 @@ namespace Collections_Internal {
                         parameters[0] = COLLECTIONS_ERROR_NOT_FOUND;
                         return;
                     }
-                    parameters[1] = Process::Mapper()->Map(value);
+                    parameters[1] = Process::Mapper()->Map(value, 0);
                 }
                     break;
                 case COLLECTIONS_FUNCTION_DICT_CLEAR:
@@ -184,7 +184,7 @@ namespace Collections_Internal {
                     }
                     KernelArray *result = dictionary->AllKeys();
                     result->AddRef();
-                    parameters[1] = Process::Mapper()->Map(result);
+                    parameters[1] = Process::Mapper()->Map(result, 1);
                 }
                     break;
                 case COLLECTIONS_FUNCTION_DICT_GET_VALUES:
@@ -196,7 +196,7 @@ namespace Collections_Internal {
                     }
                     KernelArray *result = dictionary->AllObjects();
                     result->AddRef();
-                    parameters[1] = Process::Mapper()->Map(result);
+                    parameters[1] = Process::Mapper()->Map(result, 1);
                 }
                     break;
                     
@@ -269,7 +269,7 @@ namespace Collections_Internal {
                         parameters[0] = COLLECTIONS_ERROR_NOT_FOUND;
                         return;
                     }
-                    parameters[1] = Process::Mapper()->Map(result);
+                    parameters[1] = Process::Mapper()->Map(result, 0);
                 }
                     break;
                 case COLLECTIONS_FUNCTION_ARRAY_REMOVE:

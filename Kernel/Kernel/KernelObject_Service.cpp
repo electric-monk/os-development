@@ -9,17 +9,24 @@ namespace KernelObject_Internal {
     protected:
         void Handle(UInt64 *parameters)
         {
-            KernelObject *first = Process::Mapper()->Find((::Handle)parameters[1]);
+            ::Handle handle = (::Handle)parameters[1];
+            KernelObject *first = Process::Mapper()->Find(handle);
             if (!first) {
                 parameters[0] = KERNELOBJECT_ERROR_INVALID_HANDLE;
                 return;
             }
             switch (parameters[0]) {
                 case KERNELOBJECT_FUNCTION_ADDREF:
-                    first->AddRef();
+                    if (!Process::Mapper()->MapAddRef(handle)) {
+                        parameters[0] = KERNELOBJECT_ERROR_MEMORY_VIOLATION;
+                        return;
+                    }
                     break;
                 case KERNELOBJECT_FUNCTION_RELEASE:
-                    first->Release();
+                    if (!Process::Mapper()->MapRelease(handle)) {
+                        parameters[0] = KERNELOBJECT_ERROR_MEMORY_VIOLATION;
+                        return;
+                    }
                     break;
                 case KERNELOBJECT_FUNCTION_HASH:
                     parameters[1] = first->Hash();

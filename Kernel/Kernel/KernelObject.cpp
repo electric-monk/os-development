@@ -176,11 +176,36 @@ namespace KernelObject_Internal {
             return _object;
         }
         
-        HandledObject(int handle, KernelObject *object, bicycle::function<int(HandledObject*)> onDestroy)
+        bool UserAddRef(void)
+        {
+            // Currently, it's always fine to retain
+            _object->AddRef();
+            _userRetainCount++;
+            return true;
+        }
+        
+        bool UserRelease(void)
+        {
+            // Only release for retains the userspace process made
+            if (_userRetainCount == 0)
+                return false;
+            _userRetainCount--;
+            _object->Release();
+            return true;
+        }
+        
+        void AdjustRetain(UInt32 adjust)
+        {
+            _userRetainCount += adjust;
+        }
+        
+        HandledObject(int handle, KernelObject *object, bicycle::function<int(HandledObject*)> onDestroy, UInt32 initialUserRetains)
+        :_handle(handle), _object(object), _userRetainCount(initialUserRetains)
         {
             _handle = handle;
             _object = object;
             _watcher = object->Watch([this, onDestroy]{
+                ASSERT(_userRetainCount == 0);
                 _watcher = NULL;    // Remove our own reference, as it'll now be released
                 onDestroy(this);        // Call the real handler
             });
@@ -190,12 +215,18 @@ namespace KernelObject_Internal {
         {
             if (_watcher)
                 delete _watcher;
+            // If we hit here, the process stopped using the handle before releasing it
+            while (_userRetainCount) {
+                _object->Release();
+                _userRetainCount--;
+            }
         }
         
     private:
         Handle _handle;
         KernelObject *_object;
         DestructionWatcherHandle *_watcher;
+        UInt32 _userRetainCount;
     };
 }
 
@@ -225,7 +256,7 @@ ObjectMapper::~ObjectMapper()
     _objectMap->Release();
 }
 
-Handle ObjectMapper::Map(KernelObject *object)
+Handle ObjectMapper::Map(KernelObject *object, UInt32 userspaceRetainCount)
 {
     if (object == NULL)
         return 0;
@@ -234,6 +265,7 @@ Handle ObjectMapper::Map(KernelObject *object)
     KernelObject_Internal::HandledObject *entry = (KernelObject_Internal::HandledObject*)_objectMap->ObjectFor(handleObject);
     if (entry) {
         handleObject->Release();
+        entry->AdjustRetain(userspaceRetainCount);
         return entry->GetHandle();
     }
     // Find a handle number
@@ -255,7 +287,7 @@ Handle ObjectMapper::Map(KernelObject *object)
         _objectMap->Set(object, NULL);
         object->Release();
         return 0;
-    });
+    }, userspaceRetainCount);
     _handleMap->Set(handleNumber, entry);
     _objectMap->Set(handleObject, entry);
     entry->Release();
@@ -263,6 +295,28 @@ Handle ObjectMapper::Map(KernelObject *object)
     handleObject->Release();
     // Return new handle
     return entry->GetHandle();
+}
+
+static KernelObject_Internal::HandledObject* FindHandledObject(KernelDictionary *map, Handle object)
+{
+    if (object == 0)
+        return NULL;
+    KernelNumber *number = new KernelNumber(object);
+    KernelObject_Internal::HandledObject *entry = (KernelObject_Internal::HandledObject*)map->ObjectFor(number);
+    number->Release();
+    return entry;
+}
+
+bool ObjectMapper::MapAddRef(Handle object)
+{
+    KernelObject_Internal::HandledObject *entry = FindHandledObject(_handleMap, object);
+    return entry ? entry->UserAddRef() : false;
+}
+
+bool ObjectMapper::MapRelease(Handle object)
+{
+    KernelObject_Internal::HandledObject *entry = FindHandledObject(_handleMap, object);
+    return entry ? entry->UserRelease() : false;
 }
 
 void ObjectMapper::Unmap(Handle object)
@@ -297,12 +351,6 @@ void ObjectMapper::Unmap(KernelObject *object)
 
 KernelObject* ObjectMapper::Find(Handle object)
 {
-    if (object == 0)
-        return NULL;
-    KernelNumber *number = new KernelNumber(object);
-    KernelObject_Internal::HandledObject *entry = (KernelObject_Internal::HandledObject*)_handleMap->ObjectFor(number);
-    number->Release();
-    if (entry == NULL)
-        return NULL;
-    return entry->Object();
+    KernelObject_Internal::HandledObject *entry = FindHandledObject(_handleMap, object);
+    return entry ? entry->Object() : NULL;
 }

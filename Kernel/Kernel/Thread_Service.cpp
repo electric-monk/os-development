@@ -22,7 +22,7 @@ namespace Thread_Internal {
                         parameters[0] = THREAD_ERROR_PROTECTED_ADDRESS;
                         return;
                     }
-                    parameters[1] = Process::Mapper()->Map(new Thread(Process::Active, (void(*)(void*))parameters[1], NULL));
+                    parameters[1] = Process::Mapper()->Map(new Thread(Process::Active, (void(*)(void*))parameters[1], NULL), 1);
                     break;
                     
                 case THREAD_FUNCTION_KILL:
@@ -38,7 +38,7 @@ namespace Thread_Internal {
                 case THREAD_FUNCTION_ALLOC:
                 {
                     VirtualMemory *memory = new UserspaceHeap(Process::Active, (UInt32)parameters[1]);
-                    parameters[1] = Process::Mapper()->Map(memory);
+                    parameters[1] = Process::Mapper()->Map(memory, 1);
                     parameters[2] = (UInt64)memory->LinearBase();
                 }
                     break;

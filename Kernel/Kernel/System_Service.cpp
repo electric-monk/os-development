@@ -18,7 +18,7 @@ namespace System_Internal {
             AutoreleasePool releaser;
             switch (parameters[0]) {
                 case SYSTEM_MONITOR_CREATE:
-                    parameters[1] = Process::Mapper()->Map(new IpcServiceMonitor());
+                    parameters[1] = Process::Mapper()->Map(new IpcServiceMonitor(), 1);
                     break;
                 case SYSTEM_MONITOR_CAPTURE:
                 {
@@ -29,7 +29,7 @@ namespace System_Internal {
                     }
                     KernelArray *changes = monitor->Changes();
                     changes->AddRef();
-                    parameters[1] = Process::Mapper()->Map(changes);
+                    parameters[1] = Process::Mapper()->Map(changes, 1);
                 }
                     break;
                 case SYSTEM_MONITOR_GETOBJECT:
@@ -39,11 +39,11 @@ namespace System_Internal {
                         parameters[0] = SYSTEM_INVALID_HANDLE;
                         return;
                     }
-                    parameters[1] = Process::Mapper()->Map(monitor->ObjectForIdentifier((UInt32)parameters[2]));
+                    parameters[1] = Process::Mapper()->Map(monitor->ObjectForIdentifier((UInt32)parameters[2]), 0);
                 }
                     break;
                 case SYSTEM_DRIVER_GET_ROOT:
-                    parameters[1] = Process::Mapper()->Map(s_rootDevice);
+                    parameters[1] = Process::Mapper()->Map(s_rootDevice, 0);
                     s_rootDevice->AddRef(); // For user app
                     break;
                 case SYSTEM_DRIVER_CHILDREN:
@@ -58,7 +58,7 @@ namespace System_Internal {
                     int i = 0;
                     while ((child = driver->Child(i++)) != NULL)
                         array->Add(child);
-                    parameters[1] = Process::Mapper()->Map(array);
+                    parameters[1] = Process::Mapper()->Map(array, 1);
                 }
                     break;
                 default:

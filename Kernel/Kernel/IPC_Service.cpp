@@ -43,13 +43,13 @@ namespace IPC_Service {
                 output[0] = _type;
                 if (_endpoint)
                     _endpoint->AddRef();
-                output[1] = Process::Mapper()->Map(_endpoint);
+                output[1] = Process::Mapper()->Map(_endpoint, 1);
                 if (_memory)
                     _memory->AddRef();
-                output[2] = Process::Mapper()->Map(_memory);
+                output[2] = Process::Mapper()->Map(_memory, 1);
                 if (_source)
                     _source->AddRef();
-                output[3] = Process::Mapper()->Map(_source);
+                output[3] = Process::Mapper()->Map(_source, 1);
             }
             
         protected:
@@ -224,7 +224,7 @@ namespace IPC_Service {
                 case IPC_MEMORY_CREATE:
                 {
                     KernelBufferMemory *mem = new KernelBufferMemory(parameters[1]);
-                    parameters[1] = Process::Mapper()->Map(mem);
+                    parameters[1] = Process::Mapper()->Map(mem, 1);
                 }
                     break;
                 case IPC_MEMORY_MAP:
@@ -236,7 +236,7 @@ namespace IPC_Service {
                     }
                     // TODO: read only?
                     KernelBufferMemory::Map *mapping = new KernelBufferMemory::Map(Process::Active, mem, false);
-                    parameters[1] = Process::Mapper()->Map(mapping);
+                    parameters[1] = Process::Mapper()->Map(mapping, 1);
                     parameters[2] = (UInt64)mapping->LinearBase();
                 }
                     break;
@@ -265,7 +265,7 @@ namespace IPC_Service {
                     KernelBufferMemory *data = connection->Read(false);
                     if (data) {
                         data->AddRef();
-                        parameters[1] = Process::Mapper()->Map(data);
+                        parameters[1] = Process::Mapper()->Map(data, 1);
                     } else {
                         parameters[0] = IPC_ERROR_NO_BUFFER;
                         return;
@@ -275,7 +275,7 @@ namespace IPC_Service {
                 case IPC_PROVIDER_CREATE:
                 {
                     ActualUserspaceProvider *provider = new ActualUserspaceProvider();
-                    parameters[1] = Process::Mapper()->Map(provider->Monitor());
+                    parameters[1] = Process::Mapper()->Map(provider->Monitor(), 1);
                 }
                     break;
                 case IPC_PROVIDER_OUTPUT_START:
@@ -295,7 +295,7 @@ namespace IPC_Service {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }
-                    parameters[1] = Process::Mapper()->Map(provider->Actual()->LaunchService(name, type));
+                    parameters[1] = Process::Mapper()->Map(provider->Actual()->LaunchService(name, type), 0);   // TODO: check retain count is right
                 }
                     break;
                 case IPC_SERVICE_TERMINATE:
@@ -328,7 +328,7 @@ namespace IPC_Service {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }
-                    parameters[1] = Process::Mapper()->Map(provider->Actual()->LaunchClient(name));
+                    parameters[1] = Process::Mapper()->Map(provider->Actual()->LaunchClient(name), 0);  // TODO: check retain count is right
                 }
                     break;
                 case IPC_INPUT_TERMINATE:
@@ -356,7 +356,7 @@ namespace IPC_Service {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }
-                    parameters[1] = Process::Mapper()->Map(client->Name());
+                    parameters[1] = Process::Mapper()->Map(client->Name(), 0);
                 }
                     break;
                 case IPC_INPUT_GET_PROPERTIES:
@@ -366,7 +366,7 @@ namespace IPC_Service {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }
-                    parameters[1] = Process::Mapper()->Map(client->Properties());
+                    parameters[1] = Process::Mapper()->Map(client->Properties(), 0);
                 }
                     break;
                 case IPC_SERVICE_GET_NAME:
@@ -376,7 +376,7 @@ namespace IPC_Service {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }
-                    parameters[1] = Process::Mapper()->Map(service->Name());
+                    parameters[1] = Process::Mapper()->Map(service->Name(), 0);
                 }
                     break;
                 case IPC_SERVICE_GET_TYPE:
@@ -386,7 +386,7 @@ namespace IPC_Service {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }
-                    parameters[1] = Process::Mapper()->Map(service->ServiceType());
+                    parameters[1] = Process::Mapper()->Map(service->ServiceType(), 0);
                 }
                     break;
                 case IPC_SERVICE_GET_PROPERTIES:
@@ -396,7 +396,7 @@ namespace IPC_Service {
                         parameters[0] = IPC_ERROR_INVALID_HANDLE;
                         return;
                     }
-                    parameters[1] = Process::Mapper()->Map(service->Properties());
+                    parameters[1] = Process::Mapper()->Map(service->Properties(), 0);
                 }
                     break;
                 case IPC_PROVIDER_CONNECT:

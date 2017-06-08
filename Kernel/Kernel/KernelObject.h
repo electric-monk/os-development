@@ -172,10 +172,14 @@ public:
     
     ObjectMapper();
     
-    Handle Map(KernelObject *object);
+    Handle Map(KernelObject *object, UInt32 userspaceRetainCount);
     void Unmap(Handle object);
     void Unmap(KernelObject *object);
     KernelObject* Find(Handle object);
+    
+    // Special memory management for userspace (to protect kernel from bad apps)
+    bool MapAddRef(Handle object);
+    bool MapRelease(Handle object);
     
 protected:
     ~ObjectMapper();

@@ -32,7 +32,7 @@ namespace IPC_Manager_Internal {
         {
             if (mapper == NULL)
                 mapper = new ObjectMapper();
-            return mapper->Map(object);
+            return mapper->Map(object, 0);
         }
         
         static KernelObject* Demap(UInt32 map)

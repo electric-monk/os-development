@@ -16,16 +16,16 @@ namespace Blocking_Internal {
                     /* Creation functions */
                     
                 case BLOCKING_FUNCTION_CREATE_OR:
-                    parameters[1] = Process::Mapper()->Map(new SignalOr());
+                    parameters[1] = Process::Mapper()->Map(new SignalOr(), 1);
                     break;
                 case BLOCKING_FUNCTION_CREATE_AND:
-                    parameters[1] = Process::Mapper()->Map(new SignalAnd());
+                    parameters[1] = Process::Mapper()->Map(new SignalAnd(), 1);
                     break;
                 case BLOCKING_FUNCTION_CREATE_SIMPLE:
-                    parameters[1] = Process::Mapper()->Map(new SimpleSignal(parameters[1]));
+                    parameters[1] = Process::Mapper()->Map(new SimpleSignal(parameters[1]), 1);
                     break;
                 case BLOCKING_FUNCTION_CREATE_TIMER:
-                    parameters[1] = Process::Mapper()->Map(new Timer());
+                    parameters[1] = Process::Mapper()->Map(new Timer(), 1);
                     break;
                     
                     /* Timer functions */
@@ -112,7 +112,7 @@ namespace Blocking_Internal {
                     KernelArray *result = Thread::Active->BlockOn(blocker);
                     if (result) {
                         result->AddRef();   // Ownership moves on to userspace
-                        parameters[1] = Process::Mapper()->Map(result);
+                        parameters[1] = Process::Mapper()->Map(result, 1);
                     } else {
                         // TODO: Somethinghere
                     }
@@ -140,7 +140,7 @@ namespace Blocking_Internal {
                     }
                     KernelArray *array = blocker->CurrentSignals();
                     array->AddRef();
-                    parameters[1] = Process::Mapper()->Map(array);
+                    parameters[1] = Process::Mapper()->Map(array, 1);
                 }
                     break;
                     
