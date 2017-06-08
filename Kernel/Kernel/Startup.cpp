@@ -299,10 +299,17 @@ namespace Startup_Internal {
             
             _state = new Startup_Internal::WaitingForDisk([=](Startup_Internal::Handler *state){
                 Handler *oldState = _state;
-                _runloop->AddTask([oldState]{
-                    delete oldState;
-                });
+                if (oldState) {
+                    _runloop->AddTask([oldState]{
+                        delete oldState;
+                    });
+                }
                 _state = state;
+                if (!_state) {
+                    _runloop->AddTask([this]{
+                        Release();
+                    });
+                }
             });
             
             _runloop->AddSource(_monitor, [this](BlockableObject *object, KernelObject *other){
@@ -334,6 +341,8 @@ namespace Startup_Internal {
     protected:
         ~StartupHandler()
         {
+            START_LOG("STARTUP: Task complete! Stopping!\n");
+            _runloop->RemoveSource(_monitor);   // TODO: Find out why you must manually remove it or it'll crash, and can't just rely on _runloop retaining it
             _helper->Release();
             _runloop->Release();
             _monitor->Release();
