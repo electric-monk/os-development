@@ -31,7 +31,9 @@ typedef signed long long SInt64;
 
 extern BasicHeap *s_coreHeap;
 
+void ClearMemory(void *pointer, UInt32 length);
 void CopyMemory(void *output, const void *input, UInt32 length);
 void CopyFast(void *output, const void *input, UInt32 length);
+int CompareMemory(const void *a, const void *b, UInt32 length);
 
 #endif // __RUNTIME_H__

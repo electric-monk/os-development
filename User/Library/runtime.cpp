@@ -217,3 +217,28 @@ void CopyMemory(void *output, const void *input, UInt32 length)
         }
     }
 }
+
+void ClearMemory(void *pointer, UInt32 length)
+{
+    char *buf = (char*)pointer;
+    while (length) {
+        buf[0] = 0;
+        buf++;
+        length--;
+    }
+}
+
+int CompareMemory(const void *a, const void *b, UInt32 length)
+{
+    UInt8 *ca = (UInt8*)a;
+    UInt8 *cb = (UInt8*)b;
+    while (length) {
+        int result = int(*ca) - int(*cb);
+        if (result)
+            return result;
+        ca++;
+        cb++;
+        length--;
+    }
+    return 0;
+}
