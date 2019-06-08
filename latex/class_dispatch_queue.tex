@@ -1,0 +1,53 @@
+\hypertarget{class_dispatch_queue}{}\section{Dispatch\+Queue Class Reference}
+\label{class_dispatch_queue}\index{Dispatch\+Queue@{Dispatch\+Queue}}
+Inheritance diagram for Dispatch\+Queue\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_dispatch_queue}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{class_dispatch_queue_1_1_task}{Task}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_dispatch_queue_a411cdb6a0c6408f4534f210da8ce6075}\label{class_dispatch_queue_a411cdb6a0c6408f4534f210da8ce6075}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_dispatch_queue_ad19d2087cc2aeacb7c7e007ef46a7717}\label{class_dispatch_queue_ad19d2087cc2aeacb7c7e007ef46a7717}} 
+void {\bfseries Add\+Task} (\hyperlink{class_dispatch_queue_1_1_task}{Task} $\ast$task)
+\item 
+\mbox{\Hypertarget{class_dispatch_queue_a0064260523d229021d6d0bb35285641d}\label{class_dispatch_queue_a0064260523d229021d6d0bb35285641d}} 
+void {\bfseries Add\+Task} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ int(void)$>$ task)
+\end{DoxyCompactItemize}
+\subsection*{Static Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_dispatch_queue_a6c66705437b5735aa2fd87ac78129e48}\label{class_dispatch_queue_a6c66705437b5735aa2fd87ac78129e48}} 
+static void {\bfseries Work\+Thread} (void $\ast$)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_dispatch_queue_abf8f4141259cb1332d778755db309a8d}\label{class_dispatch_queue_abf8f4141259cb1332d778755db309a8d}} 
+\hyperlink{class_hardcore_spin_lock}{Hardcore\+Spin\+Lock} {\bfseries \+\_\+task\+Lock}
+\item 
+\mbox{\Hypertarget{class_dispatch_queue_ab9d2b9ec0351036442b556382b9a21bf}\label{class_dispatch_queue_ab9d2b9ec0351036442b556382b9a21bf}} 
+\hyperlink{class_kernel_f_i_f_o}{Kernel\+F\+I\+FO} $\ast$ {\bfseries \+\_\+tasks}
+\item 
+\mbox{\Hypertarget{class_dispatch_queue_a2ff299d7672007208eaa503d0cc32a70}\label{class_dispatch_queue_a2ff299d7672007208eaa503d0cc32a70}} 
+\hyperlink{class_thread}{Thread} $\ast$ {\bfseries \+\_\+thread}
+\item 
+\mbox{\Hypertarget{class_dispatch_queue_a157e71179befc0648ecd99c30a48fce9}\label{class_dispatch_queue_a157e71179befc0648ecd99c30a48fce9}} 
+\hyperlink{class_simple_signal}{Simple\+Signal} $\ast$ {\bfseries \+\_\+thread\+End}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Queue.\+h\item 
+Queue.\+cpp\end{DoxyCompactItemize}

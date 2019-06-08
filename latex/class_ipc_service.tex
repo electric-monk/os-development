@@ -1,0 +1,72 @@
+\hypertarget{class_ipc_service}{}\section{Ipc\+Service Class Reference}
+\label{class_ipc_service}\index{Ipc\+Service@{Ipc\+Service}}
+Inheritance diagram for Ipc\+Service\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_ipc_service}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_ipc_service_a46fb059ab216115f3efd7f028bbab2c4}\label{class_ipc_service_a46fb059ab216115f3efd7f028bbab2c4}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_ipc_service_a8890c42050eb8b5cd8f3da28ce3b8426}\label{class_ipc_service_a8890c42050eb8b5cd8f3da28ce3b8426}} 
+{\bfseries Ipc\+Service} (\hyperlink{class_kernel_string}{Kernel\+String} $\ast$name, \hyperlink{class_kernel_string}{Kernel\+String} $\ast$service)
+\item 
+\mbox{\Hypertarget{class_ipc_service_a61415ab1329973de3594c1124644d1eb}\label{class_ipc_service_a61415ab1329973de3594c1124644d1eb}} 
+\hyperlink{class_kernel_string}{Kernel\+String} $\ast$ {\bfseries Name} (void)
+\item 
+\mbox{\Hypertarget{class_ipc_service_ad3eb36cb050250883398602298c1f76e}\label{class_ipc_service_ad3eb36cb050250883398602298c1f76e}} 
+\hyperlink{class_kernel_string}{Kernel\+String} $\ast$ {\bfseries Service\+Type} (void)
+\item 
+\mbox{\Hypertarget{class_ipc_service_a39feb505958bdba346a38dbea3e1bb94}\label{class_ipc_service_a39feb505958bdba346a38dbea3e1bb94}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries Properties} (void)
+\item 
+\mbox{\Hypertarget{class_ipc_service_a168b5ab8b55306db01659be94d576fdd}\label{class_ipc_service_a168b5ab8b55306db01659be94d576fdd}} 
+\hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$ {\bfseries Next\+Connection} (bool wait)
+\item 
+\mbox{\Hypertarget{class_ipc_service_a9fc25c44f34831ec0df4fc20981ddc2a}\label{class_ipc_service_a9fc25c44f34831ec0df4fc20981ddc2a}} 
+void {\bfseries Start} (\hyperlink{class_ipc_service_proxy}{Ipc\+Service\+Proxy} $\ast$proxy)
+\item 
+\mbox{\Hypertarget{class_ipc_service_aa6bd186a1b01401ba8a0bd60e7eb1d5f}\label{class_ipc_service_aa6bd186a1b01401ba8a0bd60e7eb1d5f}} 
+void {\bfseries Stop} (void)
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_ipc_service_a436343998618e888fcc921675a600ed5}\label{class_ipc_service_a436343998618e888fcc921675a600ed5}} 
+\hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$ {\bfseries Request\+Connection} (void)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_ipc_service_a2cc3062376872535da7acaad43d2ca4e}\label{class_ipc_service_a2cc3062376872535da7acaad43d2ca4e}} 
+friend {\bfseries Ipc\+Client}
+\item 
+\mbox{\Hypertarget{class_ipc_service_a29512da85956bfe1ed0df3da2a08b472}\label{class_ipc_service_a29512da85956bfe1ed0df3da2a08b472}} 
+\hyperlink{class_ipc_service_proxy}{Ipc\+Service\+Proxy} $\ast$ {\bfseries \+\_\+proxy}
+\item 
+\mbox{\Hypertarget{class_ipc_service_af0b9a9dafacff815aaf757a6f172efbe}\label{class_ipc_service_af0b9a9dafacff815aaf757a6f172efbe}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries \+\_\+properties}
+\item 
+\mbox{\Hypertarget{class_ipc_service_aabbb968191370b1dcb3eca360db6f794}\label{class_ipc_service_aabbb968191370b1dcb3eca360db6f794}} 
+\hyperlink{class_kernel_string}{Kernel\+String} $\ast$ {\bfseries \+\_\+name}
+\item 
+\mbox{\Hypertarget{class_ipc_service_a7d99b3e1ac61f27eb38561aa97cbc075}\label{class_ipc_service_a7d99b3e1ac61f27eb38561aa97cbc075}} 
+\hyperlink{class_kernel_string}{Kernel\+String} $\ast$ {\bfseries \+\_\+type}
+\item 
+\mbox{\Hypertarget{class_ipc_service_a7e930415d89140574289979576abf29a}\label{class_ipc_service_a7e930415d89140574289979576abf29a}} 
+\hyperlink{class_kernel_f_i_f_o}{Kernel\+F\+I\+FO} $\ast$ {\bfseries \+\_\+fifo}
+\item 
+\mbox{\Hypertarget{class_ipc_service_a9a8afb7e9aab1c20b9b8f1f076fab15d}\label{class_ipc_service_a9a8afb7e9aab1c20b9b8f1f076fab15d}} 
+U\+Int64 {\bfseries \+\_\+fifo\+Count}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+I\+P\+C.\+h\item 
+I\+P\+C.\+cpp\end{DoxyCompactItemize}

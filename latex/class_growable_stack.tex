@@ -1,0 +1,48 @@
+\hypertarget{class_growable_stack}{}\section{Growable\+Stack Class Reference}
+\label{class_growable_stack}\index{Growable\+Stack@{Growable\+Stack}}
+Inheritance diagram for Growable\+Stack\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_growable_stack}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_growable_stack_abce61b68dc37ec1599707fdfcc2d71c8}\label{class_growable_stack_abce61b68dc37ec1599707fdfcc2d71c8}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_growable_stack_a58153cde8bf389e48b0452a7f8d44687}\label{class_growable_stack_a58153cde8bf389e48b0452a7f8d44687}} 
+{\bfseries Growable\+Stack} (\hyperlink{class_process}{Process} $\ast$process, U\+Int32 maximum\+Pages)
+\item 
+\mbox{\Hypertarget{class_growable_stack_ac65e7f4b6493793184c0a063fdec7ae3}\label{class_growable_stack_ac65e7f4b6493793184c0a063fdec7ae3}} 
+void $\ast$ {\bfseries Stack\+Top} (void)
+\item 
+\mbox{\Hypertarget{class_growable_stack_a9db4cdc20c1c07ca26187df034f7298d}\label{class_growable_stack_a9db4cdc20c1c07ca26187df034f7298d}} 
+\hyperlink{class_virtual_memory}{Virtual\+Memory} $\ast$ {\bfseries Map\+Into\+Kernel} (void)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_growable_stack_a8f21f92acbb14fe4281c201b95d923de}\label{class_growable_stack_a8f21f92acbb14fe4281c201b95d923de}} 
+void {\bfseries Handle\+Page\+Fault} (void $\ast$linear\+Address)
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_growable_stack_ab5c4f65e9a4405e6171b8a2567e6f6e5}\label{class_growable_stack_ab5c4f65e9a4405e6171b8a2567e6f6e5}} 
+Physical\+Pointer {\bfseries Get\+Address} (U\+Int32 offset)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_growable_stack_acc455b20594b72ffa8f76786fc5ba113}\label{class_growable_stack_acc455b20594b72ffa8f76786fc5ba113}} 
+friend {\bfseries Growable\+Stack\+Mapping}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+mem\+\_\+virtual.\+h\item 
+mem\+\_\+virtual.\+cpp\end{DoxyCompactItemize}

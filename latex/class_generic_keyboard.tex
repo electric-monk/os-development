@@ -1,0 +1,72 @@
+\hypertarget{class_generic_keyboard}{}\section{Generic\+Keyboard Class Reference}
+\label{class_generic_keyboard}\index{Generic\+Keyboard@{Generic\+Keyboard}}
+Inheritance diagram for Generic\+Keyboard\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.000000cm]{class_generic_keyboard}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_ada61b732d8ef64c5a506896f4fbeee87}\label{class_generic_keyboard_ada61b732d8ef64c5a506896f4fbeee87}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_a3df84388c4aca9eb633d259f6cf670ed}\label{class_generic_keyboard_a3df84388c4aca9eb633d259f6cf670ed}} 
+{\bfseries Generic\+Keyboard} (const char $\ast$name)
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_a437887f81eb3507c4e9775127040eb26}\label{class_generic_keyboard_a437887f81eb3507c4e9775127040eb26}} 
+bool {\bfseries Start} (\hyperlink{class_driver}{Driver} $\ast$parent)
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_acc9f38c7e0a6a3d1adf545fdddd31388}\label{class_generic_keyboard_acc9f38c7e0a6a3d1adf545fdddd31388}} 
+void {\bfseries Stop} (void)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_a7e7e2702466ab806a76e1db77adc832a}\label{class_generic_keyboard_a7e7e2702466ab806a76e1db77adc832a}} 
+bool {\bfseries Handle\+Key} (U\+Int8 event)
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_ae3a3b36c55bf4761fe69fed8f4579ac2}\label{class_generic_keyboard_ae3a3b36c55bf4761fe69fed8f4579ac2}} 
+void {\bfseries Send\+Event} (int key, bool down)
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_a1582672c49773e3095c25d5b73991d57}\label{class_generic_keyboard_a1582672c49773e3095c25d5b73991d57}} 
+\hyperlink{class_provider_driver_1_1_connection}{Connection} $\ast$ {\bfseries Connection\+Start} (Service $\ast$service, \hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$endpoint)
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_a334c6ddbc5046b15d7096132e6473107}\label{class_generic_keyboard_a334c6ddbc5046b15d7096132e6473107}} 
+void {\bfseries Connection\+Receive} (\hyperlink{class_provider_driver_1_1_connection}{Connection} $\ast$connection, \hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$message)
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_a23a3fedb20cb8f4cbc6815c6df6084f8}\label{class_generic_keyboard_a23a3fedb20cb8f4cbc6815c6df6084f8}} 
+void {\bfseries Connection\+Stop} (\hyperlink{class_provider_driver_1_1_connection}{Connection} $\ast$connection)
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_a54f18808154a1af2babca5cab64320f9}\label{class_generic_keyboard_a54f18808154a1af2babca5cab64320f9}} 
+\hyperlink{class_runloop_thread}{Runloop\+Thread} $\ast$ {\bfseries \+\_\+thread}
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_a98b6e081427bfbf72c03ef16aee7fcbe}\label{class_generic_keyboard_a98b6e081427bfbf72c03ef16aee7fcbe}} 
+bool {\bfseries \+\_\+extended}
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_a901addff4150beed15747fd01905dd7b}\label{class_generic_keyboard_a901addff4150beed15747fd01905dd7b}} 
+int {\bfseries \+\_\+identifier\+Count}
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_ad2d2ce165de1352b0670620338decb94}\label{class_generic_keyboard_ad2d2ce165de1352b0670620338decb94}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries \+\_\+mapping}
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_aecfcfc8513bb18181a56b4b984cba113}\label{class_generic_keyboard_aecfcfc8513bb18181a56b4b984cba113}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries \+\_\+pressed}
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_keyboard_abb8543e658be6686e2f2b46a8340e557}\label{class_generic_keyboard_abb8543e658be6686e2f2b46a8340e557}} 
+Service $\ast$ {\bfseries \+\_\+service}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Generic\+Keyboard.\+h\item 
+Generic\+Keyboard.\+cpp\end{DoxyCompactItemize}

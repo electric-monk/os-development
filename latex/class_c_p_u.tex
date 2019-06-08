@@ -1,0 +1,62 @@
+\hypertarget{class_c_p_u}{}\section{C\+PU Class Reference}
+\label{class_c_p_u}\index{C\+PU@{C\+PU}}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{class_c_p_u_1_1_context}{Context}
+\item 
+struct \hyperlink{struct_c_p_u_1_1_c_p_u___l_o_c_a_l}{C\+P\+U\+\_\+\+L\+O\+C\+AL}
+\item 
+class \hyperlink{class_c_p_u_1_1_f_p_u_context}{F\+P\+U\+Context}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_p_u_a20206a3df3ca597e99bdf966df89af57}\label{class_c_p_u_a20206a3df3ca597e99bdf966df89af57}} 
+void {\bfseries Push\+Interrupt\+Flag} (void)
+\item 
+\mbox{\Hypertarget{class_c_p_u_a7d27d44a71bdd1aa1afa493232b6b44e}\label{class_c_p_u_a7d27d44a71bdd1aa1afa493232b6b44e}} 
+void {\bfseries Pop\+Interrupt\+Flag} (void)
+\item 
+\mbox{\Hypertarget{class_c_p_u_aab8ed436360feede06ddab846a391111}\label{class_c_p_u_aab8ed436360feede06ddab846a391111}} 
+void {\bfseries Init\+Segments} (void)
+\item 
+\mbox{\Hypertarget{class_c_p_u_a5f0a7b53661c9e17a826a653d81b0668}\label{class_c_p_u_a5f0a7b53661c9e17a826a653d81b0668}} 
+void {\bfseries Init\+T\+SS} (void $\ast$kernel\+Stack, U\+Int32 kernel\+Stack\+Size)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_p_u_a0067ab50ec54c16b162becc95fc55c9f}\label{class_c_p_u_a0067ab50ec54c16b162becc95fc55c9f}} 
+static \hyperlink{class_c_p_u}{C\+PU} $\ast$Active {\bfseries asm} (\char`\"{}\%gs\+:0\char`\"{})
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_p_u_a15e6683421a83407a0d3173fbcaf8c3a}\label{class_c_p_u_a15e6683421a83407a0d3173fbcaf8c3a}} 
+\hyperlink{class_c_p_u_1_1_context}{Context} $\ast$ {\bfseries scheduler}
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_p_u_a06414fdfbd4dccc052cb325816732e36}\label{class_c_p_u_a06414fdfbd4dccc052cb325816732e36}} 
+G\+D\+T\+\_\+\+S\+E\+G\+M\+E\+NT {\bfseries gdt} \mbox{[}7\mbox{]}
+\item 
+\mbox{\Hypertarget{class_c_p_u_a06011b73c6a1da6fc859dc2e1f011364}\label{class_c_p_u_a06011b73c6a1da6fc859dc2e1f011364}} 
+\hyperlink{struct_c_p_u_1_1_c_p_u___l_o_c_a_l}{C\+P\+U\+\_\+\+L\+O\+C\+AL} {\bfseries local\+Storage}
+\item 
+\mbox{\Hypertarget{class_c_p_u_a26a747f5fdf4e7748d1422a5cb4b992b}\label{class_c_p_u_a26a747f5fdf4e7748d1422a5cb4b992b}} 
+T\+S\+S\+\_\+\+B\+L\+O\+CK {\bfseries cpu\+T\+SS}
+\item 
+\mbox{\Hypertarget{class_c_p_u_ab5cf734b3b2a0d35f6e1ae0eb858863f}\label{class_c_p_u_ab5cf734b3b2a0d35f6e1ae0eb858863f}} 
+U\+Int32 {\bfseries \+\_\+interrupt\+Push\+Count}
+\item 
+\mbox{\Hypertarget{class_c_p_u_a58492e700fe3f7f06ea10e510803c34f}\label{class_c_p_u_a58492e700fe3f7f06ea10e510803c34f}} 
+bool {\bfseries \+\_\+interrupt\+Was\+Enabled}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+C\+P\+U.\+h\item 
+C\+P\+U.\+cpp\end{DoxyCompactItemize}

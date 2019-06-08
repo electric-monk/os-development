@@ -1,0 +1,72 @@
+\hypertarget{class_generic_mouse}{}\section{Generic\+Mouse Class Reference}
+\label{class_generic_mouse}\index{Generic\+Mouse@{Generic\+Mouse}}
+Inheritance diagram for Generic\+Mouse\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.000000cm]{class_generic_mouse}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_mouse_a89c7ce7169444a492e8246ed4162839a}\label{class_generic_mouse_a89c7ce7169444a492e8246ed4162839a}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_generic_mouse_abc932bc5a5d13890cf4478689fb0353c}\label{class_generic_mouse_abc932bc5a5d13890cf4478689fb0353c}} 
+{\bfseries Generic\+Mouse} (const char $\ast$name)
+\item 
+\mbox{\Hypertarget{class_generic_mouse_afe652111afa403e7407b91e50f1a77d6}\label{class_generic_mouse_afe652111afa403e7407b91e50f1a77d6}} 
+bool {\bfseries Start} (\hyperlink{class_driver}{Driver} $\ast$parent)
+\item 
+\mbox{\Hypertarget{class_generic_mouse_a17a3923ab25e4826add22fc73b9b1e40}\label{class_generic_mouse_a17a3923ab25e4826add22fc73b9b1e40}} 
+void {\bfseries Stop} (void)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_mouse_ae982497904804dc3586966dc44c087a5}\label{class_generic_mouse_ae982497904804dc3586966dc44c087a5}} 
+void {\bfseries Move} (S\+Int32 x, S\+Int32 y)
+\item 
+\mbox{\Hypertarget{class_generic_mouse_adeeededabddd93d4c6349b98d3436e4c}\label{class_generic_mouse_adeeededabddd93d4c6349b98d3436e4c}} 
+void {\bfseries Button} (U\+Int32 index, bool down)
+\item 
+\mbox{\Hypertarget{class_generic_mouse_a196dfde2263e2e8fb8efda7eae07fe67}\label{class_generic_mouse_a196dfde2263e2e8fb8efda7eae07fe67}} 
+void {\bfseries Scroll} (S\+Int32 x, S\+Int32 y)
+\item 
+\mbox{\Hypertarget{class_generic_mouse_ab42c3bb04e2fd439f55c3d3a6a331051}\label{class_generic_mouse_ab42c3bb04e2fd439f55c3d3a6a331051}} 
+\hyperlink{class_provider_driver_1_1_connection}{Connection} $\ast$ {\bfseries Connection\+Start} (\hyperlink{class_provider_driver_1_1_service}{Service} $\ast$service, \hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$endpoint)
+\item 
+\mbox{\Hypertarget{class_generic_mouse_a5a0092d02a7fbbf141e58d13e568640d}\label{class_generic_mouse_a5a0092d02a7fbbf141e58d13e568640d}} 
+void {\bfseries Connection\+Receive} (\hyperlink{class_provider_driver_1_1_connection}{Connection} $\ast$connection, \hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$message)
+\item 
+\mbox{\Hypertarget{class_generic_mouse_a1bb452ac2b9e237ad60ddb377a514904}\label{class_generic_mouse_a1bb452ac2b9e237ad60ddb377a514904}} 
+void {\bfseries Connection\+Stop} (\hyperlink{class_provider_driver_1_1_connection}{Connection} $\ast$connection)
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_mouse_a7c8d725fb20e262d2c7fb656a30684b4}\label{class_generic_mouse_a7c8d725fb20e262d2c7fb656a30684b4}} 
+\hyperlink{class_runloop_thread}{Runloop\+Thread} $\ast$ {\bfseries \+\_\+thread}
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_mouse_aa1bff7fce968f5e27d5922b17e4a4541}\label{class_generic_mouse_aa1bff7fce968f5e27d5922b17e4a4541}} 
+void {\bfseries Send\+Motion} (int x, int y, int type)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_mouse_a44d0165cb5da8ccb90acd9ea4a4419d1}\label{class_generic_mouse_a44d0165cb5da8ccb90acd9ea4a4419d1}} 
+\hyperlink{class_provider_driver_1_1_service}{Service} $\ast$ {\bfseries \+\_\+service}
+\item 
+\mbox{\Hypertarget{class_generic_mouse_a53d0c2374616e0f4b1779fb35a725949}\label{class_generic_mouse_a53d0c2374616e0f4b1779fb35a725949}} 
+int {\bfseries \+\_\+identifier\+Count}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Generic\+Mouse.\+h\item 
+Generic\+Mouse.\+cpp\end{DoxyCompactItemize}

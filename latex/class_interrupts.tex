@@ -1,0 +1,32 @@
+\hypertarget{class_interrupts}{}\section{Interrupts Class Reference}
+\label{class_interrupts}\index{Interrupts@{Interrupts}}
+Inheritance diagram for Interrupts\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_interrupts}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_interrupts_a5420d99f7f52aff51c174680e75e05eb}\label{class_interrupts_a5420d99f7f52aff51c174680e75e05eb}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_interrupts_a09a932aa8c2c50f54aa686ab3db94817}\label{class_interrupts_a09a932aa8c2c50f54aa686ab3db94817}} 
+virtual Interrupt\+Handler\+Handle {\bfseries Register\+Handler} (int irq, Interrupt\+Handler handler, void $\ast$context)
+\item 
+\mbox{\Hypertarget{class_interrupts_a91ca8a05a51bed7a548c4540b8607caf}\label{class_interrupts_a91ca8a05a51bed7a548c4540b8607caf}} 
+virtual Interrupt\+Handler\+Handle {\bfseries Register\+Handler} (int irq, \hyperlink{classbicycle_1_1function}{Interrupt\+Handler\+Block} handler)=0
+\item 
+\mbox{\Hypertarget{class_interrupts_aa82c8f24ba5c3edbd4a0d6f92f883741}\label{class_interrupts_aa82c8f24ba5c3edbd4a0d6f92f883741}} 
+virtual void {\bfseries Unregister\+Handler} (Interrupt\+Handler\+Handle handler)=0
+\item 
+\mbox{\Hypertarget{class_interrupts_ae2270331263a1ff421f87c84b88ce077}\label{class_interrupts_ae2270331263a1ff421f87c84b88ce077}} 
+virtual void {\bfseries Configure\+Syscall} (int irq)=0
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Interrupts.\+h\end{DoxyCompactItemize}

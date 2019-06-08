@@ -1,0 +1,68 @@
+\hypertarget{class_kernel_object}{}\section{Kernel\+Object Class Reference}
+\label{class_kernel_object}\index{Kernel\+Object@{Kernel\+Object}}
+Inheritance diagram for Kernel\+Object\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=12.000000cm]{class_kernel_object}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{class_kernel_object_1_1_destruction_watcher_handle}{Destruction\+Watcher\+Handle}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_kernel_object_a3acaa882f6fd48aa73479c1d85adc01b}\label{class_kernel_object_a3acaa882f6fd48aa73479c1d85adc01b}} 
+virtual void {\bfseries Add\+Ref} (void)
+\item 
+\mbox{\Hypertarget{class_kernel_object_a1ab51c4efab74fe7031d20c2977d3007}\label{class_kernel_object_a1ab51c4efab74fe7031d20c2977d3007}} 
+virtual void {\bfseries Release} (void)
+\item 
+\mbox{\Hypertarget{class_kernel_object_a7e90f015b06f04d2bf24a8d0c1f2d01b}\label{class_kernel_object_a7e90f015b06f04d2bf24a8d0c1f2d01b}} 
+virtual void {\bfseries Autorelease} (void)
+\item 
+\mbox{\Hypertarget{class_kernel_object_a1453eb2f9d706cca362b59bcbb67c89e}\label{class_kernel_object_a1453eb2f9d706cca362b59bcbb67c89e}} 
+virtual U\+Int32 {\bfseries Hash} (void)
+\item 
+\mbox{\Hypertarget{class_kernel_object_ab44f875a49feae5ab2c7a6d34232be34}\label{class_kernel_object_ab44f875a49feae5ab2c7a6d34232be34}} 
+virtual bool {\bfseries Is\+Equal\+To} (\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$other)
+\item 
+\mbox{\Hypertarget{class_kernel_object_a510d90ac2bb40fa5d6356d62a688bfc1}\label{class_kernel_object_a510d90ac2bb40fa5d6356d62a688bfc1}} 
+virtual const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_kernel_object_aebe126d96e0db3f95d095794d0af344c}\label{class_kernel_object_aebe126d96e0db3f95d095794d0af344c}} 
+bool {\bfseries Is\+Derived\+From\+Class} (const char $\ast$name)
+\item 
+\mbox{\Hypertarget{class_kernel_object_a60b69686097868fc83081f35b7041a5f}\label{class_kernel_object_a60b69686097868fc83081f35b7041a5f}} 
+bool {\bfseries Is\+Instance\+Of\+Class} (const char $\ast$name)
+\item 
+\mbox{\Hypertarget{class_kernel_object_a230cb13d1dc6c6535387d9efe8b23c17}\label{class_kernel_object_a230cb13d1dc6c6535387d9efe8b23c17}} 
+\hyperlink{class_kernel_object_1_1_destruction_watcher_handle}{Destruction\+Watcher\+Handle} $\ast$ {\bfseries Watch} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(void)$>$ on\+Destroy)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_kernel_object_a5fe13e8344acd71e632572c52ea5ddf7}\label{class_kernel_object_a5fe13e8344acd71e632572c52ea5ddf7}} 
+static void {\bfseries Configure\+Service} (void)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_kernel_object_afb26ceb5200fd39ef9f6b123c6d621fb}\label{class_kernel_object_afb26ceb5200fd39ef9f6b123c6d621fb}} 
+U\+Int32 {\bfseries \+\_\+count}
+\item 
+\mbox{\Hypertarget{class_kernel_object_abe5916faa507a2a88c75fafc72ddc714}\label{class_kernel_object_abe5916faa507a2a88c75fafc72ddc714}} 
+\hyperlink{class_kernel_object_1_1_destruction_watcher_handle}{Destruction\+Watcher\+Handle} $\ast$ {\bfseries \+\_\+watch\+Start}
+\item 
+\mbox{\Hypertarget{class_kernel_object_a591fd2f982d0397cdc30b4ccf1c04fb1}\label{class_kernel_object_a591fd2f982d0397cdc30b4ccf1c04fb1}} 
+\hyperlink{class_kernel_object_1_1_destruction_watcher_handle}{Destruction\+Watcher\+Handle} $\ast$ {\bfseries \+\_\+watch\+End}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Kernel\+Object.\+h\item 
+Kernel\+Object.\+cpp\item 
+Kernel\+Object\+\_\+\+Service.\+cpp\end{DoxyCompactItemize}

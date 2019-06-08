@@ -1,0 +1,68 @@
+\hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse}{}\section{Standard\+P\+C\+\_\+\+Internal\+:\+:P\+S2\+Mouse Class Reference}
+\label{class_standard_p_c___internal_1_1_p_s2_mouse}\index{Standard\+P\+C\+\_\+\+Internal\+::\+P\+S2\+Mouse@{Standard\+P\+C\+\_\+\+Internal\+::\+P\+S2\+Mouse}}
+Inheritance diagram for Standard\+P\+C\+\_\+\+Internal\+:\+:P\+S2\+Mouse\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.000000cm]{class_standard_p_c___internal_1_1_p_s2_mouse}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_a3b874fd8a75bd75bdcde90eb4b50a3e6}\label{class_standard_p_c___internal_1_1_p_s2_mouse_a3b874fd8a75bd75bdcde90eb4b50a3e6}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_abb22af09833998dd69ad671c8918819a}\label{class_standard_p_c___internal_1_1_p_s2_mouse_abb22af09833998dd69ad671c8918819a}} 
+bool {\bfseries Start} (\hyperlink{class_driver}{Driver} $\ast$parent)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_a1b35a845d2ede91aedce08f5ebb64e64}\label{class_standard_p_c___internal_1_1_p_s2_mouse_a1b35a845d2ede91aedce08f5ebb64e64}} 
+void {\bfseries Stop} (void)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_a5b14962deabe496e544035819eb7096d}\label{class_standard_p_c___internal_1_1_p_s2_mouse_a5b14962deabe496e544035819eb7096d}} 
+void {\bfseries Feed\+Byte} (U\+Int8 c)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_ab3e6605535efeab888b730c575a1bee1}\label{class_standard_p_c___internal_1_1_p_s2_mouse_ab3e6605535efeab888b730c575a1bee1}} 
+void {\bfseries Reset\+Input} (void)
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_aaa412a60b872099ac25b1be0cfdd6582}\label{class_standard_p_c___internal_1_1_p_s2_mouse_aaa412a60b872099ac25b1be0cfdd6582}} 
+void {\bfseries Reset} (bool retry)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_a834421ca76ef28c6ddb154eef77d17e5}\label{class_standard_p_c___internal_1_1_p_s2_mouse_a834421ca76ef28c6ddb154eef77d17e5}} 
+void {\bfseries Set\+Sample\+Rate} (U\+Int8 rate, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(bool success)$>$ on\+Completion)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_a3ad21c3888a316313660df2b9038fecc}\label{class_standard_p_c___internal_1_1_p_s2_mouse_a3ad21c3888a316313660df2b9038fecc}} 
+void {\bfseries Get\+Mouse\+ID} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(U\+Int8 result)$>$ on\+Completion)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_add73b19f913ed27de626cdd975a74150}\label{class_standard_p_c___internal_1_1_p_s2_mouse_add73b19f913ed27de626cdd975a74150}} 
+void {\bfseries Request\+Single\+Packet} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(U\+Int8 $\ast$data)$>$ on\+Completion)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_a2cd0b2445c1135760f82bc23e49564a6}\label{class_standard_p_c___internal_1_1_p_s2_mouse_a2cd0b2445c1135760f82bc23e49564a6}} 
+void {\bfseries Send\+Reset} (void)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_a7a4f3add7ea0722d13ccffd961576e9f}\label{class_standard_p_c___internal_1_1_p_s2_mouse_a7a4f3add7ea0722d13ccffd961576e9f}} 
+void {\bfseries Set\+Streaming} (bool enabled, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(bool success)$>$ on\+Completion)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_a8f59c807a6a491c80440080f41dd3d8b}\label{class_standard_p_c___internal_1_1_p_s2_mouse_a8f59c807a6a491c80440080f41dd3d8b}} 
+U\+Int8 {\bfseries \+\_\+mouse\+ID}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_ae35585a702d47d503f6e9c91ed86813b}\label{class_standard_p_c___internal_1_1_p_s2_mouse_ae35585a702d47d503f6e9c91ed86813b}} 
+U\+Int8 {\bfseries \+\_\+butans}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_a87a881295699c3214acdf2a8f58702fd}\label{class_standard_p_c___internal_1_1_p_s2_mouse_a87a881295699c3214acdf2a8f58702fd}} 
+U\+Int8 {\bfseries \+\_\+buffer} \mbox{[}10\mbox{]}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_mouse_a231dc0ef268740792b4245349dc77dbb}\label{class_standard_p_c___internal_1_1_p_s2_mouse_a231dc0ef268740792b4245349dc77dbb}} 
+int {\bfseries \+\_\+received}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Standard\+P\+C.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,45 @@
+\hypertarget{class_runloop_thread}{}\section{Runloop\+Thread Class Reference}
+\label{class_runloop_thread}\index{Runloop\+Thread@{Runloop\+Thread}}
+Inheritance diagram for Runloop\+Thread\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_runloop_thread}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_runloop_thread_a2630a57d6d97a0cca01e15a64191b6f8}\label{class_runloop_thread_a2630a57d6d97a0cca01e15a64191b6f8}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_runloop_thread_a3ca9e14fcac1cd8aec3901772f568e14}\label{class_runloop_thread_a3ca9e14fcac1cd8aec3901772f568e14}} 
+{\bfseries Runloop\+Thread} (\hyperlink{class_process}{Process} $\ast$owner=0\+L)
+\item 
+\mbox{\Hypertarget{class_runloop_thread_af37c487cf24e7f4ed2d8ea05eb9cd083}\label{class_runloop_thread_af37c487cf24e7f4ed2d8ea05eb9cd083}} 
+void {\bfseries Add\+Task} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(void)$>$ task)
+\item 
+\mbox{\Hypertarget{class_runloop_thread_a9eefcaf072160127daafbcb26a5fdf9b}\label{class_runloop_thread_a9eefcaf072160127daafbcb26a5fdf9b}} 
+\hyperlink{class_task_queue}{Task\+Queue} $\ast$ {\bfseries Queue} (void)
+\end{DoxyCompactItemize}
+\subsection*{Static Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_runloop_thread_a046d7c06797d051e8a3a13d672fa1d7a}\label{class_runloop_thread_a046d7c06797d051e8a3a13d672fa1d7a}} 
+static void {\bfseries Work\+Thread} (void $\ast$)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_runloop_thread_aa41cce8dc90002f64989d52b5dfd0a10}\label{class_runloop_thread_aa41cce8dc90002f64989d52b5dfd0a10}} 
+\hyperlink{class_thread}{Thread} $\ast$ {\bfseries \+\_\+thread}
+\item 
+\mbox{\Hypertarget{class_runloop_thread_a42a37e8d9938db7c09fd1ff0fe91171c}\label{class_runloop_thread_a42a37e8d9938db7c09fd1ff0fe91171c}} 
+\hyperlink{class_task_queue}{Task\+Queue} $\ast$ {\bfseries \+\_\+tasks}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Runloop.\+h\item 
+Runloop.\+cpp\end{DoxyCompactItemize}

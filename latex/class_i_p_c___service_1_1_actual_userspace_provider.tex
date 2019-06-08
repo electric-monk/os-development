@@ -1,0 +1,68 @@
+\hypertarget{class_i_p_c___service_1_1_actual_userspace_provider}{}\section{I\+P\+C\+\_\+\+Service\+:\+:Actual\+Userspace\+Provider Class Reference}
+\label{class_i_p_c___service_1_1_actual_userspace_provider}\index{I\+P\+C\+\_\+\+Service\+::\+Actual\+Userspace\+Provider@{I\+P\+C\+\_\+\+Service\+::\+Actual\+Userspace\+Provider}}
+Inheritance diagram for I\+P\+C\+\_\+\+Service\+:\+:Actual\+Userspace\+Provider\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_i_p_c___service_1_1_actual_userspace_provider}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_ae0869d9c5fee31f786c69d239f9e212f}\label{class_i_p_c___service_1_1_actual_userspace_provider_ae0869d9c5fee31f786c69d239f9e212f}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_a5d89b927ecd4dedd01d02028588bc5cf}\label{class_i_p_c___service_1_1_actual_userspace_provider_a5d89b927ecd4dedd01d02028588bc5cf}} 
+\hyperlink{class_i_p_c___service_1_1_userspace_provider}{Userspace\+Provider} $\ast$ {\bfseries Monitor} (void)
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_ab41ede0b661c580bec3a653a404e9010}\label{class_i_p_c___service_1_1_actual_userspace_provider_ab41ede0b661c580bec3a653a404e9010}} 
+\hyperlink{class_ipc_service}{Ipc\+Service} $\ast$ {\bfseries Launch\+Service} (\hyperlink{class_kernel_string}{Kernel\+String} $\ast$name, \hyperlink{class_kernel_string}{Kernel\+String} $\ast$type)
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_a2a171142311c637e61e3b7615039f70f}\label{class_i_p_c___service_1_1_actual_userspace_provider_a2a171142311c637e61e3b7615039f70f}} 
+bool {\bfseries Kill\+Service} (\hyperlink{class_ipc_service}{Ipc\+Service} $\ast$service)
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_afcaa9880e30eda7b488e9225603da096}\label{class_i_p_c___service_1_1_actual_userspace_provider_afcaa9880e30eda7b488e9225603da096}} 
+\hyperlink{class_ipc_client}{Ipc\+Client} $\ast$ {\bfseries Launch\+Client} (\hyperlink{class_kernel_string}{Kernel\+String} $\ast$name)
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_a7ce03fcf818273560973087cfa541909}\label{class_i_p_c___service_1_1_actual_userspace_provider_a7ce03fcf818273560973087cfa541909}} 
+bool {\bfseries Kill\+Client} (\hyperlink{class_ipc_client}{Ipc\+Client} $\ast$client)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_ab29364220122b32e1b5ec64292a372ec}\label{class_i_p_c___service_1_1_actual_userspace_provider_ab29364220122b32e1b5ec64292a372ec}} 
+\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$ {\bfseries Input\+Connection\+Start} (\hyperlink{class_kernel_string}{Kernel\+String} $\ast$name, \hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$connection)
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_ac07aeb354a483e9fa042be38fa827ff2}\label{class_i_p_c___service_1_1_actual_userspace_provider_ac07aeb354a483e9fa042be38fa827ff2}} 
+void {\bfseries Input\+Connection\+Received} (\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$connection, \hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$message)
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_a5d5cc5a4d2c65398eb59400fb8ce149e}\label{class_i_p_c___service_1_1_actual_userspace_provider_a5d5cc5a4d2c65398eb59400fb8ce149e}} 
+void {\bfseries Input\+Connection\+End} (\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$connection)
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_ad5a2568fa7eb45f94ddba0b889386d3a}\label{class_i_p_c___service_1_1_actual_userspace_provider_ad5a2568fa7eb45f94ddba0b889386d3a}} 
+\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$ {\bfseries Output\+Connection\+Start} (\hyperlink{class_generic_provider_1_1_service}{Service} $\ast$source, \hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$connection)
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_a74ed15be91e351e5fd43638bd924cb9c}\label{class_i_p_c___service_1_1_actual_userspace_provider_a74ed15be91e351e5fd43638bd924cb9c}} 
+void {\bfseries Output\+Connection\+Message} (\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$connection, \hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$message)
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_a590138d1fa024ef456c44e667057ac69}\label{class_i_p_c___service_1_1_actual_userspace_provider_a590138d1fa024ef456c44e667057ac69}} 
+void {\bfseries Output\+Connection\+End} (\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$old\+Connection)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_a7f4aeb528e64d2d2fe8fdbb2c37f2955}\label{class_i_p_c___service_1_1_actual_userspace_provider_a7f4aeb528e64d2d2fe8fdbb2c37f2955}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries \+\_\+client\+List}
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_abb248dc9a45587ca57312567c0a64d9f}\label{class_i_p_c___service_1_1_actual_userspace_provider_abb248dc9a45587ca57312567c0a64d9f}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries \+\_\+service\+Map}
+\item 
+\mbox{\Hypertarget{class_i_p_c___service_1_1_actual_userspace_provider_a93bed89a71e39e57af21b58652bd7343}\label{class_i_p_c___service_1_1_actual_userspace_provider_a93bed89a71e39e57af21b58652bd7343}} 
+\hyperlink{class_i_p_c___service_1_1_userspace_provider}{Userspace\+Provider} $\ast$ {\bfseries \+\_\+monitor}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+I\+P\+C\+\_\+\+Service.\+cpp\end{DoxyCompactItemize}

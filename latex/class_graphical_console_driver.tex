@@ -1,0 +1,77 @@
+\hypertarget{class_graphical_console_driver}{}\section{Graphical\+Console\+Driver Class Reference}
+\label{class_graphical_console_driver}\index{Graphical\+Console\+Driver@{Graphical\+Console\+Driver}}
+Inheritance diagram for Graphical\+Console\+Driver\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_graphical_console_driver}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_a2e54aac1329dfd54696fcf5104810259}\label{class_graphical_console_driver_a2e54aac1329dfd54696fcf5104810259}} 
+void {\bfseries Set\+Mode} (void $\ast$address, int width, int height, int pixel\+Span, int width\+Span, int depth)
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_a63cc9dea01f6dd077c571500d9e19fea}\label{class_graphical_console_driver_a63cc9dea01f6dd077c571500d9e19fea}} 
+void {\bfseries Set} (char c, int x, int y, \hyperlink{class_console_driver_1_1_colour}{Colour} foreground=\hyperlink{class_console_driver_1_1_colour}{Colour}(255, 255, 255), \hyperlink{class_console_driver_1_1_colour}{Colour} background=\hyperlink{class_console_driver_1_1_colour}{Colour}(0, 0, 0))
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_afdfcf91a3df641a246d443f4f1437cf4}\label{class_graphical_console_driver_afdfcf91a3df641a246d443f4f1437cf4}} 
+void {\bfseries Set\+Cursor} (int x, int y)
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_a49a19d5567c5370a995f9b021144d852}\label{class_graphical_console_driver_a49a19d5567c5370a995f9b021144d852}} 
+void {\bfseries Get\+Cursor} (int $\ast$x, int $\ast$y)
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_a1c8cae5032b8567e64ba158544c751b5}\label{class_graphical_console_driver_a1c8cae5032b8567e64ba158544c751b5}} 
+void {\bfseries Set\+Cursor\+Enabled} (bool enabled)
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_aa97a0ad0854e310207fc993b605224d8}\label{class_graphical_console_driver_aa97a0ad0854e310207fc993b605224d8}} 
+int {\bfseries Width} (void)
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_a4442ccf1cdf30f4d16468ccd621298e5}\label{class_graphical_console_driver_a4442ccf1cdf30f4d16468ccd621298e5}} 
+int {\bfseries Height} (void)
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_ac0f4c19da01bae81d3a54290cedbe5ce}\label{class_graphical_console_driver_ac0f4c19da01bae81d3a54290cedbe5ce}} 
+void {\bfseries Clear} (int x, int y, int w, int h)
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_ae993d049898931292ded38d33f64354d}\label{class_graphical_console_driver_ae993d049898931292ded38d33f64354d}} 
+void {\bfseries Copy} (int x\+From, int y\+From, int x\+To, int y\+To, int w, int h)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_a1ac384f819df9631698169a6e415619d}\label{class_graphical_console_driver_a1ac384f819df9631698169a6e415619d}} 
+unsigned char $\ast$ {\bfseries \+\_\+buffer}
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_a86c44fe737f2b02079b265bc79e8f4d5}\label{class_graphical_console_driver_a86c44fe737f2b02079b265bc79e8f4d5}} 
+int {\bfseries \+\_\+width}
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_a096769686cfbc0105b974764ce26914c}\label{class_graphical_console_driver_a096769686cfbc0105b974764ce26914c}} 
+int {\bfseries \+\_\+height}
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_aefa1fcb29ead61934b858120a842709b}\label{class_graphical_console_driver_aefa1fcb29ead61934b858120a842709b}} 
+int {\bfseries \+\_\+pixel\+Span}
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_ab95a4db949ab1cf30e7791f3a53ef84a}\label{class_graphical_console_driver_ab95a4db949ab1cf30e7791f3a53ef84a}} 
+int {\bfseries \+\_\+width\+Span}
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_a130f94eb15b6984575dcf232286a8701}\label{class_graphical_console_driver_a130f94eb15b6984575dcf232286a8701}} 
+int {\bfseries \+\_\+depth}
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_a5f29285731b4d8b2a185834e6264d775}\label{class_graphical_console_driver_a5f29285731b4d8b2a185834e6264d775}} 
+int {\bfseries \+\_\+cursorX}
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_ad470a64bee743d331c954d08da26639d}\label{class_graphical_console_driver_ad470a64bee743d331c954d08da26639d}} 
+int {\bfseries \+\_\+cursorY}
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_abd445916d14b4a5d430058ab496986ec}\label{class_graphical_console_driver_abd445916d14b4a5d430058ab496986ec}} 
+bool {\bfseries \+\_\+cursor\+Enabled}
+\item 
+\mbox{\Hypertarget{class_graphical_console_driver_aab1afdf45a335c4ea3965a29ec8a101e}\label{class_graphical_console_driver_aab1afdf45a335c4ea3965a29ec8a101e}} 
+void($\ast$ {\bfseries \+\_\+pixel\+Set} )(unsigned char $\ast$buffer, int width\+Span, int x, int y, \hyperlink{class_console_driver_1_1_colour}{Colour} colour)
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Console.\+h\item 
+Console.\+cpp\end{DoxyCompactItemize}

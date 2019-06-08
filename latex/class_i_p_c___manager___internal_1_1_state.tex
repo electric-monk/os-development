@@ -1,0 +1,79 @@
+\hypertarget{class_i_p_c___manager___internal_1_1_state}{}\section{I\+P\+C\+\_\+\+Manager\+\_\+\+Internal\+:\+:State Class Reference}
+\label{class_i_p_c___manager___internal_1_1_state}\index{I\+P\+C\+\_\+\+Manager\+\_\+\+Internal\+::\+State@{I\+P\+C\+\_\+\+Manager\+\_\+\+Internal\+::\+State}}
+Inheritance diagram for I\+P\+C\+\_\+\+Manager\+\_\+\+Internal\+:\+:State\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_i_p_c___manager___internal_1_1_state}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_a8dedc93359ff2927c42f552a95bd0ff7}\label{class_i_p_c___manager___internal_1_1_state_a8dedc93359ff2927c42f552a95bd0ff7}} 
+void {\bfseries Add\+Entry} (U\+Int32 provider, U\+Int32 io\+Port, U\+Int32 connection, Entry\+::\+Type type)
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_acfd817713cbfa09a3c85db639fa2defb}\label{class_i_p_c___manager___internal_1_1_state_acfd817713cbfa09a3c85db639fa2defb}} 
+void {\bfseries Read\+Out} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(\hyperlink{class_i_p_c___manager___internal_1_1_entry}{Entry} $\ast$)$>$ handler, bool reset)
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_a6d4e462220dbd928e06c16b7d7b0a479}\label{class_i_p_c___manager___internal_1_1_state_a6d4e462220dbd928e06c16b7d7b0a479}} 
+void {\bfseries Add\+Task} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(void)$>$ task)
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_a6d47cfa1d4ca91594b80d53758d2b6d1}\label{class_i_p_c___manager___internal_1_1_state_a6d47cfa1d4ca91594b80d53758d2b6d1}} 
+void {\bfseries Sync} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(void)$>$ task)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_a050ee95e5a57695cc5ba191dd8595a72}\label{class_i_p_c___manager___internal_1_1_state_a050ee95e5a57695cc5ba191dd8595a72}} 
+static void {\bfseries Perform\+On\+All} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(\hyperlink{class_i_p_c___manager___internal_1_1_state}{State} $\ast$)$>$ handler)
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_a61d25e39c17dba33f6bae8dec7dc552b}\label{class_i_p_c___manager___internal_1_1_state_a61d25e39c17dba33f6bae8dec7dc552b}} 
+static \hyperlink{class_i_p_c___manager___internal_1_1_state}{State} $\ast$ {\bfseries Global\+State} (void)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_a9fc4eb71a03b4deb49b4a1c5d9390509}\label{class_i_p_c___manager___internal_1_1_state_a9fc4eb71a03b4deb49b4a1c5d9390509}} 
+\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(int amount)$>$ {\bfseries on\+Changed}
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_adf72c8bead8ae53ddf9696645ae2e587}\label{class_i_p_c___manager___internal_1_1_state_adf72c8bead8ae53ddf9696645ae2e587}} 
+\hyperlink{class_i_p_c___manager___internal_1_1_entry}{Entry} $\ast$ {\bfseries \+\_\+start}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_add370f42ce24ad57a92e9d741a052dde}\label{class_i_p_c___manager___internal_1_1_state_add370f42ce24ad57a92e9d741a052dde}} 
+\hyperlink{class_i_p_c___manager___internal_1_1_entry}{Entry} $\ast$ {\bfseries \+\_\+end}
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_adb166f964898d903a61faf66c0d1164f}\label{class_i_p_c___manager___internal_1_1_state_adb166f964898d903a61faf66c0d1164f}} 
+\hyperlink{class_interruptable_spin_lock}{Interruptable\+Spin\+Lock} {\bfseries \+\_\+lock}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_a65a4339c6058a25c7d1f40510f486e6e}\label{class_i_p_c___manager___internal_1_1_state_a65a4339c6058a25c7d1f40510f486e6e}} 
+int {\bfseries \+\_\+total}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_af5cb034722c792db79cb486da063cf63}\label{class_i_p_c___manager___internal_1_1_state_af5cb034722c792db79cb486da063cf63}} 
+\hyperlink{class_i_p_c___manager___internal_1_1_state}{State} $\ast$ {\bfseries \+\_\+last}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_ab60d6c739e1ca2bd7257d70a82bf173a}\label{class_i_p_c___manager___internal_1_1_state_ab60d6c739e1ca2bd7257d70a82bf173a}} 
+\hyperlink{class_i_p_c___manager___internal_1_1_state}{State} $\ast$ {\bfseries \+\_\+next}
+\end{DoxyCompactItemize}
+\subsection*{Static Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_a3067365fbd6ac2fcb1d171d2cc74056f}\label{class_i_p_c___manager___internal_1_1_state_a3067365fbd6ac2fcb1d171d2cc74056f}} 
+static \hyperlink{class_i_p_c___manager___internal_1_1_state}{State} $\ast$ {\bfseries \+\_\+state\+Start} = 0L
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_a39c2c260e6dded8dc72c807b579f5039}\label{class_i_p_c___manager___internal_1_1_state_a39c2c260e6dded8dc72c807b579f5039}} 
+static \hyperlink{class_i_p_c___manager___internal_1_1_state}{State} $\ast$ {\bfseries \+\_\+state\+End} = 0L
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_state_ab1eca1945371e3e8aee1f37830ccd160}\label{class_i_p_c___manager___internal_1_1_state_ab1eca1945371e3e8aee1f37830ccd160}} 
+static \hyperlink{class_i_p_c___manager___internal_1_1_state}{State} $\ast$ {\bfseries \+\_\+state\+Global} = 0L
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+I\+P\+C\+\_\+\+Manager.\+cpp\end{DoxyCompactItemize}

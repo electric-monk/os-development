@@ -1,0 +1,68 @@
+\hypertarget{class_nubbin_handle}{}\section{Nubbin\+Handle Class Reference}
+\label{class_nubbin_handle}\index{Nubbin\+Handle@{Nubbin\+Handle}}
+Inheritance diagram for Nubbin\+Handle\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_nubbin_handle}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_a4f0e80d0edcf259618d4d8f201315dc1}\label{class_nubbin_handle_a4f0e80d0edcf259618d4d8f201315dc1}} 
+typedef \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(Interface\+\_\+\+Request $\ast$)$>$, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(Interface\+\_\+\+Response $\ast$)$>$)$>$ {\bfseries Requester\+Function}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_a923a5ccbb2e6b98d1ee432b79ae74f32}\label{class_nubbin_handle_a923a5ccbb2e6b98d1ee432b79ae74f32}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_af22496ca2e2944ddd6797b93c0b0d5fe}\label{class_nubbin_handle_af22496ca2e2944ddd6797b93c0b0d5fe}} 
+{\bfseries Nubbin\+Handle} (\hyperlink{class_file_nubbin}{File\+Nubbin} $\ast$owner, \hyperlink{class_ipc_service}{Ipc\+Service} $\ast$service, Interface\+\_\+\+File\+\_\+\+Nubbin\+::\+Expose $\ast$request, \hyperlink{classbicycle_1_1function}{Requester\+Function} requester, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(int, \hyperlink{class_nubbin_handle}{Nubbin\+Handle} $\ast$)$>$ completion)
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_a4469361fbeaea7d948d40a0fda5caf93}\label{class_nubbin_handle_a4469361fbeaea7d948d40a0fda5caf93}} 
+bool {\bfseries Is\+Command} (void)
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_a489168b0513c919a8436e07569383d53}\label{class_nubbin_handle_a489168b0513c919a8436e07569383d53}} 
+bool {\bfseries Can\+Eject} (void)
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_a53624c3d7b49476ad02be85c960495c4}\label{class_nubbin_handle_a53624c3d7b49476ad02be85c960495c4}} 
+bool {\bfseries Try\+Connect} (void)
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_a120d1bb12c14545b8dfe8d2e38b56fdd}\label{class_nubbin_handle_a120d1bb12c14545b8dfe8d2e38b56fdd}} 
+bool {\bfseries Try\+Disconnect} (void)
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_a3bb5f781d13b3bcd12201346feb6b77d}\label{class_nubbin_handle_a3bb5f781d13b3bcd12201346feb6b77d}} 
+void {\bfseries Update\+Connection} (bool connected)
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_a250464dda4347b339662340bac85d8a4}\label{class_nubbin_handle_a250464dda4347b339662340bac85d8a4}} 
+U\+Int32 {\bfseries Value} (void)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_a93fc943afef439f46765a76d29e5ad84}\label{class_nubbin_handle_a93fc943afef439f46765a76d29e5ad84}} 
+\hyperlink{classbicycle_1_1function}{Requester\+Function} {\bfseries \+\_\+requester}
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_ace50d0ac556b64dab50e1985217bd8b9}\label{class_nubbin_handle_ace50d0ac556b64dab50e1985217bd8b9}} 
+bool {\bfseries \+\_\+exclusive}
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_a7f87e2d27d3f46a6b821f853dd05021e}\label{class_nubbin_handle_a7f87e2d27d3f46a6b821f853dd05021e}} 
+bool {\bfseries \+\_\+auto\+Unexpose}
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_a35ccf0b8422a9306d681451583bb1fa5}\label{class_nubbin_handle_a35ccf0b8422a9306d681451583bb1fa5}} 
+bool {\bfseries \+\_\+allow\+Eject}
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_a49a1b11d575dc9f1a0572760bb0ddec7}\label{class_nubbin_handle_a49a1b11d575dc9f1a0572760bb0ddec7}} 
+U\+Int32 {\bfseries \+\_\+open\+Count}
+\item 
+\mbox{\Hypertarget{class_nubbin_handle_ad8be45fe38e62fbe2b48720b7247488d}\label{class_nubbin_handle_ad8be45fe38e62fbe2b48720b7247488d}} 
+U\+Int32 {\bfseries \+\_\+handle}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+File\+Nubbin.\+cpp\end{DoxyCompactItemize}

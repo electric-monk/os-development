@@ -1,0 +1,78 @@
+\hypertarget{class_blockable_object}{}\section{Blockable\+Object Class Reference}
+\label{class_blockable_object}\index{Blockable\+Object@{Blockable\+Object}}
+Inheritance diagram for Blockable\+Object\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=12.000000cm]{class_blockable_object}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_blockable_object_a7fcae647f5c77522758c7b380556270a}\label{class_blockable_object_a7fcae647f5c77522758c7b380556270a}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_blockable_object_acc62e90014951c5bb0dc78e4d7007d74}\label{class_blockable_object_acc62e90014951c5bb0dc78e4d7007d74}} 
+virtual void {\bfseries Register\+Observer} (\hyperlink{class_signal_watcher}{Signal\+Watcher} $\ast$watcher)
+\item 
+\mbox{\Hypertarget{class_blockable_object_a2e9cf7519914139866e17bbf10a74dfd}\label{class_blockable_object_a2e9cf7519914139866e17bbf10a74dfd}} 
+virtual void {\bfseries Unregister\+Observer} (\hyperlink{class_signal_watcher}{Signal\+Watcher} $\ast$watcher)
+\item 
+\mbox{\Hypertarget{class_blockable_object_ae7010f91737c37796fcc5ad99f129265}\label{class_blockable_object_ae7010f91737c37796fcc5ad99f129265}} 
+virtual bool {\bfseries Is\+Signalled} (void)
+\item 
+\mbox{\Hypertarget{class_blockable_object_afcfe6d01f5ecec42b390cb4d6a98d1ef}\label{class_blockable_object_afcfe6d01f5ecec42b390cb4d6a98d1ef}} 
+virtual \hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries Current\+Signals} (void)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_blockable_object_ad3abd46cd8e31a8691a1c564fcda83fc}\label{class_blockable_object_ad3abd46cd8e31a8691a1c564fcda83fc}} 
+static void {\bfseries Configure\+Service} (void)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_blockable_object_a6326633563601e0b22ef3d38c09c72fb}\label{class_blockable_object_a6326633563601e0b22ef3d38c09c72fb}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries This\+Current\+Signals} (void)
+\item 
+\mbox{\Hypertarget{class_blockable_object_a9b76187d71a80f78bad22e801fdd6317}\label{class_blockable_object_a9b76187d71a80f78bad22e801fdd6317}} 
+virtual bool {\bfseries Check\+Signal} (void)
+\item 
+\mbox{\Hypertarget{class_blockable_object_a32fa6d1b6011a0b8bb9b651455b17df0}\label{class_blockable_object_a32fa6d1b6011a0b8bb9b651455b17df0}} 
+void {\bfseries Set\+Signalled} (\hyperlink{class_blockable_object}{Blockable\+Object} $\ast$sender, bool active)
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_blockable_object_a7a24c8b30ed53a5e34a81381cc9c98c0}\label{class_blockable_object_a7a24c8b30ed53a5e34a81381cc9c98c0}} 
+\hyperlink{class_hardcore_spin_lock}{Hardcore\+Spin\+Lock} {\bfseries \+\_\+locker}
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_blockable_object_ac05ea6392432f4d6bbae05fffb01f12a}\label{class_blockable_object_ac05ea6392432f4d6bbae05fffb01f12a}} 
+void {\bfseries Do\+Signal} (bool active)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_blockable_object_a5a4404223821f330f5f97cc0585ba7c3}\label{class_blockable_object_a5a4404223821f330f5f97cc0585ba7c3}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries \+\_\+watchers}
+\item 
+\mbox{\Hypertarget{class_blockable_object_ac8a9b85723f7ac7ef5fd690625ea69d2}\label{class_blockable_object_ac8a9b85723f7ac7ef5fd690625ea69d2}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries \+\_\+signals}
+\item 
+\mbox{\Hypertarget{class_blockable_object_a254bf323d64eb40d9608ad695d451208}\label{class_blockable_object_a254bf323d64eb40d9608ad695d451208}} 
+bool {\bfseries \+\_\+self\+Signal}
+\item 
+\mbox{\Hypertarget{class_blockable_object_a6765b0109ed6a6db6c5e78998dbcb5eb}\label{class_blockable_object_a6765b0109ed6a6db6c5e78998dbcb5eb}} 
+bool {\bfseries \+\_\+signalled}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Blocking.\+h\item 
+Blocking.\+cpp\item 
+Blocking\+\_\+\+Service.\+cpp\end{DoxyCompactItemize}

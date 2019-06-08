@@ -1,0 +1,78 @@
+\hypertarget{class_kernel_array}{}\section{Kernel\+Array Class Reference}
+\label{class_kernel_array}\index{Kernel\+Array@{Kernel\+Array}}
+Inheritance diagram for Kernel\+Array\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_kernel_array}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_kernel_array_afe57c8dd8b106940c8923836b85a7f33}\label{class_kernel_array_afe57c8dd8b106940c8923836b85a7f33}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_kernel_array_a4de364a9b094c9429b5b3c4f1b9a5063}\label{class_kernel_array_a4de364a9b094c9429b5b3c4f1b9a5063}} 
+void {\bfseries Add} (\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$object)
+\item 
+\mbox{\Hypertarget{class_kernel_array_a43a68eb58629b312763b75176dd4ce50}\label{class_kernel_array_a43a68eb58629b312763b75176dd4ce50}} 
+void {\bfseries Remove} (\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$object)
+\item 
+\mbox{\Hypertarget{class_kernel_array_afae76475af286540f48413f1d89f4a40}\label{class_kernel_array_afae76475af286540f48413f1d89f4a40}} 
+bool {\bfseries Contains} (\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$object)
+\item 
+\mbox{\Hypertarget{class_kernel_array_afc788e784b755a5b5b64e09601e89120}\label{class_kernel_array_afc788e784b755a5b5b64e09601e89120}} 
+U\+Int32 {\bfseries Find} (\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$object)
+\item 
+\mbox{\Hypertarget{class_kernel_array_a6e74949b8d7ac7b131926cf7e7d4b487}\label{class_kernel_array_a6e74949b8d7ac7b131926cf7e7d4b487}} 
+void {\bfseries Add\+Array} (\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$other)
+\item 
+\mbox{\Hypertarget{class_kernel_array_ac5dc640feec59d1590938481f77fdc6b}\label{class_kernel_array_ac5dc640feec59d1590938481f77fdc6b}} 
+void {\bfseries Sort} (int($\ast$compare)(\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$, \hyperlink{class_kernel_object}{Kernel\+Object} $\ast$))
+\item 
+\mbox{\Hypertarget{class_kernel_array_a1adcfed2be6c9296ed6e43a2d56edbec}\label{class_kernel_array_a1adcfed2be6c9296ed6e43a2d56edbec}} 
+U\+Int32 {\bfseries Count} (void)
+\item 
+\mbox{\Hypertarget{class_kernel_array_a6898378545baa0d683496b46576641cc}\label{class_kernel_array_a6898378545baa0d683496b46576641cc}} 
+\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$ {\bfseries Object\+At} (U\+Int32 index)
+\item 
+\mbox{\Hypertarget{class_kernel_array_addd9def6a7c418ad266e6bcb9f04ad2b}\label{class_kernel_array_addd9def6a7c418ad266e6bcb9f04ad2b}} 
+U\+Int32 {\bfseries Hash} (void)
+\item 
+\mbox{\Hypertarget{class_kernel_array_ad843363091e9a9c78ea335b1f6e7f665}\label{class_kernel_array_ad843363091e9a9c78ea335b1f6e7f665}} 
+void {\bfseries Sort} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ int(\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$, \hyperlink{class_kernel_object}{Kernel\+Object} $\ast$)$>$ compare)
+\item 
+\mbox{\Hypertarget{class_kernel_array_a0aa81ce91d139b13e5096ca34156870d}\label{class_kernel_array_a0aa81ce91d139b13e5096ca34156870d}} 
+void $\ast$ {\bfseries Enumerate} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void $\ast$(\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$)$>$ enumerator)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_kernel_array_a14cfe2588c8c1ff9bac63811d5c75622}\label{class_kernel_array_a14cfe2588c8c1ff9bac63811d5c75622}} 
+static const U\+Int32 {\bfseries Invalid\+Index} = (U\+Int32)-\/1
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_kernel_array_a1b682e9ee1cea994e453e91805277911}\label{class_kernel_array_a1b682e9ee1cea994e453e91805277911}} 
+void {\bfseries Check\+Capacity} (U\+Int32 required)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_kernel_array_a732dbd77aa85db228732d567af33b1f1}\label{class_kernel_array_a732dbd77aa85db228732d567af33b1f1}} 
+\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$$\ast$ {\bfseries \+\_\+index}
+\item 
+\mbox{\Hypertarget{class_kernel_array_aaf982d91a2555f1b9f6724d4b6dbb191}\label{class_kernel_array_aaf982d91a2555f1b9f6724d4b6dbb191}} 
+U\+Int32 {\bfseries \+\_\+max}
+\item 
+\mbox{\Hypertarget{class_kernel_array_adef73cb91ffbc5a03c6e46a704bb1d99}\label{class_kernel_array_adef73cb91ffbc5a03c6e46a704bb1d99}} 
+U\+Int32 {\bfseries \+\_\+count}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Collections.\+h\item 
+Collections.\+cpp\end{DoxyCompactItemize}

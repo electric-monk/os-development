@@ -1,0 +1,93 @@
+\hypertarget{class_driver}{}\section{Driver Class Reference}
+\label{class_driver}\index{Driver@{Driver}}
+Inheritance diagram for Driver\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=10.000000cm]{class_driver}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_driver_a539239c6c0fa57667ae0997ef7da9d96}\label{class_driver_a539239c6c0fa57667ae0997ef7da9d96}} 
+{\bfseries Driver} (const char $\ast$name)
+\item 
+\mbox{\Hypertarget{class_driver_a0b9ee00795cffded27141c950a8abbc2}\label{class_driver_a0b9ee00795cffded27141c950a8abbc2}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_driver_af3af210d6320609cbb81dd6368c6eacf}\label{class_driver_af3af210d6320609cbb81dd6368c6eacf}} 
+virtual bool {\bfseries Start} (\hyperlink{class_driver}{Driver} $\ast$parent)
+\item 
+\mbox{\Hypertarget{class_driver_a6a4db5aaca6e3cdac7122b90b7abedb0}\label{class_driver_a6a4db5aaca6e3cdac7122b90b7abedb0}} 
+virtual void {\bfseries Stop} (void)
+\item 
+\mbox{\Hypertarget{class_driver_a160ea51a9f3e9588f3a33bdc7f9c65a7}\label{class_driver_a160ea51a9f3e9588f3a33bdc7f9c65a7}} 
+\hyperlink{class_driver}{Driver} $\ast$ {\bfseries Parent} (void)
+\item 
+\mbox{\Hypertarget{class_driver_a03f1c650a55570a51d79bfc1245084c2}\label{class_driver_a03f1c650a55570a51d79bfc1245084c2}} 
+\hyperlink{class_driver}{Driver} $\ast$ {\bfseries Child} (int index)
+\item 
+\mbox{\Hypertarget{class_driver_a46822daa4eeba0a9da1acd786c95ca40}\label{class_driver_a46822daa4eeba0a9da1acd786c95ca40}} 
+\hyperlink{class_interrupts}{Interrupts} $\ast$ {\bfseries Test} (void)
+\item 
+\mbox{\Hypertarget{class_driver_a53d7f2e9902a94c67515ba171b4b9943}\label{class_driver_a53d7f2e9902a94c67515ba171b4b9943}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries Property\+List} (void)
+\item 
+\mbox{\Hypertarget{class_driver_aa2977aba000e5ebdabf777295eba2618}\label{class_driver_aa2977aba000e5ebdabf777295eba2618}} 
+\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$ {\bfseries Property\+For} (\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$property)
+\item 
+\mbox{\Hypertarget{class_driver_aca1cafa4d4695c093f5895d7d39be50d}\label{class_driver_aca1cafa4d4695c093f5895d7d39be50d}} 
+virtual \hyperlink{class_interrupts}{Interrupts} $\ast$ {\bfseries Interrupt\+Source} (void)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_driver_ad97bd656791f23dd5ae7c3a8029d3b31}\label{class_driver_ad97bd656791f23dd5ae7c3a8029d3b31}} 
+static void {\bfseries Configure\+Service} (void)
+\item 
+\mbox{\Hypertarget{class_driver_a4d57c158b21441adeeeeec3994674746}\label{class_driver_a4d57c158b21441adeeeeec3994674746}} 
+static void {\bfseries Register\+Factory} (\hyperlink{class_driver_factory}{Driver\+Factory} $\ast$factory)
+\item 
+\mbox{\Hypertarget{class_driver_a3996984bc55f3c550b9a3d82673382e0}\label{class_driver_a3996984bc55f3c550b9a3d82673382e0}} 
+static void {\bfseries Unregister\+Factory} (\hyperlink{class_driver_factory}{Driver\+Factory} $\ast$factory)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_driver_a7688e9808028a867736f42aff745ba56}\label{class_driver_a7688e9808028a867736f42aff745ba56}} 
+virtual bool {\bfseries Connect\+Child} (\hyperlink{class_driver}{Driver} $\ast$child)
+\item 
+\mbox{\Hypertarget{class_driver_a7d2bbb830c6059effcfe05cc6e2e0862}\label{class_driver_a7d2bbb830c6059effcfe05cc6e2e0862}} 
+virtual void {\bfseries Detach\+Child} (\hyperlink{class_driver}{Driver} $\ast$child)
+\item 
+\mbox{\Hypertarget{class_driver_a12e96593446af8b1c55b972a2c3fa500}\label{class_driver_a12e96593446af8b1c55b972a2c3fa500}} 
+void {\bfseries Set\+Property} (\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$property, \hyperlink{class_kernel_object}{Kernel\+Object} $\ast$value)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_driver_adbbee28d4b7694ead1ce602ff0e9cccd}\label{class_driver_adbbee28d4b7694ead1ce602ff0e9cccd}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries \+\_\+properties}
+\item 
+\mbox{\Hypertarget{class_driver_a1d4e0938f1466041e9a23ab6e7854f6f}\label{class_driver_a1d4e0938f1466041e9a23ab6e7854f6f}} 
+\hyperlink{class_driver}{Driver} $\ast$ {\bfseries \+\_\+start}
+\item 
+\mbox{\Hypertarget{class_driver_a797564a13d3d85ecfc540e6669c19117}\label{class_driver_a797564a13d3d85ecfc540e6669c19117}} 
+\hyperlink{class_driver}{Driver} $\ast$ {\bfseries \+\_\+end}
+\item 
+\mbox{\Hypertarget{class_driver_a1bebc8c02511a8fc6d69b54bc7880ed2}\label{class_driver_a1bebc8c02511a8fc6d69b54bc7880ed2}} 
+\hyperlink{class_driver}{Driver} $\ast$ {\bfseries \+\_\+previous}
+\item 
+\mbox{\Hypertarget{class_driver_a10f419c14dea9d810246550a6da81e50}\label{class_driver_a10f419c14dea9d810246550a6da81e50}} 
+\hyperlink{class_driver}{Driver} $\ast$ {\bfseries \+\_\+next}
+\item 
+\mbox{\Hypertarget{class_driver_ae3e26aff77965a463f52fd27f47eadf3}\label{class_driver_ae3e26aff77965a463f52fd27f47eadf3}} 
+\hyperlink{class_driver}{Driver} $\ast$ {\bfseries \+\_\+parent}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Driver.\+h\item 
+Driver.\+cpp\item 
+System\+\_\+\+Service.\+cpp\end{DoxyCompactItemize}

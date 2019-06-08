@@ -1,0 +1,65 @@
+\hypertarget{class_s_page_directory_info}{}\section{S\+Page\+Directory\+Info Class Reference}
+\label{class_s_page_directory_info}\index{S\+Page\+Directory\+Info@{S\+Page\+Directory\+Info}}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_a3ada22a4f7887f4961d1a79071eaf793}\label{class_s_page_directory_info_a3ada22a4f7887f4961d1a79071eaf793}} 
+void {\bfseries Init\+Kernel} (void)
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_a7b87d94738a15ae7788d8af5e452750f}\label{class_s_page_directory_info_a7b87d94738a15ae7788d8af5e452750f}} 
+void {\bfseries Init} (void)
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_a54f3f2db079b2d9ee0bd518290ab9d8d}\label{class_s_page_directory_info_a54f3f2db079b2d9ee0bd518290ab9d8d}} 
+void {\bfseries Release} (void)
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_ad661189fc7a0f3d2b43f7f83313f8af4}\label{class_s_page_directory_info_ad661189fc7a0f3d2b43f7f83313f8af4}} 
+void {\bfseries Select} (void)
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_a5eda8091e4396d8cff5786a9f27f20f0}\label{class_s_page_directory_info_a5eda8091e4396d8cff5786a9f27f20f0}} 
+void $\ast$ {\bfseries Map} (int permissions, M\+A\+P\+\_\+\+T\+Y\+PE location, Physical\+Pointer physical, size\+\_\+t count=1)
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_acf749858027ebabfbc18c3c5894defb8}\label{class_s_page_directory_info_acf749858027ebabfbc18c3c5894defb8}} 
+void {\bfseries Map} (int permissions, void $\ast$location, Physical\+Pointer physical)
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_ad9b8becd2da3b9ddf5614cc6331e8963}\label{class_s_page_directory_info_ad9b8becd2da3b9ddf5614cc6331e8963}} 
+void {\bfseries Unmap} (void $\ast$logical, size\+\_\+t count=1)
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_a6cb762a909c71ea7cc29a10eeb49adfa}\label{class_s_page_directory_info_a6cb762a909c71ea7cc29a10eeb49adfa}} 
+Physical\+Pointer {\bfseries Address} (void $\ast$logical)
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_a7c21fe1d15b803408a7d3c096400a87c}\label{class_s_page_directory_info_a7c21fe1d15b803408a7d3c096400a87c}} 
+U\+Int32 {\bfseries Address\+Raw} (void $\ast$logical)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_ab1d1c6c36df2ace66d18a4f8a40788eb}\label{class_s_page_directory_info_ab1d1c6c36df2ace66d18a4f8a40788eb}} 
+\hyperlink{struct_s_page_table}{S\+Page\+Table} $\ast$ {\bfseries tables} \mbox{[}1024\mbox{]}
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_aff1bd278c8203d7e38de4daa46744641}\label{class_s_page_directory_info_aff1bd278c8203d7e38de4daa46744641}} 
+\hyperlink{struct_s_page_directory}{S\+Page\+Directory} $\ast$ {\bfseries tables\+Physical}
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_ad8d2ba08bfa51fd90abbd91129122923}\label{class_s_page_directory_info_ad8d2ba08bfa51fd90abbd91129122923}} 
+Physical\+Pointer {\bfseries directory\+Physical}
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_a37466e6a8aa1198603077a52f8b57c32}\label{class_s_page_directory_info_a37466e6a8aa1198603077a52f8b57c32}} 
+void {\bfseries Unmap} (void $\ast$logical, bool map\+Page)
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_af65fcf176fed527c726f2cccb9c929b1}\label{class_s_page_directory_info_af65fcf176fed527c726f2cccb9c929b1}} 
+void {\bfseries Copy\+Kernel} (void)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_s_page_directory_info_a096d7b00f1f228b50cb0b7b3514f42f3}\label{class_s_page_directory_info_a096d7b00f1f228b50cb0b7b3514f42f3}} 
+int {\bfseries revision}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+mem\+\_\+logical.\+h\item 
+mem\+\_\+logical.\+cpp\end{DoxyCompactItemize}

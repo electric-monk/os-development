@@ -1,0 +1,49 @@
+\hypertarget{class_standard_p_c___internal_1_1_interrupts}{}\section{Standard\+P\+C\+\_\+\+Internal\+:\+:Interrupts Class Reference}
+\label{class_standard_p_c___internal_1_1_interrupts}\index{Standard\+P\+C\+\_\+\+Internal\+::\+Interrupts@{Standard\+P\+C\+\_\+\+Internal\+::\+Interrupts}}
+Inheritance diagram for Standard\+P\+C\+\_\+\+Internal\+:\+:Interrupts\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_standard_p_c___internal_1_1_interrupts}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{class_standard_p_c___internal_1_1_interrupts_1_1_handler_handle}{Handler\+Handle}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_interrupts_a2eece12d584b787901971a94d5ed3135}\label{class_standard_p_c___internal_1_1_interrupts_a2eece12d584b787901971a94d5ed3135}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_interrupts_a0f2ae13585f232a6d1a45cb7af914fd2}\label{class_standard_p_c___internal_1_1_interrupts_a0f2ae13585f232a6d1a45cb7af914fd2}} 
+void {\bfseries Set} (void)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_interrupts_a033ef1718b6adb74d888ec27871e61fe}\label{class_standard_p_c___internal_1_1_interrupts_a033ef1718b6adb74d888ec27871e61fe}} 
+void {\bfseries Trigger} (\hyperlink{struct_trap_frame}{Trap\+Frame} $\ast$frame)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_interrupts_a8b241fed09acc33b3882d7893b89f94e}\label{class_standard_p_c___internal_1_1_interrupts_a8b241fed09acc33b3882d7893b89f94e}} 
+Interrupt\+Handler\+Handle {\bfseries Register\+Handler} (int irq, \hyperlink{classbicycle_1_1function}{Interrupt\+Handler\+Block} handler)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_interrupts_ac0ca6665236b24acfc6d3ab76c34721a}\label{class_standard_p_c___internal_1_1_interrupts_ac0ca6665236b24acfc6d3ab76c34721a}} 
+void {\bfseries Unregister\+Handler} (Interrupt\+Handler\+Handle handler)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_interrupts_a1c591f63469c59115bd838470e295b27}\label{class_standard_p_c___internal_1_1_interrupts_a1c591f63469c59115bd838470e295b27}} 
+void {\bfseries Configure\+Syscall} (int irq)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_interrupts_a1daba8c0d6bd4d51be827f60e1c5ff15}\label{class_standard_p_c___internal_1_1_interrupts_a1daba8c0d6bd4d51be827f60e1c5ff15}} 
+idt\+\_\+entry {\bfseries entries} \mbox{[}256\mbox{]}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_interrupts_a6c7ddb0271a06de58d9c4339ec8d4d54}\label{class_standard_p_c___internal_1_1_interrupts_a6c7ddb0271a06de58d9c4339ec8d4d54}} 
+\hyperlink{class_standard_p_c___internal_1_1_interrupts_1_1_handler_handle}{Handler\+Handle} $\ast$ {\bfseries handlers} \mbox{[}256\mbox{]}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Standard\+P\+C.\+cpp\end{DoxyCompactItemize}

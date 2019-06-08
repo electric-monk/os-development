@@ -1,0 +1,60 @@
+\hypertarget{class_image_loader}{}\section{Image\+Loader Class Reference}
+\label{class_image_loader}\index{Image\+Loader@{Image\+Loader}}
+Inheritance diagram for Image\+Loader\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_image_loader}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_image_loader_a90f79b71b80f026c0a0c8b8da07b9d23}\label{class_image_loader_a90f79b71b80f026c0a0c8b8da07b9d23}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_image_loader_a5a21a1647a02f1db7af2582a46995254}\label{class_image_loader_a5a21a1647a02f1db7af2582a46995254}} 
+\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$ {\bfseries Input\+Connection\+Start} (\hyperlink{class_kernel_string}{Kernel\+String} $\ast$name, \hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$connection)
+\item 
+\mbox{\Hypertarget{class_image_loader_aa1e679360953cf9891dcacb4e7ecb3eb}\label{class_image_loader_aa1e679360953cf9891dcacb4e7ecb3eb}} 
+void {\bfseries Input\+Connection\+Received} (\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$connection, \hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$message)
+\item 
+\mbox{\Hypertarget{class_image_loader_a0d5902f1550af016f8c8bef14577a115}\label{class_image_loader_a0d5902f1550af016f8c8bef14577a115}} 
+void {\bfseries Input\+Connection\+End} (\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$connection)
+\item 
+\mbox{\Hypertarget{class_image_loader_a4f61980ed4221ded592c4297bc576c88}\label{class_image_loader_a4f61980ed4221ded592c4297bc576c88}} 
+\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$ {\bfseries Output\+Connection\+Start} (\hyperlink{class_generic_provider_1_1_service}{Service} $\ast$source, \hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$connection)
+\item 
+\mbox{\Hypertarget{class_image_loader_a023653de0385e1e33775a1f5464bbf21}\label{class_image_loader_a023653de0385e1e33775a1f5464bbf21}} 
+void {\bfseries Output\+Connection\+Message} (\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$connection, \hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$message)
+\item 
+\mbox{\Hypertarget{class_image_loader_a4ab1978124337eeb190582f1a454d348}\label{class_image_loader_a4ab1978124337eeb190582f1a454d348}} 
+void {\bfseries Output\+Connection\+End} (\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$old\+Connection)
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_image_loader_a640b3940e97c44543443044079a9eb13}\label{class_image_loader_a640b3940e97c44543443044079a9eb13}} 
+\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$ {\bfseries Input} (void)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_image_loader_a9d8d31cfd04da62114dc315e19682ffc}\label{class_image_loader_a9d8d31cfd04da62114dc315e19682ffc}} 
+\hyperlink{class_interface_helper}{Interface\+Helper} $\ast$ {\bfseries \+\_\+tasks}
+\item 
+\mbox{\Hypertarget{class_image_loader_aaf0bbc6e3e14de1414caa7c2255c52ac}\label{class_image_loader_aaf0bbc6e3e14de1414caa7c2255c52ac}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries \+\_\+symbols}
+\item 
+\mbox{\Hypertarget{class_image_loader_a9f049d25ae5841fe9e7e10bb9d0cd374}\label{class_image_loader_a9f049d25ae5841fe9e7e10bb9d0cd374}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries \+\_\+segments}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Image\+Loader.\+h\item 
+Image\+Loader.\+cpp\end{DoxyCompactItemize}

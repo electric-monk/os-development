@@ -1,0 +1,49 @@
+\hypertarget{class_generic_lock}{}\section{Generic\+Lock Class Reference}
+\label{class_generic_lock}\index{Generic\+Lock@{Generic\+Lock}}
+Inheritance diagram for Generic\+Lock\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_generic_lock}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{class_generic_lock_1_1_autolock}{Autolock}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_lock_a78b911107ad38f5ea3db5f382e7100a5}\label{class_generic_lock_a78b911107ad38f5ea3db5f382e7100a5}} 
+virtual void {\bfseries Lock} (void)
+\item 
+\mbox{\Hypertarget{class_generic_lock_aef3829188e15b0968c2fa14a8f754d5b}\label{class_generic_lock_aef3829188e15b0968c2fa14a8f754d5b}} 
+virtual void {\bfseries Unlock} (void)
+\item 
+\mbox{\Hypertarget{class_generic_lock_ae0ed0d1aa6503437763c7eedd76eaa86}\label{class_generic_lock_ae0ed0d1aa6503437763c7eedd76eaa86}} 
+virtual bool {\bfseries Holding} (void)=0
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_lock_a6a310d2226a52bd5e5213b56becf2e1d}\label{class_generic_lock_a6a310d2226a52bd5e5213b56becf2e1d}} 
+{\bfseries Generic\+Lock} (const char $\ast$lock\+Name)
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_lock_a699a610f530945caf6ebc9da0738bd3d}\label{class_generic_lock_a699a610f530945caf6ebc9da0738bd3d}} 
+char $\ast$ {\bfseries \+\_\+name}
+\item 
+\mbox{\Hypertarget{class_generic_lock_aadc93550c44c1f710e3442205bf47c12}\label{class_generic_lock_aadc93550c44c1f710e3442205bf47c12}} 
+\hyperlink{class_c_p_u}{C\+PU} $\ast$ {\bfseries \+\_\+cpu}
+\item 
+\mbox{\Hypertarget{class_generic_lock_a616f43d83b5396bf9efded878621764e}\label{class_generic_lock_a616f43d83b5396bf9efded878621764e}} 
+Lock\+Int32 {\bfseries \+\_\+lock\+Stack} \mbox{[}10\mbox{]}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Locking.\+h\item 
+Locking.\+cpp\end{DoxyCompactItemize}

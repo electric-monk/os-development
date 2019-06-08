@@ -1,0 +1,89 @@
+\hypertarget{class_generic_provider}{}\section{Generic\+Provider Class Reference}
+\label{class_generic_provider}\index{Generic\+Provider@{Generic\+Provider}}
+Inheritance diagram for Generic\+Provider\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.388430cm]{class_generic_provider}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{class_generic_provider_1_1_connection}{Connection}
+\item 
+class \hyperlink{class_generic_provider_1_1_factory}{Factory}
+\item 
+class \hyperlink{class_generic_provider_1_1_input}{Input}
+\item 
+class \hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection}
+\item 
+class \hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection}
+\item 
+class \hyperlink{class_generic_provider_1_1_service}{Service}
+\item 
+class \hyperlink{class_generic_provider_1_1_stash}{Stash}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_provider_af3f64b26dedc39569ba00220d7e02f15}\label{class_generic_provider_af3f64b26dedc39569ba00220d7e02f15}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_generic_provider_a055659c50d30df73d358c9d89a58438d}\label{class_generic_provider_a055659c50d30df73d358c9d89a58438d}} 
+{\bfseries Generic\+Provider} (\hyperlink{class_runloop_thread}{Runloop\+Thread} $\ast$runloop=0\+L)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_provider_afe4705c6685a0037b798ce06ca7d0831}\label{class_generic_provider_afe4705c6685a0037b798ce06ca7d0831}} 
+void {\bfseries Launch} (\hyperlink{class_generic_provider_1_1_service}{Service} $\ast$service)
+\item 
+\mbox{\Hypertarget{class_generic_provider_abe6cac041cab50af23fffc2fe55c0e8c}\label{class_generic_provider_abe6cac041cab50af23fffc2fe55c0e8c}} 
+void {\bfseries Kill} (\hyperlink{class_generic_provider_1_1_service}{Service} $\ast$service)
+\item 
+\mbox{\Hypertarget{class_generic_provider_a529c51b8ab4f6091009f807048d64fd6}\label{class_generic_provider_a529c51b8ab4f6091009f807048d64fd6}} 
+virtual \hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$ {\bfseries Input\+Connection\+Start} (\hyperlink{class_kernel_string}{Kernel\+String} $\ast$name, \hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$connection)=0
+\item 
+\mbox{\Hypertarget{class_generic_provider_a512426f35c9f30ea0349ee7b8bd8a1c7}\label{class_generic_provider_a512426f35c9f30ea0349ee7b8bd8a1c7}} 
+virtual void {\bfseries Input\+Connection\+Received} (\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$connection, \hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$message)=0
+\item 
+\mbox{\Hypertarget{class_generic_provider_a9a20dd06d2274a7a14571de2c8f7c29b}\label{class_generic_provider_a9a20dd06d2274a7a14571de2c8f7c29b}} 
+virtual void {\bfseries Input\+Connection\+End} (\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$connection)=0
+\item 
+\mbox{\Hypertarget{class_generic_provider_ad5d5468ae38b686ad72833ac8b67bbfe}\label{class_generic_provider_ad5d5468ae38b686ad72833ac8b67bbfe}} 
+virtual \hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$ {\bfseries Output\+Connection\+Start} (\hyperlink{class_generic_provider_1_1_service}{Service} $\ast$source, \hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$connection)=0
+\item 
+\mbox{\Hypertarget{class_generic_provider_a8c4b6eecd893d088376e3e83b9ed681a}\label{class_generic_provider_a8c4b6eecd893d088376e3e83b9ed681a}} 
+virtual void {\bfseries Output\+Connection\+Message} (\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$connection, \hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$message)=0
+\item 
+\mbox{\Hypertarget{class_generic_provider_a4a50940010e058da5113119d8eee2d2e}\label{class_generic_provider_a4a50940010e058da5113119d8eee2d2e}} 
+virtual void {\bfseries Output\+Connection\+End} (\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$old\+Connection)=0
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_provider_aedf53462a351ca88b8fd841f27394ee2}\label{class_generic_provider_aedf53462a351ca88b8fd841f27394ee2}} 
+friend {\bfseries Generic\+Provider\+\_\+\+Thunk}
+\item 
+\mbox{\Hypertarget{class_generic_provider_a896e89cd9ab7ce816ea4b9f1dacf539a}\label{class_generic_provider_a896e89cd9ab7ce816ea4b9f1dacf539a}} 
+\hyperlink{class_runloop_thread}{Runloop\+Thread} $\ast$ {\bfseries \+\_\+runloop}
+\item 
+\mbox{\Hypertarget{class_generic_provider_aa9627c4f6cef973632dad341f44c6bed}\label{class_generic_provider_aa9627c4f6cef973632dad341f44c6bed}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries \+\_\+inputs}
+\item 
+\mbox{\Hypertarget{class_generic_provider_a6e09a8d8f15b7ca6904f39e2321e0792}\label{class_generic_provider_a6e09a8d8f15b7ca6904f39e2321e0792}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries \+\_\+services}
+\item 
+\mbox{\Hypertarget{class_generic_provider_a311a7921fcdd59fa42f3ee2748353c61}\label{class_generic_provider_a311a7921fcdd59fa42f3ee2748353c61}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries \+\_\+connections}
+\item 
+\mbox{\Hypertarget{class_generic_provider_a06edbbc5a4d2a9428d42c85f0d05a456}\label{class_generic_provider_a06edbbc5a4d2a9428d42c85f0d05a456}} 
+\hyperlink{class_ipc_service_proxy}{Ipc\+Service\+Proxy} $\ast$ {\bfseries \+\_\+service\+List}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Provider.\+h\item 
+Provider.\+cpp\end{DoxyCompactItemize}

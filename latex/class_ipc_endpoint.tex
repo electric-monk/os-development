@@ -1,0 +1,54 @@
+\hypertarget{class_ipc_endpoint}{}\section{Ipc\+Endpoint Class Reference}
+\label{class_ipc_endpoint}\index{Ipc\+Endpoint@{Ipc\+Endpoint}}
+Inheritance diagram for Ipc\+Endpoint\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_ipc_endpoint}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_ipc_endpoint_aa54fd29187d9bc631b4189ef6fa7cf61}\label{class_ipc_endpoint_aa54fd29187d9bc631b4189ef6fa7cf61}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_ipc_endpoint_a1182438bf047eaba5824227160469f8a}\label{class_ipc_endpoint_a1182438bf047eaba5824227160469f8a}} 
+void {\bfseries Connect} (\hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$remote)
+\item 
+\mbox{\Hypertarget{class_ipc_endpoint_a5bff070b0d3a8271e0f6d7ae6b3830f6}\label{class_ipc_endpoint_a5bff070b0d3a8271e0f6d7ae6b3830f6}} 
+bool {\bfseries Is\+Connected} (void)
+\item 
+\mbox{\Hypertarget{class_ipc_endpoint_a0fcd1bb72527d7c9a89dc8a3afd9aa31}\label{class_ipc_endpoint_a0fcd1bb72527d7c9a89dc8a3afd9aa31}} 
+U\+Int32 {\bfseries Unique\+Identifier} (void)
+\item 
+\mbox{\Hypertarget{class_ipc_endpoint_a31c1a0eb19a7239bd7fb55e9839f32eb}\label{class_ipc_endpoint_a31c1a0eb19a7239bd7fb55e9839f32eb}} 
+\hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$ {\bfseries Create\+Send\+Buffer} (U\+Int64 size=65535)
+\item 
+\mbox{\Hypertarget{class_ipc_endpoint_aa3bc4549fac5a36ae910c1795020e4af}\label{class_ipc_endpoint_aa3bc4549fac5a36ae910c1795020e4af}} 
+void {\bfseries Send\+Buffer} (\hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$buffer)
+\item 
+\mbox{\Hypertarget{class_ipc_endpoint_ab985ebe471c4ecf102931af96c47f9e5}\label{class_ipc_endpoint_ab985ebe471c4ecf102931af96c47f9e5}} 
+void {\bfseries Send\+Message} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ bool(void $\ast$)$>$ generator, U\+Int64 maximum\+Size=65535)
+\item 
+\mbox{\Hypertarget{class_ipc_endpoint_a6cb0e252a71ee86add470ed1455f88f1}\label{class_ipc_endpoint_a6cb0e252a71ee86add470ed1455f88f1}} 
+\hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$ {\bfseries Read} (bool wait)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_ipc_endpoint_a855a86e1275925fb2ef0af17a4b08cb1}\label{class_ipc_endpoint_a855a86e1275925fb2ef0af17a4b08cb1}} 
+\hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$ {\bfseries \+\_\+remote}
+\item 
+\mbox{\Hypertarget{class_ipc_endpoint_a72260227854eaf22da3cfbeaa0948167}\label{class_ipc_endpoint_a72260227854eaf22da3cfbeaa0948167}} 
+\hyperlink{class_kernel_f_i_f_o}{Kernel\+F\+I\+FO} $\ast$ {\bfseries \+\_\+fifo}
+\item 
+\mbox{\Hypertarget{class_ipc_endpoint_a163353e1689d2064fd2bc82a379e4335}\label{class_ipc_endpoint_a163353e1689d2064fd2bc82a379e4335}} 
+U\+Int64 {\bfseries \+\_\+fifo\+Count}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+I\+P\+C.\+h\item 
+I\+P\+C.\+cpp\end{DoxyCompactItemize}

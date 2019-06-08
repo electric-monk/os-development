@@ -1,0 +1,62 @@
+\hypertarget{class_kernel_string}{}\section{Kernel\+String Class Reference}
+\label{class_kernel_string}\index{Kernel\+String@{Kernel\+String}}
+Inheritance diagram for Kernel\+String\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_kernel_string}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_kernel_string_a58274876ad6c9e4a76630ef4e3d3561c}\label{class_kernel_string_a58274876ad6c9e4a76630ef4e3d3561c}} 
+enum {\bfseries B\+U\+F\+F\+E\+R\+\_\+\+D\+I\+S\+P\+O\+S\+I\+T\+I\+ON} \{ {\bfseries ksbf\+Constant} = 0, 
+{\bfseries ksbf\+Copy} = 1, 
+{\bfseries ksbf\+Inherit} = 2
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_kernel_string_af1993dc2645feb180e9007b2f3043590}\label{class_kernel_string_af1993dc2645feb180e9007b2f3043590}} 
+{\bfseries Kernel\+String} (const char $\ast$input)
+\item 
+\mbox{\Hypertarget{class_kernel_string_a869af80f41d0fab7af5178efa9a9ce5e}\label{class_kernel_string_a869af80f41d0fab7af5178efa9a9ce5e}} 
+{\bfseries Kernel\+String} (const char $\ast$input, U\+Int32 length, B\+U\+F\+F\+E\+R\+\_\+\+D\+I\+S\+P\+O\+S\+I\+T\+I\+ON disposition=ksbf\+Copy)
+\item 
+\mbox{\Hypertarget{class_kernel_string_aae7fa539b2a831bab547b3a9b790c853}\label{class_kernel_string_aae7fa539b2a831bab547b3a9b790c853}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_kernel_string_a89adc7b7b3d8d681dad2440be449f44d}\label{class_kernel_string_a89adc7b7b3d8d681dad2440be449f44d}} 
+const char $\ast$ {\bfseries C\+String} (void)
+\item 
+\mbox{\Hypertarget{class_kernel_string_abd900bb2e758c23d833bfa8b79d04dc8}\label{class_kernel_string_abd900bb2e758c23d833bfa8b79d04dc8}} 
+U\+Int32 {\bfseries Length} (void)
+\item 
+\mbox{\Hypertarget{class_kernel_string_adcb0c39f668a93ecdf5da357f5b0547d}\label{class_kernel_string_adcb0c39f668a93ecdf5da357f5b0547d}} 
+U\+Int32 {\bfseries Hash} (void)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_kernel_string_a7eb431d5935c958d0067767a5f4caa1a}\label{class_kernel_string_a7eb431d5935c958d0067767a5f4caa1a}} 
+static \hyperlink{class_kernel_string}{Kernel\+String} $\ast$ {\bfseries Format} (const char $\ast$input,...)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_kernel_string_a8821aa77d0edec8fd37bd7c267604365}\label{class_kernel_string_a8821aa77d0edec8fd37bd7c267604365}} 
+bool {\bfseries \+\_\+own\+Buffer}
+\item 
+\mbox{\Hypertarget{class_kernel_string_aee3c06a5a2987740980b6d98dd7c3d3c}\label{class_kernel_string_aee3c06a5a2987740980b6d98dd7c3d3c}} 
+const char $\ast$ {\bfseries \+\_\+data}
+\item 
+\mbox{\Hypertarget{class_kernel_string_a96630b5976b8488a6e7cd9658337e5f3}\label{class_kernel_string_a96630b5976b8488a6e7cd9658337e5f3}} 
+U\+Int32 {\bfseries \+\_\+length}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Collections.\+h\item 
+Collections.\+cpp\end{DoxyCompactItemize}

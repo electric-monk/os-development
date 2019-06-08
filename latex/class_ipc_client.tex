@@ -1,0 +1,63 @@
+\hypertarget{class_ipc_client}{}\section{Ipc\+Client Class Reference}
+\label{class_ipc_client}\index{Ipc\+Client@{Ipc\+Client}}
+Inheritance diagram for Ipc\+Client\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_ipc_client}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_ipc_client_aeb842e37c974631ba275659fe5c831e4}\label{class_ipc_client_aeb842e37c974631ba275659fe5c831e4}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_ipc_client_ad6747b7afdc214fa51c8f878268bf2af}\label{class_ipc_client_ad6747b7afdc214fa51c8f878268bf2af}} 
+{\bfseries Ipc\+Client} (\hyperlink{class_kernel_string}{Kernel\+String} $\ast$name)
+\item 
+\mbox{\Hypertarget{class_ipc_client_a5baa5db6bd1ae8568345bd7ba96b524e}\label{class_ipc_client_a5baa5db6bd1ae8568345bd7ba96b524e}} 
+\hyperlink{class_kernel_string}{Kernel\+String} $\ast$ {\bfseries Name} (void)
+\item 
+\mbox{\Hypertarget{class_ipc_client_ab0487fe4553c3f2f05a9d49542355f05}\label{class_ipc_client_ab0487fe4553c3f2f05a9d49542355f05}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries Properties} (void)
+\item 
+\mbox{\Hypertarget{class_ipc_client_abe5591b55d806cc877fdb01038443265}\label{class_ipc_client_abe5591b55d806cc877fdb01038443265}} 
+void {\bfseries Start} (\hyperlink{class_ipc_service_proxy}{Ipc\+Service\+Proxy} $\ast$proxy)
+\item 
+\mbox{\Hypertarget{class_ipc_client_ad5f7decfec2ede18491e791776002615}\label{class_ipc_client_ad5f7decfec2ede18491e791776002615}} 
+void {\bfseries Stop} (void)
+\item 
+\mbox{\Hypertarget{class_ipc_client_ad5cc034f356c9f9c84d22245b426b788}\label{class_ipc_client_ad5cc034f356c9f9c84d22245b426b788}} 
+bool {\bfseries Active} (void)
+\item 
+\mbox{\Hypertarget{class_ipc_client_a27404c55c3d45db93203b40d77639a26}\label{class_ipc_client_a27404c55c3d45db93203b40d77639a26}} 
+virtual void {\bfseries Connect} (\hyperlink{class_ipc_service}{Ipc\+Service} $\ast$service)=0
+\item 
+\mbox{\Hypertarget{class_ipc_client_ad511bac1bba2625edae3c43dbe5075fa}\label{class_ipc_client_ad511bac1bba2625edae3c43dbe5075fa}} 
+virtual void {\bfseries Disconnect} (void)=0
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_ipc_client_a1f0a6346aac2708d48c7c555096c295b}\label{class_ipc_client_a1f0a6346aac2708d48c7c555096c295b}} 
+\hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$ {\bfseries Complete\+Connect} (\hyperlink{class_ipc_service}{Ipc\+Service} $\ast$service)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_ipc_client_a5f6e0735e640e8eb70dd2a1a67a34054}\label{class_ipc_client_a5f6e0735e640e8eb70dd2a1a67a34054}} 
+\hyperlink{class_kernel_string}{Kernel\+String} $\ast$ {\bfseries \+\_\+name}
+\item 
+\mbox{\Hypertarget{class_ipc_client_a248f3294d0776fa86736c8bcd5f115a5}\label{class_ipc_client_a248f3294d0776fa86736c8bcd5f115a5}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries \+\_\+properties}
+\item 
+\mbox{\Hypertarget{class_ipc_client_abe19134e532ca8e57834c61b0648415c}\label{class_ipc_client_abe19134e532ca8e57834c61b0648415c}} 
+\hyperlink{class_ipc_service_proxy}{Ipc\+Service\+Proxy} $\ast$ {\bfseries \+\_\+proxy}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+I\+P\+C.\+h\item 
+I\+P\+C.\+cpp\end{DoxyCompactItemize}

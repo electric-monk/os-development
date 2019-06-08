@@ -1,0 +1,76 @@
+\hypertarget{class_standard_p_c___internal_1_1_p_s2_controller}{}\section{Standard\+P\+C\+\_\+\+Internal\+:\+:P\+S2\+Controller Class Reference}
+\label{class_standard_p_c___internal_1_1_p_s2_controller}\index{Standard\+P\+C\+\_\+\+Internal\+::\+P\+S2\+Controller@{Standard\+P\+C\+\_\+\+Internal\+::\+P\+S2\+Controller}}
+Inheritance diagram for Standard\+P\+C\+\_\+\+Internal\+:\+:P\+S2\+Controller\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_standard_p_c___internal_1_1_p_s2_controller}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{class_standard_p_c___internal_1_1_p_s2_controller_1_1_command}{Command}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_ae80d510e1b645ee598738d16994268c9}\label{class_standard_p_c___internal_1_1_p_s2_controller_ae80d510e1b645ee598738d16994268c9}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_a3027c3ff6f74c8884f9469e7e6774ed1}\label{class_standard_p_c___internal_1_1_p_s2_controller_a3027c3ff6f74c8884f9469e7e6774ed1}} 
+bool {\bfseries Start} (\hyperlink{class_driver}{Driver} $\ast$parent)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_af3b13eeaaddbcf9079c51fd17f14fa15}\label{class_standard_p_c___internal_1_1_p_s2_controller_af3b13eeaaddbcf9079c51fd17f14fa15}} 
+void {\bfseries Stop} (void)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_a2183dfc3e43c5599ccf5d15236c8dfcf}\label{class_standard_p_c___internal_1_1_p_s2_controller_a2183dfc3e43c5599ccf5d15236c8dfcf}} 
+void {\bfseries Send\+Command} (bool aux, U\+Int8 command, U\+Int8 $\ast$data, int datalen, int responselen, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(U\+Int8 $\ast$response)$>$ response)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_a2140ceecc900ec8de0d0085350f43c5b}\label{class_standard_p_c___internal_1_1_p_s2_controller_a2140ceecc900ec8de0d0085350f43c5b}} 
+\hyperlink{class_runloop_thread}{Runloop\+Thread} $\ast$ {\bfseries Runloop} (void)
+\end{DoxyCompactItemize}
+\subsection*{Static Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_ac2fc01063fefe1e64ef7935993a8fa55}\label{class_standard_p_c___internal_1_1_p_s2_controller_ac2fc01063fefe1e64ef7935993a8fa55}} 
+static U\+Int8 {\bfseries Read\+Data} (void)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_a0402a9dee2384014c51569610e0b388d}\label{class_standard_p_c___internal_1_1_p_s2_controller_a0402a9dee2384014c51569610e0b388d}} 
+static U\+Int8 {\bfseries Read\+Status} (void)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_afa03a1342e7758e5213e6c88ea0ebf57}\label{class_standard_p_c___internal_1_1_p_s2_controller_afa03a1342e7758e5213e6c88ea0ebf57}} 
+static void {\bfseries Send\+Byte} (bool control, U\+Int8 command)
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_ac7b1be0720854698814168ecb8e2143c}\label{class_standard_p_c___internal_1_1_p_s2_controller_ac7b1be0720854698814168ecb8e2143c}} 
+static U\+Int8 {\bfseries Read\+Byte} (bool $\ast$aux)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_a686f36507713d39d0de843fec42660b2}\label{class_standard_p_c___internal_1_1_p_s2_controller_a686f36507713d39d0de843fec42660b2}} 
+\hyperlink{class_standard_p_c___internal_1_1_p_s2_keyboard}{P\+S2\+Keyboard} $\ast$ {\bfseries \+\_\+keyboard}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_adf46e88314a96ad4d84968fe23175831}\label{class_standard_p_c___internal_1_1_p_s2_controller_adf46e88314a96ad4d84968fe23175831}} 
+\hyperlink{class_standard_p_c___internal_1_1_p_s2_mouse}{P\+S2\+Mouse} $\ast$ {\bfseries \+\_\+mouse}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_a6179d4f16c628287bd3c1cc56a1de5f7}\label{class_standard_p_c___internal_1_1_p_s2_controller_a6179d4f16c628287bd3c1cc56a1de5f7}} 
+Interrupt\+Handler\+Handle {\bfseries \+\_\+interrupt\+Keyboard}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_a8baef8f1c54735d9d7bbe41bdd609af3}\label{class_standard_p_c___internal_1_1_p_s2_controller_a8baef8f1c54735d9d7bbe41bdd609af3}} 
+Interrupt\+Handler\+Handle {\bfseries \+\_\+interrupt\+Mouse}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_ace5db428b131d16cccc3ffb5da07f4cb}\label{class_standard_p_c___internal_1_1_p_s2_controller_ace5db428b131d16cccc3ffb5da07f4cb}} 
+\hyperlink{class_runloop_thread}{Runloop\+Thread} $\ast$ {\bfseries \+\_\+runloop}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_afd45cba9d660119902184e7720205fde}\label{class_standard_p_c___internal_1_1_p_s2_controller_afd45cba9d660119902184e7720205fde}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries \+\_\+command\+Keyboard}
+\item 
+\mbox{\Hypertarget{class_standard_p_c___internal_1_1_p_s2_controller_a831f7f19cad7cbbe3249c9e137c215af}\label{class_standard_p_c___internal_1_1_p_s2_controller_a831f7f19cad7cbbe3249c9e137c215af}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries \+\_\+command\+Mouse}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Standard\+P\+C.\+cpp\end{DoxyCompactItemize}

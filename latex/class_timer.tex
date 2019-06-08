@@ -1,0 +1,57 @@
+\hypertarget{class_timer}{}\section{Timer Class Reference}
+\label{class_timer}\index{Timer@{Timer}}
+Inheritance diagram for Timer\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_timer}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_timer_a8160788e6bd8b73580f1c4d6fccf7761}\label{class_timer_a8160788e6bd8b73580f1c4d6fccf7761}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_timer_a99fec173118caf8ec633ba0f898c865b}\label{class_timer_a99fec173118caf8ec633ba0f898c865b}} 
+void {\bfseries Reset} (U\+Int32 microseconds=0, bool repeats=false)
+\item 
+\mbox{\Hypertarget{class_timer_a7d59255062bd8e2fef58d37a05565208}\label{class_timer_a7d59255062bd8e2fef58d37a05565208}} 
+void {\bfseries Cancel} (void)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_timer_aeb33a8dc76b38e50f71ba44d77da4e69}\label{class_timer_aeb33a8dc76b38e50f71ba44d77da4e69}} 
+static void {\bfseries Timer\+Tick} (U\+Int32 microseconds\+Passed)
+\item 
+\mbox{\Hypertarget{class_timer_a081e946b50daf84de2399f300b795097}\label{class_timer_a081e946b50daf84de2399f300b795097}} 
+static U\+Int32 {\bfseries Current\+Tick} (void)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_timer_af29bc3b035c336192bdd3cfab062048b}\label{class_timer_af29bc3b035c336192bdd3cfab062048b}} 
+\hyperlink{class_timer}{Timer} $\ast$ {\bfseries \+\_\+previous}
+\item 
+\mbox{\Hypertarget{class_timer_a61019818dd63fa3869bc7132660c763c}\label{class_timer_a61019818dd63fa3869bc7132660c763c}} 
+\hyperlink{class_timer}{Timer} $\ast$ {\bfseries \+\_\+next}
+\item 
+\mbox{\Hypertarget{class_timer_a886c7dfcc3bdc04811f7103698d3fe44}\label{class_timer_a886c7dfcc3bdc04811f7103698d3fe44}} 
+U\+Int32 {\bfseries \+\_\+total\+Time}
+\item 
+\mbox{\Hypertarget{class_timer_aea9014fe4cb66337eeb4c6546c7c1e41}\label{class_timer_aea9014fe4cb66337eeb4c6546c7c1e41}} 
+bool {\bfseries \+\_\+repeats}
+\item 
+\mbox{\Hypertarget{class_timer_a0e92367e8b9f4fe50e7395d01db259af}\label{class_timer_a0e92367e8b9f4fe50e7395d01db259af}} 
+bool {\bfseries \+\_\+running}
+\item 
+\mbox{\Hypertarget{class_timer_a5403d0936031df52425edb00b7f779d4}\label{class_timer_a5403d0936031df52425edb00b7f779d4}} 
+U\+Int32 {\bfseries \+\_\+remainder}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Blocking.\+h\item 
+Blocking.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,83 @@
+\hypertarget{class_i_p_c___manager___internal_1_1_entry}{}\section{I\+P\+C\+\_\+\+Manager\+\_\+\+Internal\+:\+:Entry Class Reference}
+\label{class_i_p_c___manager___internal_1_1_entry}\index{I\+P\+C\+\_\+\+Manager\+\_\+\+Internal\+::\+Entry@{I\+P\+C\+\_\+\+Manager\+\_\+\+Internal\+::\+Entry}}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_a94f0b89803d1929ab5c2b5eb2f1afb9c}\label{class_i_p_c___manager___internal_1_1_entry_a94f0b89803d1929ab5c2b5eb2f1afb9c}} 
+enum {\bfseries Type} \{ \newline
+{\bfseries type\+Invalid} = 0, 
+{\bfseries type\+Provider} = 1 $<$$<$ 1, 
+{\bfseries type\+Input} = 1 $<$$<$ 2, 
+{\bfseries type\+Output} = 1 $<$$<$ 3, 
+\newline
+{\bfseries type\+Input\+Connection} = 1 $<$$<$ 4, 
+{\bfseries type\+Output\+Connection} = 1 $<$$<$ 5, 
+{\bfseries type\+Start} = 0, 
+{\bfseries type\+Stop} = 1
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_a2ff426f22a51d430862f6cabf85e2a45}\label{class_i_p_c___manager___internal_1_1_entry_a2ff426f22a51d430862f6cabf85e2a45}} 
+{\bfseries Entry} (\hyperlink{class_i_p_c___manager___internal_1_1_entry}{Entry} $\ast$$\ast$start, \hyperlink{class_i_p_c___manager___internal_1_1_entry}{Entry} $\ast$$\ast$end, U\+Int32 provider, U\+Int32 io\+Port, U\+Int32 connection, Type type)
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_ae9f73fa712c307cf434237bc2d05969a}\label{class_i_p_c___manager___internal_1_1_entry_ae9f73fa712c307cf434237bc2d05969a}} 
+int {\bfseries Cancel\+If\+Necessary} (void)
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_a7615fe5e9643d8548448c477e30a3f3f}\label{class_i_p_c___manager___internal_1_1_entry_a7615fe5e9643d8548448c477e30a3f3f}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries Get\+Info} (void)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_ac0139be73bef62997dff89d613914088}\label{class_i_p_c___manager___internal_1_1_entry_ac0139be73bef62997dff89d613914088}} 
+static U\+Int32 {\bfseries Map} (\hyperlink{class_kernel_object}{Kernel\+Object} $\ast$object)
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_ab93847831a98c8904b96e18bf27ed16d}\label{class_i_p_c___manager___internal_1_1_entry_ab93847831a98c8904b96e18bf27ed16d}} 
+static \hyperlink{class_kernel_object}{Kernel\+Object} $\ast$ {\bfseries Demap} (U\+Int32 map)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_a95a5e38367ca5053d8a930a1888a1de7}\label{class_i_p_c___manager___internal_1_1_entry_a95a5e38367ca5053d8a930a1888a1de7}} 
+Type {\bfseries \+\_\+type}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_ae0b5352d87361aef2b21bdf42875115c}\label{class_i_p_c___manager___internal_1_1_entry_ae0b5352d87361aef2b21bdf42875115c}} 
+U\+Int32 {\bfseries \+\_\+provider\+Handle}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_a767b725f2fccfc545e1639cd271fd3b5}\label{class_i_p_c___manager___internal_1_1_entry_a767b725f2fccfc545e1639cd271fd3b5}} 
+U\+Int32 {\bfseries \+\_\+io\+Handle}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_a57021dc9a582b3b5df8725e949601645}\label{class_i_p_c___manager___internal_1_1_entry_a57021dc9a582b3b5df8725e949601645}} 
+U\+Int32 {\bfseries \+\_\+connection\+Handle}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_a8f69bdd17278046052028180cfa1fc10}\label{class_i_p_c___manager___internal_1_1_entry_a8f69bdd17278046052028180cfa1fc10}} 
+\hyperlink{class_i_p_c___manager___internal_1_1_entry}{Entry} $\ast$$\ast$ {\bfseries \+\_\+start}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_aabeb2cf3d6d04febddcfc8d0ce360ee2}\label{class_i_p_c___manager___internal_1_1_entry_aabeb2cf3d6d04febddcfc8d0ce360ee2}} 
+\hyperlink{class_i_p_c___manager___internal_1_1_entry}{Entry} $\ast$$\ast$ {\bfseries \+\_\+end}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_ab547daa6dd7418717f894413b14408d8}\label{class_i_p_c___manager___internal_1_1_entry_ab547daa6dd7418717f894413b14408d8}} 
+\hyperlink{class_i_p_c___manager___internal_1_1_entry}{Entry} $\ast$ {\bfseries \+\_\+last}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_a16615d2ccd3623477dbb659fe0a1a366}\label{class_i_p_c___manager___internal_1_1_entry_a16615d2ccd3623477dbb659fe0a1a366}} 
+\hyperlink{class_i_p_c___manager___internal_1_1_entry}{Entry} $\ast$ {\bfseries \+\_\+next}
+\end{DoxyCompactItemize}
+\subsection*{Static Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_ac72cd2f47ac111bba36fd03cbecee9b6}\label{class_i_p_c___manager___internal_1_1_entry_ac72cd2f47ac111bba36fd03cbecee9b6}} 
+static \hyperlink{class_kernel_number}{Kernel\+Number} $\ast$ {\bfseries Number} (U\+Int32 handle)
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_a28d84c1ef0d3cdd6d30183fe9d3f6766}\label{class_i_p_c___manager___internal_1_1_entry_a28d84c1ef0d3cdd6d30183fe9d3f6766}} 
+static \hyperlink{class_kernel_string}{Kernel\+String} $\ast$ {\bfseries State} (Type type)
+\item 
+\mbox{\Hypertarget{class_i_p_c___manager___internal_1_1_entry_a0f2be2d7dd6403bdac2a8a2a5483bdc2}\label{class_i_p_c___manager___internal_1_1_entry_a0f2be2d7dd6403bdac2a8a2a5483bdc2}} 
+static \hyperlink{class_kernel_string}{Kernel\+String} $\ast$ {\bfseries Type\+Name} (Type type)
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+I\+P\+C\+\_\+\+Manager.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,99 @@
+\hypertarget{class_a_t_a_driver_node}{}\section{A\+T\+A\+Driver\+Node Class Reference}
+\label{class_a_t_a_driver_node}\index{A\+T\+A\+Driver\+Node@{A\+T\+A\+Driver\+Node}}
+Inheritance diagram for A\+T\+A\+Driver\+Node\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_a_t_a_driver_node}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a62e908c3ad6855e40a9e3f922ebd49d4}\label{class_a_t_a_driver_node_a62e908c3ad6855e40a9e3f922ebd49d4}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_ac79dac66865a1b0ac13ea55d0b99f1c3}\label{class_a_t_a_driver_node_ac79dac66865a1b0ac13ea55d0b99f1c3}} 
+{\bfseries A\+T\+A\+Driver\+Node} (const char $\ast$name)
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a2022fc6685c72d9580a1afa878470cda}\label{class_a_t_a_driver_node_a2022fc6685c72d9580a1afa878470cda}} 
+virtual U\+Int8 {\bfseries in\+Byte} (U\+Int32 address)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a3edab33f667a6033e93f1a627e5b54cc}\label{class_a_t_a_driver_node_a3edab33f667a6033e93f1a627e5b54cc}} 
+virtual U\+Int16 {\bfseries in\+Short} (U\+Int32 address)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_afb23a527dfddffab2773cbca507bdf95}\label{class_a_t_a_driver_node_afb23a527dfddffab2773cbca507bdf95}} 
+virtual U\+Int32 {\bfseries in\+Long} (U\+Int32 address)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_aceea9742a57fe02bebace6822330fec1}\label{class_a_t_a_driver_node_aceea9742a57fe02bebace6822330fec1}} 
+virtual void {\bfseries out\+Byte} (U\+Int32 address, U\+Int8 byte)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_ae3f04adeed8ec66ec0a335c53245dec4}\label{class_a_t_a_driver_node_ae3f04adeed8ec66ec0a335c53245dec4}} 
+virtual void {\bfseries out\+Short} (U\+Int32 address, U\+Int16 byte)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a336a09330409830b3e22e9d2216f7543}\label{class_a_t_a_driver_node_a336a09330409830b3e22e9d2216f7543}} 
+virtual void {\bfseries out\+Long} (U\+Int32 address, U\+Int32 byte)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a83481a2921bdd71dcd86fb97fd870d17}\label{class_a_t_a_driver_node_a83481a2921bdd71dcd86fb97fd870d17}} 
+virtual void {\bfseries in\+Byte\+Rep} (U\+Int32 address, void $\ast$buffer, U\+Int32 length)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_af82e63d322aa2e93ff1c7326eb4946c8}\label{class_a_t_a_driver_node_af82e63d322aa2e93ff1c7326eb4946c8}} 
+virtual void {\bfseries in\+Short\+Rep} (U\+Int32 address, void $\ast$buffer, U\+Int32 length)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_ab0e5bb5348c9f3f512a48fd48821ce7d}\label{class_a_t_a_driver_node_ab0e5bb5348c9f3f512a48fd48821ce7d}} 
+virtual void {\bfseries in\+Long\+Rep} (U\+Int32 address, void $\ast$buffer, U\+Int32 length)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_ac44712ba1cec68e5af518bbe7ab52ca2}\label{class_a_t_a_driver_node_ac44712ba1cec68e5af518bbe7ab52ca2}} 
+virtual void {\bfseries out\+Byte\+Rep} (U\+Int32 address, void $\ast$buffer, U\+Int32 length)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a40111b18b03dfb80428bcd9f2434e004}\label{class_a_t_a_driver_node_a40111b18b03dfb80428bcd9f2434e004}} 
+virtual void {\bfseries out\+Short\+Rep} (U\+Int32 address, void $\ast$buffer, U\+Int32 length)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a9b078d6ee5c6a3282a4a27e62f56070b}\label{class_a_t_a_driver_node_a9b078d6ee5c6a3282a4a27e62f56070b}} 
+virtual void {\bfseries out\+Long\+Rep} (U\+Int32 address, void $\ast$buffer, U\+Int32 length)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a78e6b31ebb2e275dd2fb9bb49a10588d}\label{class_a_t_a_driver_node_a78e6b31ebb2e275dd2fb9bb49a10588d}} 
+virtual \hyperlink{class_blockable_object}{Blockable\+Object} $\ast$ {\bfseries Interrupt} (void)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a5a7a31265883f8371a13d3426fb6add4}\label{class_a_t_a_driver_node_a5a7a31265883f8371a13d3426fb6add4}} 
+virtual void {\bfseries Reset\+Interrupt} (void)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a2a44b1948f7aa7ddfb2d36013b56b8b8}\label{class_a_t_a_driver_node_a2a44b1948f7aa7ddfb2d36013b56b8b8}} 
+U\+Int8 {\bfseries Interrupt\+Status} (void)
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_ac46d045009a24165081e8268b6c472ef}\label{class_a_t_a_driver_node_ac46d045009a24165081e8268b6c472ef}} 
+U\+Int8 {\bfseries B\+M\+I\+D\+E\+Status} (void)
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a2867a9c523be6e53f3b2b2828db351ff}\label{class_a_t_a_driver_node_a2867a9c523be6e53f3b2b2828db351ff}} 
+void {\bfseries Update\+B\+M\+I\+D\+E\+State} (void)
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_aa2a9cb6f18a21ffa7ac059b271d1bb9f}\label{class_a_t_a_driver_node_aa2a9cb6f18a21ffa7ac059b271d1bb9f}} 
+virtual bool {\bfseries D\+M\+A\+Available} (void)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a507da936d6bcce3fc41b875699c12015}\label{class_a_t_a_driver_node_a507da936d6bcce3fc41b875699c12015}} 
+virtual U\+Int8 {\bfseries read\+Bus\+Master\+Status} (void)=0
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a95d650298bffca359cd9800ba0fb29b9}\label{class_a_t_a_driver_node_a95d650298bffca359cd9800ba0fb29b9}} 
+virtual void {\bfseries write\+Bus\+Master\+Status} (U\+Int8 x)=0
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a59256e38b62527a4d3d56347c3048b34}\label{class_a_t_a_driver_node_a59256e38b62527a4d3d56347c3048b34}} 
+bool {\bfseries Update\+For\+Interrupt} (void)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_ad0aa8b905e16b316ef54d32792479979}\label{class_a_t_a_driver_node_ad0aa8b905e16b316ef54d32792479979}} 
+U\+Int8 {\bfseries \+\_\+interrupt\+Status}
+\item 
+\mbox{\Hypertarget{class_a_t_a_driver_node_a9d4da4f71c18023dba9536ef358ef97a}\label{class_a_t_a_driver_node_a9d4da4f71c18023dba9536ef358ef97a}} 
+U\+Int8 {\bfseries \+\_\+bm\+Status}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Driver\+\_\+\+A\+T\+A.\+h\item 
+Driver\+\_\+\+A\+T\+A.\+cpp\end{DoxyCompactItemize}

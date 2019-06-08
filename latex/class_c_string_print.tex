@@ -1,0 +1,44 @@
+\hypertarget{class_c_string_print}{}\section{C\+String\+Print Class Reference}
+\label{class_c_string_print}\index{C\+String\+Print@{C\+String\+Print}}
+Inheritance diagram for C\+String\+Print\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_c_string_print}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_string_print_a5ffc4491ea6865195c5163d1f83b309e}\label{class_c_string_print_a5ffc4491ea6865195c5163d1f83b309e}} 
+void {\bfseries Print} (const char $\ast$format,...)
+\item 
+\mbox{\Hypertarget{class_c_string_print_aa59dd1d5fd21a71f0ccb2c9bc3adb05b}\label{class_c_string_print_aa59dd1d5fd21a71f0ccb2c9bc3adb05b}} 
+void {\bfseries Print\+List} (const char $\ast$format, va\+\_\+list \&params)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_string_print_ad0fbb4a5886e3eb0f814046e76ded7d9}\label{class_c_string_print_ad0fbb4a5886e3eb0f814046e76ded7d9}} 
+static bool {\bfseries Is\+Digit} (char c)
+\item 
+\mbox{\Hypertarget{class_c_string_print_a7fc2eff4d7f56cb742d61840c6529a1e}\label{class_c_string_print_a7fc2eff4d7f56cb742d61840c6529a1e}} 
+static int {\bfseries Length\+Of} (const char $\ast$s)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_string_print_a80897c8c98fcf5047730b82d5a029098}\label{class_c_string_print_a80897c8c98fcf5047730b82d5a029098}} 
+virtual void {\bfseries Print\+Out} (const char $\ast$data, int length)=0
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_string_print_a7d44210a9575d0951641e215dcf08d69}\label{class_c_string_print_a7d44210a9575d0951641e215dcf08d69}} 
+int {\bfseries Parse\+Format} (va\+\_\+list \&params, const char $\ast$format)
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+tools.\+h\item 
+tools.\+cpp\end{DoxyCompactItemize}

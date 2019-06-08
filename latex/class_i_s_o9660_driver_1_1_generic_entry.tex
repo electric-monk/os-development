@@ -1,0 +1,67 @@
+\hypertarget{class_i_s_o9660_driver_1_1_generic_entry}{}\section{I\+S\+O9660\+Driver\+:\+:Generic\+Entry Class Reference}
+\label{class_i_s_o9660_driver_1_1_generic_entry}\index{I\+S\+O9660\+Driver\+::\+Generic\+Entry@{I\+S\+O9660\+Driver\+::\+Generic\+Entry}}
+Inheritance diagram for I\+S\+O9660\+Driver\+:\+:Generic\+Entry\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_i_s_o9660_driver_1_1_generic_entry}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{class_i_s_o9660_driver_1_1_generic_entry_1_1_interim_date}{Interim\+Date}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_s_o9660_driver_1_1_generic_entry_a0c52498ba3b8d3ea4fc94917a189f644}\label{class_i_s_o9660_driver_1_1_generic_entry_a0c52498ba3b8d3ea4fc94917a189f644}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_i_s_o9660_driver_1_1_generic_entry_adb6933e6011e07c57785824d45b63962}\label{class_i_s_o9660_driver_1_1_generic_entry_adb6933e6011e07c57785824d45b63962}} 
+{\bfseries Generic\+Entry} (const Directory\+Record $\ast$record)
+\item 
+\mbox{\Hypertarget{class_i_s_o9660_driver_1_1_generic_entry_ab48b924fed6721e2063e748bb92b2cf2}\label{class_i_s_o9660_driver_1_1_generic_entry_ab48b924fed6721e2063e748bb92b2cf2}} 
+bool {\bfseries Is\+Directory} (void)
+\item 
+\mbox{\Hypertarget{class_i_s_o9660_driver_1_1_generic_entry_abdf8c027359d53e1a6fdf1d8927789e0}\label{class_i_s_o9660_driver_1_1_generic_entry_abdf8c027359d53e1a6fdf1d8927789e0}} 
+void {\bfseries Encode} (Flat\+Dictionary $\ast$output)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_s_o9660_driver_1_1_generic_entry_a3e4b5da3520ee802a7aec03d8c7589eb}\label{class_i_s_o9660_driver_1_1_generic_entry_a3e4b5da3520ee802a7aec03d8c7589eb}} 
+U\+Int32 {\bfseries node}
+\item 
+\mbox{\Hypertarget{class_i_s_o9660_driver_1_1_generic_entry_a281aeac84ff6fed9afba7fa99ab076ca}\label{class_i_s_o9660_driver_1_1_generic_entry_a281aeac84ff6fed9afba7fa99ab076ca}} 
+U\+Int32 {\bfseries start}
+\item 
+\mbox{\Hypertarget{class_i_s_o9660_driver_1_1_generic_entry_ad5af615529f2823846f1205b9a3fea8f}\label{class_i_s_o9660_driver_1_1_generic_entry_ad5af615529f2823846f1205b9a3fea8f}} 
+U\+Int32 {\bfseries length}
+\item 
+\mbox{\Hypertarget{class_i_s_o9660_driver_1_1_generic_entry_a8e4ca44b4109033c6b526b01daffc87c}\label{class_i_s_o9660_driver_1_1_generic_entry_a8e4ca44b4109033c6b526b01daffc87c}} 
+\hyperlink{class_kernel_string}{Kernel\+String} $\ast$ {\bfseries name}
+\end{DoxyCompactItemize}
+\subsection*{Static Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_s_o9660_driver_1_1_generic_entry_a60d478f922eed16f71ee2bd8b736438f}\label{class_i_s_o9660_driver_1_1_generic_entry_a60d478f922eed16f71ee2bd8b736438f}} 
+static void {\bfseries Save\+String} (Flat\+Array $\ast$output, const char $\ast$key)
+\item 
+\mbox{\Hypertarget{class_i_s_o9660_driver_1_1_generic_entry_a4f6823d68ad344923d24a35e781fbd29}\label{class_i_s_o9660_driver_1_1_generic_entry_a4f6823d68ad344923d24a35e781fbd29}} 
+static void {\bfseries Save\+Integer} (Flat\+Array $\ast$output, U\+Int64 value)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_i_s_o9660_driver_1_1_generic_entry_a3be07e0ee32ce5577cbb44b5bd7d9cc6}\label{class_i_s_o9660_driver_1_1_generic_entry_a3be07e0ee32ce5577cbb44b5bd7d9cc6}} 
+bool {\bfseries \+\_\+is\+Directory}
+\item 
+\mbox{\Hypertarget{class_i_s_o9660_driver_1_1_generic_entry_a8e5b26bece08a4775b6d329c0458b4ed}\label{class_i_s_o9660_driver_1_1_generic_entry_a8e5b26bece08a4775b6d329c0458b4ed}} 
+\hyperlink{class_i_s_o9660_driver_1_1_generic_entry_1_1_interim_date}{Interim\+Date} {\bfseries \+\_\+creation\+Date}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+fs\+\_\+iso9660.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,39 @@
+\hypertarget{class_task_queue}{}\section{Task\+Queue Class Reference}
+\label{class_task_queue}\index{Task\+Queue@{Task\+Queue}}
+Inheritance diagram for Task\+Queue\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=4.000000cm]{class_task_queue}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_task_queue_a0f434f7fa8352c71a02879006892cf5c}\label{class_task_queue_a0f434f7fa8352c71a02879006892cf5c}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_task_queue_aacf10c589caf1c237fb13ecf5056f192}\label{class_task_queue_aacf10c589caf1c237fb13ecf5056f192}} 
+void {\bfseries Add\+Task} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(void)$>$ task)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_task_queue_a4a500c091ed25b94598a9b4cd5580f42}\label{class_task_queue_a4a500c091ed25b94598a9b4cd5580f42}} 
+void {\bfseries Process\+Signal} (\hyperlink{class_runloop}{Runloop} $\ast$runloop, \hyperlink{class_blockable_object}{Blockable\+Object} $\ast$watching, \hyperlink{class_kernel_array}{Kernel\+Array} $\ast$signals)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_task_queue_afd280ef186f6859539022e50dc032ecc}\label{class_task_queue_afd280ef186f6859539022e50dc032ecc}} 
+\hyperlink{class_hardcore_spin_lock}{Hardcore\+Spin\+Lock} {\bfseries \+\_\+task\+Lock}
+\item 
+\mbox{\Hypertarget{class_task_queue_abbc6cb37df2e3b7295e46d7326ca81ba}\label{class_task_queue_abbc6cb37df2e3b7295e46d7326ca81ba}} 
+\hyperlink{class_kernel_f_i_f_o}{Kernel\+F\+I\+FO} $\ast$ {\bfseries \+\_\+tasks}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Runloop.\+h\item 
+Runloop.\+cpp\end{DoxyCompactItemize}

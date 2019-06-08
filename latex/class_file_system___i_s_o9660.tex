@@ -1,0 +1,75 @@
+\hypertarget{class_file_system___i_s_o9660}{}\section{File\+System\+\_\+\+I\+S\+O9660 Class Reference}
+\label{class_file_system___i_s_o9660}\index{File\+System\+\_\+\+I\+S\+O9660@{File\+System\+\_\+\+I\+S\+O9660}}
+Inheritance diagram for File\+System\+\_\+\+I\+S\+O9660\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_file_system___i_s_o9660}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_ae48eb790c8be9145a59730ea53a73667}\label{class_file_system___i_s_o9660_ae48eb790c8be9145a59730ea53a73667}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_aec75a25f049b5d49162737c020236f29}\label{class_file_system___i_s_o9660_aec75a25f049b5d49162737c020236f29}} 
+\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$ {\bfseries Input\+Connection\+Start} (\hyperlink{class_kernel_string}{Kernel\+String} $\ast$name, \hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$connection)
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_aa8fc5bc6090dbaa4648837f133034543}\label{class_file_system___i_s_o9660_aa8fc5bc6090dbaa4648837f133034543}} 
+void {\bfseries Input\+Connection\+Received} (\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$connection, \hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$message)
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_accad32bb3f7ec5d6bd3e4aa1ab75c72b}\label{class_file_system___i_s_o9660_accad32bb3f7ec5d6bd3e4aa1ab75c72b}} 
+void {\bfseries Input\+Connection\+End} (\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$connection)
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_a65f08062655e64e11b6b04cd49f88648}\label{class_file_system___i_s_o9660_a65f08062655e64e11b6b04cd49f88648}} 
+\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$ {\bfseries Output\+Connection\+Start} (\hyperlink{class_generic_provider_1_1_service}{Service} $\ast$source, \hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$connection)
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_aa3234131cd06c5b3aad307e206dc5eb4}\label{class_file_system___i_s_o9660_aa3234131cd06c5b3aad307e206dc5eb4}} 
+void {\bfseries Output\+Connection\+Message} (\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$connection, \hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$message)
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_a5725b59566f7f9f97eae56a8caad85c4}\label{class_file_system___i_s_o9660_a5725b59566f7f9f97eae56a8caad85c4}} 
+void {\bfseries Output\+Connection\+End} (\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$old\+Connection)
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_acfb7cd8374d0ec8065ac96545b759260}\label{class_file_system___i_s_o9660_acfb7cd8374d0ec8065ac96545b759260}} 
+void {\bfseries Perform\+Task} (\hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$destination, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ int(Interface\+\_\+\+Request $\ast$)$>$ generate, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ int(Interface\+\_\+\+Response $\ast$)$>$ response)
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_a10bd4494fa7f5ede324528c892462ac0}\label{class_file_system___i_s_o9660_a10bd4494fa7f5ede324528c892462ac0}} 
+void {\bfseries Read\+G\+VD} (int offset)
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_a8c423a8e7aa2d5abd4a598c6933472dc}\label{class_file_system___i_s_o9660_a8c423a8e7aa2d5abd4a598c6933472dc}} 
+\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$ {\bfseries Input} (void)
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_a31d06e786de18d10b4b02c0d82c2a6d5}\label{class_file_system___i_s_o9660_a31d06e786de18d10b4b02c0d82c2a6d5}} 
+void {\bfseries Ensure\+Entry\+Loaded} (\hyperlink{class_i_s_o9660_driver_1_1_generic_entry}{I\+S\+O9660\+Driver\+::\+Generic\+Entry} $\ast$entry, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(int)$>$ on\+Loaded)
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_a67e4d00408d0fc5ec48aa5afc27c46c2}\label{class_file_system___i_s_o9660_a67e4d00408d0fc5ec48aa5afc27c46c2}} 
+void {\bfseries Parse\+Path} (\hyperlink{class_i_s_o9660_driver_1_1_generic_entry}{I\+S\+O9660\+Driver\+::\+Generic\+Entry} $\ast$current, Flat\+Array $\ast$path, U\+Int32 path\+Index, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(\hyperlink{class_i_s_o9660_driver_1_1_generic_entry}{I\+S\+O9660\+Driver\+::\+Generic\+Entry} $\ast$)$>$ on\+Found, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(U\+Int32 failed\+Index, U\+Int32 reason)$>$ on\+Not\+Found)
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_a823edd7eab33a4d9edb576b53d7ee1c0}\label{class_file_system___i_s_o9660_a823edd7eab33a4d9edb576b53d7ee1c0}} 
+void {\bfseries Parse\+Path} (U\+Int64 start\+Node, Flat\+Array $\ast$path, U\+Int32 path\+Index, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(\hyperlink{class_i_s_o9660_driver_1_1_generic_entry}{I\+S\+O9660\+Driver\+::\+Generic\+Entry} $\ast$)$>$ on\+Found, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(U\+Int32 failed\+Index, U\+Int32 reason)$>$ on\+Not\+Found)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_a19d8e4f30b4347fea84b70d7e02f7788}\label{class_file_system___i_s_o9660_a19d8e4f30b4347fea84b70d7e02f7788}} 
+\hyperlink{class_i_s_o9660_driver_1_1_directory_entry}{I\+S\+O9660\+Driver\+::\+Directory\+Entry} $\ast$ {\bfseries \+\_\+root\+Directory}
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_aa4c08b17b136cfaaae06b113335d6f14}\label{class_file_system___i_s_o9660_aa4c08b17b136cfaaae06b113335d6f14}} 
+U\+Int64 {\bfseries \+\_\+node\+Counter}
+\item 
+\mbox{\Hypertarget{class_file_system___i_s_o9660_a53e621cc6d53322d1ea81adcb8c5fa1e}\label{class_file_system___i_s_o9660_a53e621cc6d53322d1ea81adcb8c5fa1e}} 
+\hyperlink{class_interface_helper}{Interface\+Helper} $\ast$ {\bfseries \+\_\+tasks}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+fs\+\_\+iso9660.\+h\item 
+fs\+\_\+iso9660.\+cpp\end{DoxyCompactItemize}

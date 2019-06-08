@@ -1,0 +1,157 @@
+\hypertarget{class_thread}{}\section{Thread Class Reference}
+\label{class_thread}\index{Thread@{Thread}}
+Inheritance diagram for Thread\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.000000cm]{class_thread}
+\end{center}
+\end{figure}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_thread_adecc7e24be3179a1ffbf6e1ee2466317}\label{class_thread_adecc7e24be3179a1ffbf6e1ee2466317}} 
+enum {\bfseries Thread\+Mode} \{ {\bfseries tm\+Auto} = 0, 
+{\bfseries tm\+Kernel}, 
+{\bfseries tm\+Userspace}
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_thread_aa75f2d415e51ad188550fdaec40f3869}\label{class_thread_aa75f2d415e51ad188550fdaec40f3869}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_thread_a29f128141e905fe96081b513b4b0d56c}\label{class_thread_a29f128141e905fe96081b513b4b0d56c}} 
+{\bfseries Thread} (\hyperlink{class_process}{Process} $\ast$process, void($\ast$entry\+Point)(void $\ast$), void $\ast$context, Thread\+Mode mode=tm\+Auto, U\+Int32 stack\+Size=8192)
+\item 
+\mbox{\Hypertarget{class_thread_a86ef42115b91c534b71eb6f6a1eaf20e}\label{class_thread_a86ef42115b91c534b71eb6f6a1eaf20e}} 
+void {\bfseries Kill} (void)
+\item 
+\mbox{\Hypertarget{class_thread_a8ea34747e31a384a20e0098189a7227e}\label{class_thread_a8ea34747e31a384a20e0098189a7227e}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries Block\+On} (\hyperlink{class_blockable_object}{Blockable\+Object} $\ast$source)
+\item 
+\mbox{\Hypertarget{class_thread_a83e9f58ebbf2f097ae471d05f28e38fb}\label{class_thread_a83e9f58ebbf2f097ae471d05f28e38fb}} 
+void {\bfseries Sleep} (U\+Int32 microseconds)
+\item 
+\mbox{\Hypertarget{class_thread_a3da8dd2190d3f4c8385b58492f56fc0b}\label{class_thread_a3da8dd2190d3f4c8385b58492f56fc0b}} 
+void {\bfseries Select} (\hyperlink{class_c_p_u_1_1_context}{C\+P\+U\+::\+Context} $\ast$$\ast$scheduler)
+\item 
+\mbox{\Hypertarget{class_thread_a11fd56ea0c36cdb06b1741b56062a078}\label{class_thread_a11fd56ea0c36cdb06b1741b56062a078}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries Kernel\+Thread\+Local\+Storage} (void)
+\item 
+\mbox{\Hypertarget{class_thread_a9d1f02c41d83b9ce3d36be0777e20d7d}\label{class_thread_a9d1f02c41d83b9ce3d36be0777e20d7d}} 
+bool {\bfseries Is\+Userspace} (void)
+\item 
+\mbox{\Hypertarget{class_thread_a66d29f650b5cd1a7a51f000a80931fad}\label{class_thread_a66d29f650b5cd1a7a51f000a80931fad}} 
+bool {\bfseries Is\+Currently\+Userspace} (void)
+\item 
+\mbox{\Hypertarget{class_thread_adc1dcf0eb56325d213b432973256e8a8}\label{class_thread_adc1dcf0eb56325d213b432973256e8a8}} 
+void $\ast$ {\bfseries Stack\+Top} (bool userspace)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_thread_ae3ce371d66bac1337ac5924dba453b49}\label{class_thread_ae3ce371d66bac1337ac5924dba453b49}} 
+static void {\bfseries Configure\+Service} (void)
+\item 
+\mbox{\Hypertarget{class_thread_a8c36c83c26333d0eeef1171a2a5218b1}\label{class_thread_a8c36c83c26333d0eeef1171a2a5218b1}} 
+static \hyperlink{class_thread}{Thread} $\ast$Active {\bfseries asm} (\char`\"{}\%gs\+:8\char`\"{})
+\item 
+\mbox{\Hypertarget{class_thread_a5c62d6365302d33273e9e83236a87a12}\label{class_thread_a5c62d6365302d33273e9e83236a87a12}} 
+static \hyperlink{class_thread}{Thread} $\ast$ {\bfseries Thread\+Cursor} (void)
+\item 
+\mbox{\Hypertarget{class_thread_a202f41189b55c4c9aa7cff0cc223a53f}\label{class_thread_a202f41189b55c4c9aa7cff0cc223a53f}} 
+static void {\bfseries Thread\+Next} (void)
+\item 
+\mbox{\Hypertarget{class_thread_a6016630a737ed32dc4792616baa6ecfe}\label{class_thread_a6016630a737ed32dc4792616baa6ecfe}} 
+static void {\bfseries Thread\+Last} (void)
+\item 
+\mbox{\Hypertarget{class_thread_a8f7952a73a287b62135aa5d8f80fe9ee}\label{class_thread_a8f7952a73a287b62135aa5d8f80fe9ee}} 
+static void {\bfseries Debug\+Print} (void)
+\item 
+\mbox{\Hypertarget{class_thread_a69bd399fcbae20d822317c731a831418}\label{class_thread_a69bd399fcbae20d822317c731a831418}} 
+static void {\bfseries Test} (void)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_thread_a70f18253f42d8ec53fe2947d47df991c}\label{class_thread_a70f18253f42d8ec53fe2947d47df991c}} 
+\hyperlink{class_process}{Process} $\ast$ {\bfseries \+\_\+process}
+\item 
+\mbox{\Hypertarget{class_thread_af9c6f91d13755d913734816af35ba220}\label{class_thread_af9c6f91d13755d913734816af35ba220}} 
+\hyperlink{class_c_p_u_1_1_context}{C\+P\+U\+::\+Context} $\ast$ {\bfseries \+\_\+context}
+\item 
+\mbox{\Hypertarget{class_thread_a61eb8270e7b2717dd647e244dc35e39b}\label{class_thread_a61eb8270e7b2717dd647e244dc35e39b}} 
+\hyperlink{class_c_p_u_1_1_f_p_u_context}{C\+P\+U\+::\+F\+P\+U\+Context} {\bfseries \+\_\+fpu\+Context}
+\item 
+\mbox{\Hypertarget{class_thread_a98bb87f94da7b526b4ed52d7679b6169}\label{class_thread_a98bb87f94da7b526b4ed52d7679b6169}} 
+T\+H\+R\+E\+A\+D\+S\+T\+A\+TE {\bfseries \+\_\+state}
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_thread_a618ade00afca159e852bd616ac0b922e}\label{class_thread_a618ade00afca159e852bd616ac0b922e}} 
+void {\bfseries Signal\+Changed} (\hyperlink{class_blockable_object}{Blockable\+Object} $\ast$watching, bool active)
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_thread_adcf312c7e08e0aba6f23919c80eb36b6}\label{class_thread_adcf312c7e08e0aba6f23919c80eb36b6}} 
+void {\bfseries Attach} (void)
+\item 
+\mbox{\Hypertarget{class_thread_a38e34beffce9709c0e0e5d2104885133}\label{class_thread_a38e34beffce9709c0e0e5d2104885133}} 
+void {\bfseries Detach} (void)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_thread_ac2841d6959516c8bafd6059fbca48fa2}\label{class_thread_ac2841d6959516c8bafd6059fbca48fa2}} 
+\hyperlink{class_blockable_object}{Blockable\+Object} $\ast$ {\bfseries \+\_\+blocking\+Object}
+\item 
+\mbox{\Hypertarget{class_thread_a764d22efe7356460a0d75b263d58e9cc}\label{class_thread_a764d22efe7356460a0d75b263d58e9cc}} 
+\hyperlink{class_kernel_array}{Kernel\+Array} $\ast$ {\bfseries \+\_\+blocking\+Result}
+\item 
+\mbox{\Hypertarget{class_thread_a341add04c9b559231e44d2778fc4d92a}\label{class_thread_a341add04c9b559231e44d2778fc4d92a}} 
+char $\ast$ {\bfseries \+\_\+kernel\+Stack}
+\item 
+\mbox{\Hypertarget{class_thread_ac92145baac53d87f67790505db367332}\label{class_thread_ac92145baac53d87f67790505db367332}} 
+U\+Int32 {\bfseries \+\_\+kernel\+Stack\+Length}
+\item 
+\mbox{\Hypertarget{class_thread_a223aa212539b83642d8f66bb0f7d621b}\label{class_thread_a223aa212539b83642d8f66bb0f7d621b}} 
+\hyperlink{class_growable_stack}{Growable\+Stack} $\ast$ {\bfseries \+\_\+stack\+In\+Process}
+\item 
+\mbox{\Hypertarget{class_thread_a5ac9b92f6e77107695dbf899952777ea}\label{class_thread_a5ac9b92f6e77107695dbf899952777ea}} 
+\hyperlink{struct_trap_frame}{Trap\+Frame} $\ast$ {\bfseries \+\_\+trap\+Frame}
+\item 
+\mbox{\Hypertarget{class_thread_ac7ff8161fe56dfa003aeccb101c10e3e}\label{class_thread_ac7ff8161fe56dfa003aeccb101c10e3e}} 
+U\+Int32 {\bfseries \+\_\+stack\+Size}
+\item 
+\mbox{\Hypertarget{class_thread_a9abb18002e2e455645df8124543a4382}\label{class_thread_a9abb18002e2e455645df8124543a4382}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries \+\_\+kernel\+Storage}
+\item 
+\mbox{\Hypertarget{class_thread_a3c6f449141ff986e52f23d868819faa1}\label{class_thread_a3c6f449141ff986e52f23d868819faa1}} 
+\hyperlink{class_thread}{Thread} $\ast$ {\bfseries \+\_\+last}
+\item 
+\mbox{\Hypertarget{class_thread_a940e7caec8751ba76db54ce4724e2f24}\label{class_thread_a940e7caec8751ba76db54ce4724e2f24}} 
+\hyperlink{class_thread}{Thread} $\ast$ {\bfseries \+\_\+next}
+\end{DoxyCompactItemize}
+\subsection*{Static Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_thread_ab69a9bc494eb5cd91e1649cc6b4f062a}\label{class_thread_ab69a9bc494eb5cd91e1649cc6b4f062a}} 
+static \hyperlink{class_thread}{Thread} $\ast$ {\bfseries first} = 0L
+\item 
+\mbox{\Hypertarget{class_thread_a95ed7b175696d6f73727244288f050d6}\label{class_thread_a95ed7b175696d6f73727244288f050d6}} 
+static \hyperlink{class_thread}{Thread} $\ast$ {\bfseries last} = 0L
+\item 
+\mbox{\Hypertarget{class_thread_a24f3f5a44c7e373faed04df0393935ef}\label{class_thread_a24f3f5a44c7e373faed04df0393935ef}} 
+static \hyperlink{class_thread}{Thread} $\ast$ {\bfseries cursor} = 0L
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Thread.\+h\item 
+Thread.\+cpp\item 
+Thread\+\_\+\+Service.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,106 @@
+\hypertarget{class_generic_video}{}\section{Generic\+Video Class Reference}
+\label{class_generic_video}\index{Generic\+Video@{Generic\+Video}}
+Inheritance diagram for Generic\+Video\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=5.000000cm]{class_generic_video}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{struct_generic_video_1_1_f_r_a_m_e_b_u_f_f_e_r}{F\+R\+A\+M\+E\+B\+U\+F\+F\+ER}
+\item 
+struct \hyperlink{struct_generic_video_1_1_m_o_d_e}{M\+O\+DE}
+\end{DoxyCompactItemize}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_video_a4c7668d1982087fd88cc45c1265d1016}\label{class_generic_video_a4c7668d1982087fd88cc45c1265d1016}} 
+enum {\bfseries Match\+Level} \{ {\bfseries Match\+\_\+\+Specialised} = 10000, 
+{\bfseries Match\+\_\+\+Default} = 1000, 
+{\bfseries Match\+\_\+\+Backup} = 100
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_video_a3d88f7c2dbf327b2f5bf5ad0312cdc9b}\label{class_generic_video_a3d88f7c2dbf327b2f5bf5ad0312cdc9b}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_generic_video_a6d7ea217635188d4f4595b2552ffefbd}\label{class_generic_video_a6d7ea217635188d4f4595b2552ffefbd}} 
+{\bfseries Generic\+Video} (const char $\ast$name)
+\item 
+\mbox{\Hypertarget{class_generic_video_a7f601466f4431a15ccbe5892e4f3a980}\label{class_generic_video_a7f601466f4431a15ccbe5892e4f3a980}} 
+bool {\bfseries Start} (\hyperlink{class_driver}{Driver} $\ast$parent)
+\item 
+\mbox{\Hypertarget{class_generic_video_ac20f42bb81a05caaf029c40fd131e0ec}\label{class_generic_video_ac20f42bb81a05caaf029c40fd131e0ec}} 
+void {\bfseries Stop} (void)
+\end{DoxyCompactItemize}
+\subsection*{Protected Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_video_a3ff8211afd1d1e51e4bfbeb2e7f9e072}\label{class_generic_video_a3ff8211afd1d1e51e4bfbeb2e7f9e072}} 
+enum {\bfseries T\+Y\+PE} \{ {\bfseries t\+Invalid}, 
+{\bfseries t\+Graphical}, 
+{\bfseries t\+Text}
+ \}
+\item 
+\mbox{\Hypertarget{class_generic_video_a2af21b082d10a16e6e36a7bcb13f9691}\label{class_generic_video_a2af21b082d10a16e6e36a7bcb13f9691}} 
+typedef void $\ast$ {\bfseries M\+O\+D\+E\+\_\+\+I\+D\+E\+N\+T\+I\+F\+I\+ER}
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_video_a024f3e13dfe826a93d4d0ae0bd0f6794}\label{class_generic_video_a024f3e13dfe826a93d4d0ae0bd0f6794}} 
+virtual int {\bfseries Get\+Port\+Count} (void)=0
+\item 
+\mbox{\Hypertarget{class_generic_video_aab4172455afed5a027bb0cafdce0afb1}\label{class_generic_video_aab4172455afed5a027bb0cafdce0afb1}} 
+virtual int {\bfseries Get\+Modes} (int port, \hyperlink{struct_generic_video_1_1_m_o_d_e}{M\+O\+DE} $\ast$mode)=0
+\item 
+\mbox{\Hypertarget{class_generic_video_ad4f59851a53d5f54524aacd7ad8a3b45}\label{class_generic_video_ad4f59851a53d5f54524aacd7ad8a3b45}} 
+virtual void {\bfseries Set\+Mode} (int port, M\+O\+D\+E\+\_\+\+I\+D\+E\+N\+T\+I\+F\+I\+ER mode)=0
+\item 
+\mbox{\Hypertarget{class_generic_video_a2d74e1db238df01cd93c0c49126c708d}\label{class_generic_video_a2d74e1db238df01cd93c0c49126c708d}} 
+virtual M\+O\+D\+E\+\_\+\+I\+D\+E\+N\+T\+I\+F\+I\+ER {\bfseries Get\+Mode} (int port)=0
+\item 
+\mbox{\Hypertarget{class_generic_video_a86caece1005aff6d1db7bf6a786e7b64}\label{class_generic_video_a86caece1005aff6d1db7bf6a786e7b64}} 
+void {\bfseries Update\+Port} (int index)
+\item 
+\mbox{\Hypertarget{class_generic_video_a9bab0c388d4d797c18aa68e057cb7cf6}\label{class_generic_video_a9bab0c388d4d797c18aa68e057cb7cf6}} 
+virtual T\+Y\+PE {\bfseries Get\+Port\+Mode} (int index)=0
+\item 
+\mbox{\Hypertarget{class_generic_video_a6ec5a1ecef3f99c82fde3d71e7852781}\label{class_generic_video_a6ec5a1ecef3f99c82fde3d71e7852781}} 
+virtual void {\bfseries Get\+Framebuffer} (int index, \hyperlink{struct_generic_video_1_1_f_r_a_m_e_b_u_f_f_e_r}{F\+R\+A\+M\+E\+B\+U\+F\+F\+ER} $\ast$info)=0
+\item 
+\mbox{\Hypertarget{class_generic_video_acf564daaf7cb4bda77d972997524dc62}\label{class_generic_video_acf564daaf7cb4bda77d972997524dc62}} 
+virtual void {\bfseries Get\+Console} (int index, int $\ast$width, int $\ast$height, bool $\ast$colour, bool $\ast$cursor)=0
+\item 
+\mbox{\Hypertarget{class_generic_video_a743a1bef0b284e26b24edd5f5e8d1550}\label{class_generic_video_a743a1bef0b284e26b24edd5f5e8d1550}} 
+virtual void {\bfseries Show\+Cursor} (int index, bool visible)=0
+\item 
+\mbox{\Hypertarget{class_generic_video_ad27368c06533fa4d5ede9363b8692a56}\label{class_generic_video_ad27368c06533fa4d5ede9363b8692a56}} 
+virtual void {\bfseries Set\+Cursor} (int index, int x, int y)=0
+\item 
+\mbox{\Hypertarget{class_generic_video_a524776693a54935ce59bf0d949504bb1}\label{class_generic_video_a524776693a54935ce59bf0d949504bb1}} 
+virtual void {\bfseries Set\+Colour} (int index, bool foreground, unsigned char r, unsigned char g, unsigned char b)=0
+\item 
+\mbox{\Hypertarget{class_generic_video_a0668a2e5722901419c0fd9249e235a12}\label{class_generic_video_a0668a2e5722901419c0fd9249e235a12}} 
+virtual void {\bfseries Set\+Character} (int index, int x, int y, char c)=0
+\item 
+\mbox{\Hypertarget{class_generic_video_a6eba3c9ae7d4b98690ff0ae298befd4f}\label{class_generic_video_a6eba3c9ae7d4b98690ff0ae298befd4f}} 
+virtual void {\bfseries Move\+Characters} (int index, int fromX, int fromY, int toX, int toY, int width, int height)=0
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_generic_video_a0e7c619087fdb7eb9b1f847c178fa7ad}\label{class_generic_video_a0e7c619087fdb7eb9b1f847c178fa7ad}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries \+\_\+ports}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Generic\+Video.\+h\item 
+Generic\+Video.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,47 @@
+\hypertarget{class_c_physical_memory}{}\section{C\+Physical\+Memory Class Reference}
+\label{class_c_physical_memory}\index{C\+Physical\+Memory@{C\+Physical\+Memory}}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_physical_memory_aa6f7f1f81b45fcd3080edafd8b26a259}\label{class_c_physical_memory_aa6f7f1f81b45fcd3080edafd8b26a259}} 
+static void {\bfseries Init} (void)
+\item 
+\mbox{\Hypertarget{class_c_physical_memory_aca270fd44f76f3e63ab080aa1631d8da}\label{class_c_physical_memory_aca270fd44f76f3e63ab080aa1631d8da}} 
+static void {\bfseries Add\+Chunk} (Physical\+Pointer address, Physical\+Length length)
+\item 
+\mbox{\Hypertarget{class_c_physical_memory_a11ad72548c3cd1f1b58459865ce6f528}\label{class_c_physical_memory_a11ad72548c3cd1f1b58459865ce6f528}} 
+static void {\bfseries Add\+Reserved} (Physical\+Pointer address, Physical\+Length length)
+\item 
+\mbox{\Hypertarget{class_c_physical_memory_aa29f1a8030d46ea20749557fe571b21a}\label{class_c_physical_memory_aa29f1a8030d46ea20749557fe571b21a}} 
+static Page\+Count {\bfseries Total\+Pages} (void)
+\item 
+\mbox{\Hypertarget{class_c_physical_memory_af49bfb8e23a2f279b109f8c45e0ff775}\label{class_c_physical_memory_af49bfb8e23a2f279b109f8c45e0ff775}} 
+static Page\+Count {\bfseries Total\+Used} (void)
+\item 
+\mbox{\Hypertarget{class_c_physical_memory_adbb6eb520e69ec3384871fd3f4571e17}\label{class_c_physical_memory_adbb6eb520e69ec3384871fd3f4571e17}} 
+static Physical\+Length {\bfseries Page\+To\+Memory} (Page\+Count count)
+\item 
+\mbox{\Hypertarget{class_c_physical_memory_ad752abd9f704b7c29cad88da372d3f7d}\label{class_c_physical_memory_ad752abd9f704b7c29cad88da372d3f7d}} 
+static Physical\+Pointer {\bfseries Allocate\+Contiguous\+Pages} (Page\+Count count=1, Physical\+Pointer min=Minimum, Physical\+Pointer max=Maximum)
+\item 
+\mbox{\Hypertarget{class_c_physical_memory_a137a04ac68d4bb5584d0c4689e3affd0}\label{class_c_physical_memory_a137a04ac68d4bb5584d0c4689e3affd0}} 
+static void {\bfseries Release\+Pages} (Physical\+Pointer address, Page\+Count count=1)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_c_physical_memory_a3f9cecd1fef0d4db190de9c6efa7a945}\label{class_c_physical_memory_a3f9cecd1fef0d4db190de9c6efa7a945}} 
+static const Physical\+Pointer {\bfseries Minimum} = (Physical\+Pointer)0x00000000
+\item 
+\mbox{\Hypertarget{class_c_physical_memory_a00a8ccd7af579f6edbb149b83c810272}\label{class_c_physical_memory_a00a8ccd7af579f6edbb149b83c810272}} 
+static const Physical\+Pointer {\bfseries Maximum} = (Physical\+Pointer)0x\+F\+F\+F\+F\+F\+F\+FF
+\item 
+\mbox{\Hypertarget{class_c_physical_memory_ab0a514a423cbe11bf7a79c15ac3d31de}\label{class_c_physical_memory_ab0a514a423cbe11bf7a79c15ac3d31de}} 
+static const Physical\+Pointer {\bfseries Invalid} = (Physical\+Pointer)0x\+F\+F\+F\+F\+F\+F\+FF
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+mem\+\_\+physical.\+h\item 
+mem\+\_\+physical.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,101 @@
+\hypertarget{class_virtual_memory}{}\section{Virtual\+Memory Class Reference}
+\label{class_virtual_memory}\index{Virtual\+Memory@{Virtual\+Memory}}
+Inheritance diagram for Virtual\+Memory\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.988166cm]{class_virtual_memory}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a860d13f7c5653faad6c2d4034fccf4d4}\label{class_virtual_memory_a860d13f7c5653faad6c2d4034fccf4d4}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a351ff92ae6d91d9101d30eca193d2c69}\label{class_virtual_memory_a351ff92ae6d91d9101d30eca193d2c69}} 
+{\bfseries Virtual\+Memory} (\hyperlink{class_process}{Process} $\ast$process, U\+Int32 length)
+\item 
+\mbox{\Hypertarget{class_virtual_memory_acf40e3c2e4fe27f527cb33b0f2d12a69}\label{class_virtual_memory_acf40e3c2e4fe27f527cb33b0f2d12a69}} 
+{\bfseries Virtual\+Memory} (\hyperlink{class_process}{Process} $\ast$process, void $\ast$linear\+Base, U\+Int32 length)
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a346b595b89aae3a73049226586f8fd9b}\label{class_virtual_memory_a346b595b89aae3a73049226586f8fd9b}} 
+void $\ast$ {\bfseries Linear\+Base} (void)
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a2e2f8252d5f079c7d6648018b0a5c283}\label{class_virtual_memory_a2e2f8252d5f079c7d6648018b0a5c283}} 
+U\+Int32 {\bfseries Linear\+Length} (void)
+\item 
+\mbox{\Hypertarget{class_virtual_memory_acdcca03b78160abddf9107f08d733261}\label{class_virtual_memory_acdcca03b78160abddf9107f08d733261}} 
+\hyperlink{class_process}{Process} $\ast$ {\bfseries Get\+Process} (void)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a568d1bc9af900305b3a5cdec77c3cae1}\label{class_virtual_memory_a568d1bc9af900305b3a5cdec77c3cae1}} 
+static void {\bfseries Configure\+Service} (\hyperlink{class_interrupts}{Interrupts} $\ast$interrupt\+Source)
+\end{DoxyCompactItemize}
+\subsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a51e9f6812e577590c4e475e0561ae4f3}\label{class_virtual_memory_a51e9f6812e577590c4e475e0561ae4f3}} 
+virtual void {\bfseries Handle\+Page\+Fault} (void $\ast$linear\+Address)=0
+\item 
+\mbox{\Hypertarget{class_virtual_memory_af405215e3ff53f9aafa25377e6e3331a}\label{class_virtual_memory_af405215e3ff53f9aafa25377e6e3331a}} 
+void {\bfseries Map} (int permissions, void $\ast$linear\+Address, Physical\+Pointer physical\+Address)
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a1e97b27cd6a6111edb400336612fab01}\label{class_virtual_memory_a1e97b27cd6a6111edb400336612fab01}} 
+void {\bfseries Map} (int permissions, void $\ast$linear\+Address, Physical\+Pointer physical\+Address, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(void $\ast$)$>$ completion)
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a6d4a619bf0dc08bb808c625a7bb907f5}\label{class_virtual_memory_a6d4a619bf0dc08bb808c625a7bb907f5}} 
+void {\bfseries Unmap} (void $\ast$linear\+Address)
+\item 
+\mbox{\Hypertarget{class_virtual_memory_ae64bcb254e9f862788da5f3367e6b29a}\label{class_virtual_memory_ae64bcb254e9f862788da5f3367e6b29a}} 
+bool {\bfseries Is\+Mapped} (void $\ast$linear\+Address)
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a6b7538c8f3b74c1e8b796bf817976613}\label{class_virtual_memory_a6b7538c8f3b74c1e8b796bf817976613}} 
+\hyperlink{class_s_page_directory_info}{S\+Page\+Directory\+Info} $\ast$ {\bfseries Page\+Directory} (void)
+\end{DoxyCompactItemize}
+\subsection*{Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a18e03310f784920d8b1ba6157b80720e}\label{class_virtual_memory_a18e03310f784920d8b1ba6157b80720e}} 
+void {\bfseries Init} (\hyperlink{class_process}{Process} $\ast$process)
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a24013e535d46964503670eccebf75199}\label{class_virtual_memory_a24013e535d46964503670eccebf75199}} 
+void {\bfseries Add\+Fault} (void $\ast$address, \hyperlink{class_thread}{Thread} $\ast$callee)
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a1b8e9d6e0629783798c8bb71e5931474}\label{class_virtual_memory_a1b8e9d6e0629783798c8bb71e5931474}} 
+void {\bfseries Check\+Map} (void $\ast$address)
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a1abc53b58726dadc393825c1e60f3300}\label{class_virtual_memory_a1abc53b58726dadc393825c1e60f3300}} 
+void {\bfseries Update\+Thread} (void $\ast$address, \hyperlink{class_thread}{Thread} $\ast$callee)
+\end{DoxyCompactItemize}
+\subsection*{Static Private Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a54879c2253d25aa811d11943a7377938}\label{class_virtual_memory_a54879c2253d25aa811d11943a7377938}} 
+static bool {\bfseries Page\+Fault\+Handler} (void $\ast$context, void $\ast$state)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a5b11cb532722f0495dee782dfb48e18f}\label{class_virtual_memory_a5b11cb532722f0495dee782dfb48e18f}} 
+\hyperlink{class_process}{Process} $\ast$ {\bfseries \+\_\+process}
+\item 
+\mbox{\Hypertarget{class_virtual_memory_ae2b494aa62bc2130771f2c46bf87f0dc}\label{class_virtual_memory_ae2b494aa62bc2130771f2c46bf87f0dc}} 
+U\+Int32 {\bfseries \+\_\+identifier}
+\item 
+\mbox{\Hypertarget{class_virtual_memory_a09d38b6d4a990635137e22e1ecf0ead6}\label{class_virtual_memory_a09d38b6d4a990635137e22e1ecf0ead6}} 
+void $\ast$ {\bfseries \+\_\+linear}
+\item 
+\mbox{\Hypertarget{class_virtual_memory_af506ecb4ef9dfaeab3a1bf85a8bbd975}\label{class_virtual_memory_af506ecb4ef9dfaeab3a1bf85a8bbd975}} 
+U\+Int32 {\bfseries \+\_\+length}
+\item 
+\mbox{\Hypertarget{class_virtual_memory_adbcb31638eb77ac095b9570ca96dac1b}\label{class_virtual_memory_adbcb31638eb77ac095b9570ca96dac1b}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries \+\_\+pending\+Faults}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+mem\+\_\+virtual.\+h\item 
+mem\+\_\+virtual.\+cpp\end{DoxyCompactItemize}

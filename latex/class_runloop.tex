@@ -1,0 +1,62 @@
+\hypertarget{class_runloop}{}\section{Runloop Class Reference}
+\label{class_runloop}\index{Runloop@{Runloop}}
+Inheritance diagram for Runloop\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_runloop}
+\end{center}
+\end{figure}
+\subsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \hyperlink{class_runloop_1_1_self_handling_blockable_object}{Self\+Handling\+Blockable\+Object}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_runloop_ae76fa4415c8add83ed8c3c27c7c3f0ad}\label{class_runloop_ae76fa4415c8add83ed8c3c27c7c3f0ad}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_runloop_a6ccff9ef0b5888e71bb3d8e4cfab2526}\label{class_runloop_a6ccff9ef0b5888e71bb3d8e4cfab2526}} 
+void {\bfseries Add\+Source} (\hyperlink{class_runloop_1_1_self_handling_blockable_object}{Self\+Handling\+Blockable\+Object} $\ast$blocker)
+\item 
+\mbox{\Hypertarget{class_runloop_ac112273eff6fa3d26463124e3b26b4a7}\label{class_runloop_ac112273eff6fa3d26463124e3b26b4a7}} 
+void {\bfseries Add\+Source} (\hyperlink{class_blockable_object}{Blockable\+Object} $\ast$blocker, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(\hyperlink{class_blockable_object}{Blockable\+Object} $\ast$watching, \hyperlink{class_kernel_array}{Kernel\+Array} $\ast$signals)$>$ handler)
+\item 
+\mbox{\Hypertarget{class_runloop_a10a87ba53e9bd157cddc0e89a824fcd5}\label{class_runloop_a10a87ba53e9bd157cddc0e89a824fcd5}} 
+void {\bfseries Remove\+Source} (\hyperlink{class_blockable_object}{Blockable\+Object} $\ast$blocker)
+\item 
+\mbox{\Hypertarget{class_runloop_a400c648328ae0257b36f6c5a6a795196}\label{class_runloop_a400c648328ae0257b36f6c5a6a795196}} 
+void {\bfseries Add\+Delayed\+Task} (U\+Int32 microseconds, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(void)$>$ task)
+\item 
+\mbox{\Hypertarget{class_runloop_acd795a05217f22f0d22817717aa9557a}\label{class_runloop_acd795a05217f22f0d22817717aa9557a}} 
+void {\bfseries Run} (void)
+\item 
+\mbox{\Hypertarget{class_runloop_a63c722898462db076eb4e996e77bfbe1}\label{class_runloop_a63c722898462db076eb4e996e77bfbe1}} 
+void {\bfseries Stop} (void)
+\item 
+\mbox{\Hypertarget{class_runloop_a8e35aab876127353b54092247494f5b7}\label{class_runloop_a8e35aab876127353b54092247494f5b7}} 
+void {\bfseries Sync} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(void)$>$ synchronous\+Code)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_runloop_a4140570af9a6aa78565cc09280daa7ed}\label{class_runloop_a4140570af9a6aa78565cc09280daa7ed}} 
+\hyperlink{class_signal_or}{Signal\+Or} $\ast$ {\bfseries \+\_\+source\+List}
+\item 
+\mbox{\Hypertarget{class_runloop_a416e85cfc5c9c07f220626c560727838}\label{class_runloop_a416e85cfc5c9c07f220626c560727838}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries \+\_\+source\+Map}
+\item 
+\mbox{\Hypertarget{class_runloop_a14c2ffd2bc8361e57dd1eececd87c844}\label{class_runloop_a14c2ffd2bc8361e57dd1eececd87c844}} 
+\hyperlink{class_simple_signal}{Simple\+Signal} $\ast$ {\bfseries \+\_\+stop}
+\item 
+\mbox{\Hypertarget{class_runloop_a5b0825df04ced7f0e48facf2fd9006f7}\label{class_runloop_a5b0825df04ced7f0e48facf2fd9006f7}} 
+bool {\bfseries \+\_\+running}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Runloop.\+h\item 
+Runloop.\+cpp\end{DoxyCompactItemize}

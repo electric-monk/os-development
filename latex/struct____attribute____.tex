@@ -1,0 +1,542 @@
+\hypertarget{struct____attribute____}{}\section{\+\_\+\+\_\+attribute\+\_\+\+\_\+ Struct Reference}
+\label{struct____attribute____}\index{\+\_\+\+\_\+attribute\+\_\+\+\_\+@{\+\_\+\+\_\+attribute\+\_\+\+\_\+}}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a473a3c3e9ad38687e1f539501ff621aa}\label{struct____attribute_____a473a3c3e9ad38687e1f539501ff621aa}} 
+void {\bfseries Set} (U\+Int8 type, void $\ast$base, U\+Int32 limit, U\+Int8 dpl)
+\item 
+\mbox{\Hypertarget{struct____attribute_____a7a0619295680e5787b20f44ad1336c00}\label{struct____attribute_____a7a0619295680e5787b20f44ad1336c00}} 
+void {\bfseries Set16} (U\+Int8 type, void $\ast$base, U\+Int32 limit, U\+Int8 dpl)
+\item 
+\mbox{\Hypertarget{struct____attribute_____a24e76c5985d0ceb90872b662691dcd76}\label{struct____attribute_____a24e76c5985d0ceb90872b662691dcd76}} 
+void {\bfseries Set} (bool istrap, int segment, void $\ast$offset, int dpl)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a4a3519462297ae621fe8b97ba3e8155a}\label{struct____attribute_____a4a3519462297ae621fe8b97ba3e8155a}} 
+U\+Int16 {\bfseries limit}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a3b527458171963f588a03262db54c506}\label{struct____attribute_____a3b527458171963f588a03262db54c506}} 
+U\+Int32 {\bfseries base}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a497e279b15e4c62991fee657fe4c5ec6}\label{struct____attribute_____a497e279b15e4c62991fee657fe4c5ec6}} 
+U\+Int16 {\bfseries limit\+Low}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a5a296701ea85e7ee6cb8d2faf442d09c}\label{struct____attribute_____a5a296701ea85e7ee6cb8d2faf442d09c}} 
+U\+Int16 {\bfseries base\+Low}
+\item 
+\mbox{\Hypertarget{struct____attribute_____abd77ffcbd93adcf927bba1b5d2b8cca4}\label{struct____attribute_____abd77ffcbd93adcf927bba1b5d2b8cca4}} 
+U\+Int8 {\bfseries base\+Middle}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ac46ccef070e76ccd90ed7ffa8d65512d}\label{struct____attribute_____ac46ccef070e76ccd90ed7ffa8d65512d}} 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+union \{\\
+\mbox{\Hypertarget{union____attribute_____1_1_0D1_ad52c3e849d4980a5dacaf1238201b059}\label{union____attribute_____1_1_0D1_ad52c3e849d4980a5dacaf1238201b059}} 
+\>struct \{\\
+\>\>UInt8 {\bfseries type}: 4\\
+\>\>UInt8 {\bfseries system}: 1\\
+\>\>UInt8 {\bfseries dpl}: 2\\
+\>\>UInt8 {\bfseries present}: 1\\
+\>\>UInt8 {\bfseries limitHigh}: 4\\
+\>\>UInt8 {\bfseries custom}: 1\\
+\>\>UInt8 {\bfseries reserved1}: 1\\
+\>\>UInt8 {\bfseries mode}: 1\\
+\>\>UInt8 {\bfseries granularity}: 1\\
+\>\} \\
+\>UInt16 {\bfseries flags}\\
+\}; \\
+
+\end{tabbing}\item 
+\mbox{\Hypertarget{struct____attribute_____adb384ed101377bf2df763533e099b3ec}\label{struct____attribute_____adb384ed101377bf2df763533e099b3ec}} 
+U\+Int8 {\bfseries base\+High}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a66face1c1f9dc801fb88ee126eadb308}\label{struct____attribute_____a66face1c1f9dc801fb88ee126eadb308}} 
+U\+Int32 {\bfseries Link}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a4c5c32390486f0972c50b709d82bc21d}\label{struct____attribute_____a4c5c32390486f0972c50b709d82bc21d}} 
+U\+Int32 {\bfseries E\+S\+P0}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aaf33886a534e8674074bce3277bab3c2}\label{struct____attribute_____aaf33886a534e8674074bce3277bab3c2}} 
+U\+Int16 {\bfseries S\+S0}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a240996b425e4ec6b57f253bb8efdff1b}\label{struct____attribute_____a240996b425e4ec6b57f253bb8efdff1b}} 
+U\+Int16 {\bfseries padding0}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ab719e9a24b86b268477da3a9c9d3994f}\label{struct____attribute_____ab719e9a24b86b268477da3a9c9d3994f}} 
+U\+Int32 $\ast$ {\bfseries E\+S\+P1}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ae1f828abe490b852ac54367388d433c7}\label{struct____attribute_____ae1f828abe490b852ac54367388d433c7}} 
+U\+Int16 {\bfseries S\+S1}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a10cd9a23328803fae7ff3a59f4d209f3}\label{struct____attribute_____a10cd9a23328803fae7ff3a59f4d209f3}} 
+U\+Int16 {\bfseries padding1}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a800b561e4834985bb4d875198dde153d}\label{struct____attribute_____a800b561e4834985bb4d875198dde153d}} 
+U\+Int32 $\ast$ {\bfseries E\+S\+P2}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a43d4189c8edf132e6e331b847b557468}\label{struct____attribute_____a43d4189c8edf132e6e331b847b557468}} 
+U\+Int16 {\bfseries S\+S2}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aff4c87b08c70ce41b174b563f1642357}\label{struct____attribute_____aff4c87b08c70ce41b174b563f1642357}} 
+U\+Int16 {\bfseries padding2}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ad6c70fd9e6a8fe5cf826934ed80aa899}\label{struct____attribute_____ad6c70fd9e6a8fe5cf826934ed80aa899}} 
+void $\ast$ {\bfseries C\+R3}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a1accb2b961716f49fe9d05bea401eae7}\label{struct____attribute_____a1accb2b961716f49fe9d05bea401eae7}} 
+U\+Int32 $\ast$ {\bfseries E\+IP}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a8894cde79250426e53aa7b3a8dcc8df5}\label{struct____attribute_____a8894cde79250426e53aa7b3a8dcc8df5}} 
+U\+Int32 {\bfseries E\+Flags}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a43344764d9185e00680c35bc747df738}\label{struct____attribute_____a43344764d9185e00680c35bc747df738}} 
+U\+Int32 {\bfseries E\+AX}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ae316565334c18cda7cfa477c72fda4a2}\label{struct____attribute_____ae316565334c18cda7cfa477c72fda4a2}} 
+U\+Int32 {\bfseries E\+CX}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a6e3cf0e79875c9db3a1dad7b5da824d2}\label{struct____attribute_____a6e3cf0e79875c9db3a1dad7b5da824d2}} 
+U\+Int32 {\bfseries E\+DX}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a87249e2d8afd6a168474893d15693a8f}\label{struct____attribute_____a87249e2d8afd6a168474893d15693a8f}} 
+U\+Int32 {\bfseries E\+BX}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ada24aa1858efa8de4fecabea4150dbd4}\label{struct____attribute_____ada24aa1858efa8de4fecabea4150dbd4}} 
+U\+Int32 $\ast$ {\bfseries E\+SP}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ae1fc9a117c6361e7bacb9082dc43d72f}\label{struct____attribute_____ae1fc9a117c6361e7bacb9082dc43d72f}} 
+U\+Int32 $\ast$ {\bfseries E\+BP}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ae5b46ce2b3f4fb05d19cd95d9853775d}\label{struct____attribute_____ae5b46ce2b3f4fb05d19cd95d9853775d}} 
+U\+Int32 {\bfseries E\+SI}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a7cdd2cd91ccced068b7d0b1c4fb06358}\label{struct____attribute_____a7cdd2cd91ccced068b7d0b1c4fb06358}} 
+U\+Int32 {\bfseries E\+DI}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a412a20be4016c3f47e0eccc9d0faec1c}\label{struct____attribute_____a412a20be4016c3f47e0eccc9d0faec1c}} 
+U\+Int16 {\bfseries ES}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a27cd249bb29e7160d6fbf0b38b2217b1}\label{struct____attribute_____a27cd249bb29e7160d6fbf0b38b2217b1}} 
+U\+Int16 {\bfseries padding3}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a71fbc32b7794189ccc9023c6813d8364}\label{struct____attribute_____a71fbc32b7794189ccc9023c6813d8364}} 
+U\+Int16 {\bfseries CS}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a8f40b6599e3dcda8e2a47b92b1053275}\label{struct____attribute_____a8f40b6599e3dcda8e2a47b92b1053275}} 
+U\+Int16 {\bfseries padding4}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a7bfacf892313a42116256d8627b28372}\label{struct____attribute_____a7bfacf892313a42116256d8627b28372}} 
+U\+Int16 {\bfseries SS}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a850d00e1bdbe63bfc8c7def7e6060c35}\label{struct____attribute_____a850d00e1bdbe63bfc8c7def7e6060c35}} 
+U\+Int16 {\bfseries padding5}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ae2ef460ae1128f2be4e9e5f82d8ebc97}\label{struct____attribute_____ae2ef460ae1128f2be4e9e5f82d8ebc97}} 
+U\+Int16 {\bfseries DS}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a1d84d3d1ffa3a9edc393ccc08352e940}\label{struct____attribute_____a1d84d3d1ffa3a9edc393ccc08352e940}} 
+U\+Int16 {\bfseries padding6}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a4ad3df74f45964b4fe5c129a21901c76}\label{struct____attribute_____a4ad3df74f45964b4fe5c129a21901c76}} 
+U\+Int16 {\bfseries FS}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ad26a14b5ee1781c3839f1b4ca4baee05}\label{struct____attribute_____ad26a14b5ee1781c3839f1b4ca4baee05}} 
+U\+Int16 {\bfseries padding7}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a00afcbbeb0e6c97224335ad7978ee4f0}\label{struct____attribute_____a00afcbbeb0e6c97224335ad7978ee4f0}} 
+U\+Int16 {\bfseries GS}
+\item 
+\mbox{\Hypertarget{struct____attribute_____accbdb55f02309fd97588a469aa2e7e33}\label{struct____attribute_____accbdb55f02309fd97588a469aa2e7e33}} 
+U\+Int16 {\bfseries padding8}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a6d088c97076e1fed19250b8c03513234}\label{struct____attribute_____a6d088c97076e1fed19250b8c03513234}} 
+U\+Int16 {\bfseries L\+DT}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a1d58c8bbcd655b6b0c0ab8a05301311f}\label{struct____attribute_____a1d58c8bbcd655b6b0c0ab8a05301311f}} 
+U\+Int16 {\bfseries padding9}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ac4e982990a8ebd5322625e5c9caf84c4}\label{struct____attribute_____ac4e982990a8ebd5322625e5c9caf84c4}} 
+U\+Int16 {\bfseries Trap}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a5d07b69625c953ea654254d5b3b0a4b0}\label{struct____attribute_____a5d07b69625c953ea654254d5b3b0a4b0}} 
+U\+Int16 {\bfseries I\+O\+Map\+Base}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ae25be12dced8a7e295d2e576946704f0}\label{struct____attribute_____ae25be12dced8a7e295d2e576946704f0}} 
+U\+Int16 {\bfseries sel}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a4d16d62ad0da0c8fb7baa716f5ec0afc}\label{struct____attribute_____a4d16d62ad0da0c8fb7baa716f5ec0afc}} 
+U\+Int8 {\bfseries always\+Zero}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aa5deb3be2de290859342cc43c47bb77f}\label{struct____attribute_____aa5deb3be2de290859342cc43c47bb77f}} 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+union \{\\
+\mbox{\Hypertarget{union____attribute_____1_1_0D5_ae610ef72875dec8729302b4bbae62426}\label{union____attribute_____1_1_0D5_ae610ef72875dec8729302b4bbae62426}} 
+\>struct \{\\
+\>\>UInt8 {\bfseries gateType}: 4\\
+\>\>UInt8 {\bfseries segment}: 1\\
+\>\>UInt8 {\bfseries privilegeLevel}: 2\\
+\>\>UInt8 {\bfseries Present}: 1\\
+\>\} \\
+\>UInt8 {\bfseries rawFlags}\\
+\}; \\
+
+\end{tabbing}\item 
+\mbox{\Hypertarget{struct____attribute_____ad7779ca5b50a24181de51cce7d5a2bee}\label{struct____attribute_____ad7779ca5b50a24181de51cce7d5a2bee}} 
+U\+Int16 {\bfseries base\+High}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ab5f2699fecf930bcd4a351fe14555d95}\label{struct____attribute_____ab5f2699fecf930bcd4a351fe14555d95}} 
+U\+Int16 {\bfseries lsb}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a04190eb27b0c38ba7e30b11f5c6330a1}\label{struct____attribute_____a04190eb27b0c38ba7e30b11f5c6330a1}} 
+U\+Int16 {\bfseries msb}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ac421c8a8fc9669fe24b67e5d21f1ae7e}\label{struct____attribute_____ac421c8a8fc9669fe24b67e5d21f1ae7e}} 
+U\+Int32 {\bfseries lsb}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ab1447a1dcf851113416af8a8103720e9}\label{struct____attribute_____ab1447a1dcf851113416af8a8103720e9}} 
+U\+Int32 {\bfseries msb}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aea492f7e4e1f559040c34fc830c781df}\label{struct____attribute_____aea492f7e4e1f559040c34fc830c781df}} 
+U\+Int8 {\bfseries Volume\+Descriptor\+Type}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a37ab582bf2ba698627e8170ad4ea0ca9}\label{struct____attribute_____a37ab582bf2ba698627e8170ad4ea0ca9}} 
+char {\bfseries Standard\+Id} \mbox{[}5\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a46acccb08ba9521752637caf8ebc7450}\label{struct____attribute_____a46acccb08ba9521752637caf8ebc7450}} 
+U\+Int8 {\bfseries Standard\+Version}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a79548d336337986514d54f6bf1a168e2}\label{struct____attribute_____a79548d336337986514d54f6bf1a168e2}} 
+char {\bfseries Data} \mbox{[}2014\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ac42b7a9f24202d2349563a262f0c494d}\label{struct____attribute_____ac42b7a9f24202d2349563a262f0c494d}} 
+U\+Int8 {\bfseries Flags}
+\item 
+\mbox{\Hypertarget{struct____attribute_____abfdf9206476bdb6ba8b2b5a4dfc296bd}\label{struct____attribute_____abfdf9206476bdb6ba8b2b5a4dfc296bd}} 
+char {\bfseries Identifier\+System} \mbox{[}32\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a951a87d0aa103b0dc520881925371f79}\label{struct____attribute_____a951a87d0aa103b0dc520881925371f79}} 
+char {\bfseries Identifier\+Volume} \mbox{[}32\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____af9a4ab7510da35a6be6b58d07d4f45c9}\label{struct____attribute_____af9a4ab7510da35a6be6b58d07d4f45c9}} 
+char {\bfseries \+\_\+\+Reserved1} \mbox{[}8\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a75d910603ec73ef11c141963dd8b3168}\label{struct____attribute_____a75d910603ec73ef11c141963dd8b3168}} 
+Iso9660\+Dual\+Long {\bfseries Volume\+Size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a8a975213bdceaa81ec23d0790dc978e4}\label{struct____attribute_____a8a975213bdceaa81ec23d0790dc978e4}} 
+char {\bfseries Escape\+Sequences} \mbox{[}32\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a7b112d0448b1b5e397695dacd35bf59a}\label{struct____attribute_____a7b112d0448b1b5e397695dacd35bf59a}} 
+Iso9660\+Dual\+Word {\bfseries Volume\+Set\+Size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ab3c02525fc19655c5a985dc3714835e0}\label{struct____attribute_____ab3c02525fc19655c5a985dc3714835e0}} 
+Iso9660\+Dual\+Word {\bfseries Volume\+Set\+Index}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a5d7ae1456a708a2e00605fbad5afa065}\label{struct____attribute_____a5d7ae1456a708a2e00605fbad5afa065}} 
+Iso9660\+Dual\+Word {\bfseries Logical\+Block\+Size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a0def29992ddac35e91167dd44eab1307}\label{struct____attribute_____a0def29992ddac35e91167dd44eab1307}} 
+Iso9660\+Dual\+Long {\bfseries Path\+Table\+Size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a1748a41fc920d8abfcabf7b476ad5499}\label{struct____attribute_____a1748a41fc920d8abfcabf7b476ad5499}} 
+U\+Int32 {\bfseries lsb\+Path\+Table1}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a00e21419099654eac0aef8a02d6fcf2d}\label{struct____attribute_____a00e21419099654eac0aef8a02d6fcf2d}} 
+U\+Int32 {\bfseries lsb\+Path\+Table2}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ad8f57ed08d3ce3b10d1c52d774673ac2}\label{struct____attribute_____ad8f57ed08d3ce3b10d1c52d774673ac2}} 
+U\+Int32 {\bfseries msb\+Path\+Table1}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ac2007e58c38c6512887d75d1e1a09ddc}\label{struct____attribute_____ac2007e58c38c6512887d75d1e1a09ddc}} 
+U\+Int32 {\bfseries msb\+Path\+Table2}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a07f16dbdf8ad13bbe8e5f2e6c60ea3ba}\label{struct____attribute_____a07f16dbdf8ad13bbe8e5f2e6c60ea3ba}} 
+char {\bfseries Root\+Directory\+Record} \mbox{[}34\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aa41cd98810e415cffb3b144d10e2308b}\label{struct____attribute_____aa41cd98810e415cffb3b144d10e2308b}} 
+char {\bfseries Identifier\+Volume\+Set} \mbox{[}128\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aac00e71248849ec2985695355031a9a6}\label{struct____attribute_____aac00e71248849ec2985695355031a9a6}} 
+char {\bfseries Identifier\+Publisher} \mbox{[}128\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a36a320b9af3d6441df4219221e7df643}\label{struct____attribute_____a36a320b9af3d6441df4219221e7df643}} 
+char {\bfseries Identifier\+Data\+Preparer} \mbox{[}128\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a8e43c88141ea1bd6469382d2bf866667}\label{struct____attribute_____a8e43c88141ea1bd6469382d2bf866667}} 
+char {\bfseries Identifier\+Application} \mbox{[}128\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a990e7dffc2d65c2eeef6ce2a76ef115d}\label{struct____attribute_____a990e7dffc2d65c2eeef6ce2a76ef115d}} 
+char {\bfseries Identifier\+Copyright\+File} \mbox{[}37\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a050a4b48c5bd916473850746f9e32e73}\label{struct____attribute_____a050a4b48c5bd916473850746f9e32e73}} 
+char {\bfseries Identifier\+Abstract\+File} \mbox{[}37\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a3bc0ec0ae298a9674445dcf207c2e0fe}\label{struct____attribute_____a3bc0ec0ae298a9674445dcf207c2e0fe}} 
+char {\bfseries Identifier\+Bibliographic\+File} \mbox{[}37\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aa32bd40413a44de8e0e7bae7b170f9d7}\label{struct____attribute_____aa32bd40413a44de8e0e7bae7b170f9d7}} 
+char {\bfseries Volume\+Creation} \mbox{[}17\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a82995d706356ac5804ab2a6c1e955cc2}\label{struct____attribute_____a82995d706356ac5804ab2a6c1e955cc2}} 
+char {\bfseries Volume\+Modification} \mbox{[}17\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a81988e395d78770b50f4a343cfbd6360}\label{struct____attribute_____a81988e395d78770b50f4a343cfbd6360}} 
+char {\bfseries Volume\+Experiation} \mbox{[}17\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____afbbab1fafc61c775dc8b9808dcd5d5d7}\label{struct____attribute_____afbbab1fafc61c775dc8b9808dcd5d5d7}} 
+char {\bfseries Volume\+Effective} \mbox{[}17\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aceaa9602ec4fd0f9be6ee623a2258ebd}\label{struct____attribute_____aceaa9602ec4fd0f9be6ee623a2258ebd}} 
+char {\bfseries File\+Structure\+Standard\+Version}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aa25910c7ceb5f1eec5d29cc4e981ff18}\label{struct____attribute_____aa25910c7ceb5f1eec5d29cc4e981ff18}} 
+char {\bfseries \+\_\+\+Reserved2}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a89b7a8ba20c8da4582b32aed8357006c}\label{struct____attribute_____a89b7a8ba20c8da4582b32aed8357006c}} 
+char {\bfseries Application\+Use} \mbox{[}512\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a2c363d5e418d2f57170105972414217d}\label{struct____attribute_____a2c363d5e418d2f57170105972414217d}} 
+char {\bfseries \+\_\+\+Reserved3} \mbox{[}653\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____abf7512df9bb65c89143f34d2b235d68f}\label{struct____attribute_____abf7512df9bb65c89143f34d2b235d68f}} 
+U\+Int8 {\bfseries Directory\+Identifier\+Length}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aa181f3cafbf2c0480d312872a1de82fa}\label{struct____attribute_____aa181f3cafbf2c0480d312872a1de82fa}} 
+U\+Int8 {\bfseries X\+A\+R\+Length}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a1389ac489c348d561fd39231d4636207}\label{struct____attribute_____a1389ac489c348d561fd39231d4636207}} 
+U\+Int32 {\bfseries Directory\+Location}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a4b2f85513ac4aec36286dea4f10fb9f3}\label{struct____attribute_____a4b2f85513ac4aec36286dea4f10fb9f3}} 
+U\+Int16 {\bfseries Parent\+Directory\+Number}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a1b9544b167dabbf3db453bb59071c07f}\label{struct____attribute_____a1b9544b167dabbf3db453bb59071c07f}} 
+char {\bfseries Directory\+Identifier} \mbox{[}0\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a9b90cc2180958d9e1f6e3e696181d0f8}\label{struct____attribute_____a9b90cc2180958d9e1f6e3e696181d0f8}} 
+U\+Int8 {\bfseries Directory\+Record\+Length}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a8bd3fd23fdb98a850f562cd51628edbc}\label{struct____attribute_____a8bd3fd23fdb98a850f562cd51628edbc}} 
+Iso9660\+Dual\+Long {\bfseries Start}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a413bb6effa910e4058557e6f7a7c1e17}\label{struct____attribute_____a413bb6effa910e4058557e6f7a7c1e17}} 
+Iso9660\+Dual\+Long {\bfseries Data\+Length}
+\item 
+\mbox{\Hypertarget{struct____attribute_____adcfa2787b16108ac52744c0b00bc9e94}\label{struct____attribute_____adcfa2787b16108ac52744c0b00bc9e94}} 
+U\+Int8 {\bfseries Year}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ae1ea29841b5e3b27f4d7e23d0100af4a}\label{struct____attribute_____ae1ea29841b5e3b27f4d7e23d0100af4a}} 
+U\+Int8 {\bfseries Month}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a07f1c6a4ffaa14f6a1cfb45e65e1d24c}\label{struct____attribute_____a07f1c6a4ffaa14f6a1cfb45e65e1d24c}} 
+U\+Int8 {\bfseries Day}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aa61bb06f947ffd673559a1e411fe54aa}\label{struct____attribute_____aa61bb06f947ffd673559a1e411fe54aa}} 
+U\+Int8 {\bfseries Hour}
+\item 
+\mbox{\Hypertarget{struct____attribute_____acafc4c898893ecf94bd1ba9e426cc291}\label{struct____attribute_____acafc4c898893ecf94bd1ba9e426cc291}} 
+U\+Int8 {\bfseries Minute}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a42ce26d76ea43054a63b4ca54b45cbcf}\label{struct____attribute_____a42ce26d76ea43054a63b4ca54b45cbcf}} 
+U\+Int8 {\bfseries Second}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a0c9218a957c395c73466a62f6efb528e}\label{struct____attribute_____a0c9218a957c395c73466a62f6efb528e}} 
+U\+Int8 {\bfseries G\+M\+T\+Offset}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aa561547df0afb308581c233fd055fc1d}\label{struct____attribute_____aa561547df0afb308581c233fd055fc1d}} 
+U\+Int8 {\bfseries File\+Flags}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aa79eb0fbea05f79036b69a9b98e03912}\label{struct____attribute_____aa79eb0fbea05f79036b69a9b98e03912}} 
+U\+Int8 {\bfseries Interleave\+Size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____afc4d3c85ae134069ed272d038e2bd56f}\label{struct____attribute_____afc4d3c85ae134069ed272d038e2bd56f}} 
+U\+Int8 {\bfseries Interleave\+Skip}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a539c4121602265c86df751f3587738a0}\label{struct____attribute_____a539c4121602265c86df751f3587738a0}} 
+U\+Int8 {\bfseries File\+Identifier\+Length}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aaedf18da0de74152bf5e6b61306cd522}\label{struct____attribute_____aaedf18da0de74152bf5e6b61306cd522}} 
+char {\bfseries File\+Identifier} \mbox{[}0\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a6e3284eaf073f828923658cb559c4469}\label{struct____attribute_____a6e3284eaf073f828923658cb559c4469}} 
+unsigned char {\bfseries signature} \mbox{[}4\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____acb5957fed2db4d6dcb17dc7b8bdc9b1a}\label{struct____attribute_____acb5957fed2db4d6dcb17dc7b8bdc9b1a}} 
+unsigned short {\bfseries version}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a44b1b96b8bf883e457d02df824400322}\label{struct____attribute_____a44b1b96b8bf883e457d02df824400322}} 
+unsigned long {\bfseries oem\+\_\+string}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a84af422947532fef5b920bc6c27e084b}\label{struct____attribute_____a84af422947532fef5b920bc6c27e084b}} 
+unsigned long {\bfseries capabilities}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a948cb4949419d4d0677168be1fbbfa7d}\label{struct____attribute_____a948cb4949419d4d0677168be1fbbfa7d}} 
+unsigned long {\bfseries video\+\_\+mode}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a251dd21f1b599eaee25c67fa89eaab60}\label{struct____attribute_____a251dd21f1b599eaee25c67fa89eaab60}} 
+unsigned short {\bfseries total\+\_\+memory}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a3f231dbf8b8f059fb03bece47d485710}\label{struct____attribute_____a3f231dbf8b8f059fb03bece47d485710}} 
+unsigned short {\bfseries oem\+\_\+software\+\_\+rev}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a0b93a573d25e551142c47844dbf290fb}\label{struct____attribute_____a0b93a573d25e551142c47844dbf290fb}} 
+unsigned long {\bfseries oem\+\_\+vendor\+\_\+name}
+\item 
+\mbox{\Hypertarget{struct____attribute_____adc1517b48920198a807fe5669b62d804}\label{struct____attribute_____adc1517b48920198a807fe5669b62d804}} 
+unsigned long {\bfseries oem\+\_\+product\+\_\+name}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a0fd96d4184aa6c5a45cacc21d9c66332}\label{struct____attribute_____a0fd96d4184aa6c5a45cacc21d9c66332}} 
+unsigned long {\bfseries oem\+\_\+product\+\_\+rev}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a45f6af5de6282929202450014b9e12c2}\label{struct____attribute_____a45f6af5de6282929202450014b9e12c2}} 
+unsigned char {\bfseries reserved} \mbox{[}222\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a3db9252583447e971f2e57980a6a987e}\label{struct____attribute_____a3db9252583447e971f2e57980a6a987e}} 
+unsigned char {\bfseries oem\+\_\+data} \mbox{[}256\mbox{]}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a018df853b0f3e70b32cbb24068ef696a}\label{struct____attribute_____a018df853b0f3e70b32cbb24068ef696a}} 
+unsigned short {\bfseries mode\+\_\+attributes}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a1e1418c6051ff09c25d3180e8bd3d20d}\label{struct____attribute_____a1e1418c6051ff09c25d3180e8bd3d20d}} 
+unsigned char {\bfseries win\+\_\+a\+\_\+attributes}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aa7e3e2621a1375d0a9a4eeda7f342f26}\label{struct____attribute_____aa7e3e2621a1375d0a9a4eeda7f342f26}} 
+unsigned char {\bfseries win\+\_\+b\+\_\+attributes}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a99b3f3e39b8d546c266cd553a7926f86}\label{struct____attribute_____a99b3f3e39b8d546c266cd553a7926f86}} 
+unsigned short {\bfseries win\+\_\+granularity}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a3ff2079e52128fd8341a516d4c932c66}\label{struct____attribute_____a3ff2079e52128fd8341a516d4c932c66}} 
+unsigned short {\bfseries win\+\_\+size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a116058bbd53bfbdc2db93c850f34006e}\label{struct____attribute_____a116058bbd53bfbdc2db93c850f34006e}} 
+unsigned short {\bfseries win\+\_\+a\+\_\+segment}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a57e62d74f19232a4f1ba247a3218adab}\label{struct____attribute_____a57e62d74f19232a4f1ba247a3218adab}} 
+unsigned short {\bfseries win\+\_\+b\+\_\+segment}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ae46af5034867c65bd94b9dfb047e2455}\label{struct____attribute_____ae46af5034867c65bd94b9dfb047e2455}} 
+unsigned long {\bfseries win\+\_\+func}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aea51e458985bbe4567214942d660d220}\label{struct____attribute_____aea51e458985bbe4567214942d660d220}} 
+unsigned short {\bfseries bytes\+\_\+per\+\_\+scanline}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aa5e5bc32cac297b1e4db41342bd0c542}\label{struct____attribute_____aa5e5bc32cac297b1e4db41342bd0c542}} 
+unsigned short {\bfseries x\+\_\+resolution}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a14eed4490b6cfe8892915461b79677ca}\label{struct____attribute_____a14eed4490b6cfe8892915461b79677ca}} 
+unsigned short {\bfseries y\+\_\+resolution}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a35d462dbf8c0b6526bfb825d2044bf4f}\label{struct____attribute_____a35d462dbf8c0b6526bfb825d2044bf4f}} 
+unsigned char {\bfseries x\+\_\+char\+\_\+size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a13ccba689d8f268adfac2634e5a57189}\label{struct____attribute_____a13ccba689d8f268adfac2634e5a57189}} 
+unsigned char {\bfseries y\+\_\+char\+\_\+size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a07df7bd27acdafec97f5d06451f78fab}\label{struct____attribute_____a07df7bd27acdafec97f5d06451f78fab}} 
+unsigned char {\bfseries number\+\_\+of\+\_\+planes}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a2d461b9800ab8e6d6bbc631cd8531c52}\label{struct____attribute_____a2d461b9800ab8e6d6bbc631cd8531c52}} 
+unsigned char {\bfseries bits\+\_\+per\+\_\+pixel}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a98ad12563b7a7e12dc2e0b44d9f9c1ab}\label{struct____attribute_____a98ad12563b7a7e12dc2e0b44d9f9c1ab}} 
+unsigned char {\bfseries number\+\_\+of\+\_\+banks}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a77ca80b9a7f9be2f0a3aedd95150ac57}\label{struct____attribute_____a77ca80b9a7f9be2f0a3aedd95150ac57}} 
+unsigned char {\bfseries memory\+\_\+model}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a5198de435aa7317668de4eb2c5a720b1}\label{struct____attribute_____a5198de435aa7317668de4eb2c5a720b1}} 
+unsigned char {\bfseries bank\+\_\+size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a023e2ce88c1f401162b66a7e42ffc7e4}\label{struct____attribute_____a023e2ce88c1f401162b66a7e42ffc7e4}} 
+unsigned char {\bfseries number\+\_\+of\+\_\+image\+\_\+pages}
+\item 
+\mbox{\Hypertarget{struct____attribute_____af51d7ae0a7015de3c99379f14e0196d2}\label{struct____attribute_____af51d7ae0a7015de3c99379f14e0196d2}} 
+unsigned char {\bfseries reserved0}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a069d65d2b924642f8d68435a04e43f2e}\label{struct____attribute_____a069d65d2b924642f8d68435a04e43f2e}} 
+unsigned char {\bfseries red\+\_\+mask\+\_\+size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a6f9d7f628d05a3e359c302826169c771}\label{struct____attribute_____a6f9d7f628d05a3e359c302826169c771}} 
+unsigned char {\bfseries red\+\_\+field\+\_\+position}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a5a68ae96c428d4def6cdf469c306b0e5}\label{struct____attribute_____a5a68ae96c428d4def6cdf469c306b0e5}} 
+unsigned char {\bfseries green\+\_\+mask\+\_\+size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ac6c527bc64c2809492e0d34997bc5014}\label{struct____attribute_____ac6c527bc64c2809492e0d34997bc5014}} 
+unsigned char {\bfseries green\+\_\+field\+\_\+position}
+\item 
+\mbox{\Hypertarget{struct____attribute_____afb8d34d489c03ead564c2bb56398741e}\label{struct____attribute_____afb8d34d489c03ead564c2bb56398741e}} 
+unsigned char {\bfseries blue\+\_\+mask\+\_\+size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ab8997555a61f2f4ae2d31893fae523d7}\label{struct____attribute_____ab8997555a61f2f4ae2d31893fae523d7}} 
+unsigned char {\bfseries blue\+\_\+field\+\_\+position}
+\item 
+\mbox{\Hypertarget{struct____attribute_____aeaf8a7b6a9b108770aae50cdb213d579}\label{struct____attribute_____aeaf8a7b6a9b108770aae50cdb213d579}} 
+unsigned char {\bfseries reserved\+\_\+mask\+\_\+size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a93f9f579645ae036fa46031d5bf8a33a}\label{struct____attribute_____a93f9f579645ae036fa46031d5bf8a33a}} 
+unsigned char {\bfseries reserved\+\_\+field\+\_\+position}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a9997b8d683f8389cd6088072453696cf}\label{struct____attribute_____a9997b8d683f8389cd6088072453696cf}} 
+unsigned char {\bfseries direct\+\_\+color\+\_\+mode\+\_\+info}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ac24fb4abd2382d57baed0ae489873255}\label{struct____attribute_____ac24fb4abd2382d57baed0ae489873255}} 
+unsigned long {\bfseries phys\+\_\+base}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a10ea7867c2e557a220233fa9fcedeffb}\label{struct____attribute_____a10ea7867c2e557a220233fa9fcedeffb}} 
+unsigned long {\bfseries reserved1}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ab73ee5a3cf1b9afaf91311b4098c9de3}\label{struct____attribute_____ab73ee5a3cf1b9afaf91311b4098c9de3}} 
+unsigned short {\bfseries reversed2}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a6428cd4fa940857e778fed9f69dd768a}\label{struct____attribute_____a6428cd4fa940857e778fed9f69dd768a}} 
+unsigned short {\bfseries linear\+\_\+bytes\+\_\+per\+\_\+scanline}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a936d22668e999f141cba9adb3f170520}\label{struct____attribute_____a936d22668e999f141cba9adb3f170520}} 
+unsigned char {\bfseries banked\+\_\+number\+\_\+of\+\_\+image\+\_\+pages}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a70c219e9cfd7c7c8e7457f5bd6769858}\label{struct____attribute_____a70c219e9cfd7c7c8e7457f5bd6769858}} 
+unsigned char {\bfseries linear\+\_\+number\+\_\+of\+\_\+image\+\_\+pages}
+\item 
+\mbox{\Hypertarget{struct____attribute_____abde7a22ad0fd0a9ac43808af0c9173b8}\label{struct____attribute_____abde7a22ad0fd0a9ac43808af0c9173b8}} 
+unsigned char {\bfseries linear\+\_\+red\+\_\+mask\+\_\+size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a91e7bb035be6009dd75741396df86c15}\label{struct____attribute_____a91e7bb035be6009dd75741396df86c15}} 
+unsigned char {\bfseries linear\+\_\+red\+\_\+field\+\_\+position}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a787f553faec286ed29987f5236b54fc5}\label{struct____attribute_____a787f553faec286ed29987f5236b54fc5}} 
+unsigned char {\bfseries linear\+\_\+green\+\_\+mask\+\_\+size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a00b2004032b5efa5ba5eee74caa17d09}\label{struct____attribute_____a00b2004032b5efa5ba5eee74caa17d09}} 
+unsigned char {\bfseries linear\+\_\+green\+\_\+field\+\_\+position}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ad9abe83accec50853e5c01764142cdb5}\label{struct____attribute_____ad9abe83accec50853e5c01764142cdb5}} 
+unsigned char {\bfseries linear\+\_\+blue\+\_\+mask\+\_\+size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ab72f2447f05e7eb1ff9b13250be126ec}\label{struct____attribute_____ab72f2447f05e7eb1ff9b13250be126ec}} 
+unsigned char {\bfseries linear\+\_\+blue\+\_\+field\+\_\+position}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a5f485968f440cf9df0b86511317e570f}\label{struct____attribute_____a5f485968f440cf9df0b86511317e570f}} 
+unsigned char {\bfseries linear\+\_\+reserved\+\_\+mask\+\_\+size}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ae825c73facd5469d9ee5a3ff0e9774c7}\label{struct____attribute_____ae825c73facd5469d9ee5a3ff0e9774c7}} 
+unsigned char {\bfseries linear\+\_\+reserved\+\_\+field\+\_\+position}
+\item 
+\mbox{\Hypertarget{struct____attribute_____ae544aca1a10c3aa601e05466aaed003d}\label{struct____attribute_____ae544aca1a10c3aa601e05466aaed003d}} 
+unsigned long {\bfseries max\+\_\+pixel\+\_\+clock}
+\item 
+\mbox{\Hypertarget{struct____attribute_____a4a8d434003904c06b9c37c4c5b5cc06d}\label{struct____attribute_____a4a8d434003904c06b9c37c4c5b5cc06d}} 
+unsigned char {\bfseries reserved3} \mbox{[}189\mbox{]}
+\end{DoxyCompactItemize}
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+descript.\+h\item 
+fs\+\_\+iso9660.\+cpp\item 
+vbe.\+h\end{DoxyCompactItemize}

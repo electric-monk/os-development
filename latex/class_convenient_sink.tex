@@ -1,0 +1,69 @@
+\hypertarget{class_convenient_sink}{}\section{Convenient\+Sink Class Reference}
+\label{class_convenient_sink}\index{Convenient\+Sink@{Convenient\+Sink}}
+Inheritance diagram for Convenient\+Sink\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_convenient_sink}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_convenient_sink_a5de85f0a250db250ec8dbc13a8a4df1f}\label{class_convenient_sink_a5de85f0a250db250ec8dbc13a8a4df1f}} 
+const char $\ast$ {\bfseries Get\+Class\+Name} (U\+Int32 level)
+\item 
+\mbox{\Hypertarget{class_convenient_sink_ad002c843d001c4e20b88be15326e94cf}\label{class_convenient_sink_ad002c843d001c4e20b88be15326e94cf}} 
+{\bfseries Convenient\+Sink} (\hyperlink{class_runloop_thread}{Runloop\+Thread} $\ast$runloop=0\+L, Interface\+Helper $\ast$helper=0\+L)
+\item 
+\mbox{\Hypertarget{class_convenient_sink_a2d71d1a552fba23e7c9f9b02c314c703}\label{class_convenient_sink_a2d71d1a552fba23e7c9f9b02c314c703}} 
+void {\bfseries Perform\+Task} (\hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$destination, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(Interface\+\_\+\+Request $\ast$)$>$ generate, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(Interface\+\_\+\+Response $\ast$)$>$ response)
+\item 
+\mbox{\Hypertarget{class_convenient_sink_a7a28863f9fd4f0cacec0bffc81e63a3b}\label{class_convenient_sink_a7a28863f9fd4f0cacec0bffc81e63a3b}} 
+void {\bfseries Add\+Task} (\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(void)$>$ task)
+\item 
+\mbox{\Hypertarget{class_convenient_sink_ae1907e7769945ff19fdd27c2cedeed25}\label{class_convenient_sink_ae1907e7769945ff19fdd27c2cedeed25}} 
+void {\bfseries Create\+Input} (\hyperlink{class_kernel_string}{Kernel\+String} $\ast$name, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ bool(\hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$)$>$ connection\+Handler, \hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(\hyperlink{class_ipc_client}{Ipc\+Client} $\ast$)$>$ completion)
+\item 
+\mbox{\Hypertarget{class_convenient_sink_a00f0767e8ace4bba9dcf74684e33c4dc}\label{class_convenient_sink_a00f0767e8ace4bba9dcf74684e33c4dc}} 
+void {\bfseries Stop\+Input} (\hyperlink{class_ipc_client}{Ipc\+Client} $\ast$input)
+\item 
+\mbox{\Hypertarget{class_convenient_sink_a81225ccdf46f074f43591f893e597076}\label{class_convenient_sink_a81225ccdf46f074f43591f893e597076}} 
+\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$ {\bfseries Input\+Connection\+Start} (\hyperlink{class_kernel_string}{Kernel\+String} $\ast$name, \hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$connection)
+\item 
+\mbox{\Hypertarget{class_convenient_sink_a52b4a8b5242f06c4195450dff3365611}\label{class_convenient_sink_a52b4a8b5242f06c4195450dff3365611}} 
+void {\bfseries Input\+Connection\+Received} (\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$connection, \hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$message)
+\item 
+\mbox{\Hypertarget{class_convenient_sink_a74919945dec9902eaa20602c73eedc35}\label{class_convenient_sink_a74919945dec9902eaa20602c73eedc35}} 
+void {\bfseries Input\+Connection\+End} (\hyperlink{class_generic_provider_1_1_input_connection}{Input\+Connection} $\ast$connection)
+\item 
+\mbox{\Hypertarget{class_convenient_sink_ab3ffa0983b9097fb036e7e71454c6031}\label{class_convenient_sink_ab3ffa0983b9097fb036e7e71454c6031}} 
+\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$ {\bfseries Output\+Connection\+Start} (\hyperlink{class_generic_provider_1_1_service}{Service} $\ast$source, \hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$connection)
+\item 
+\mbox{\Hypertarget{class_convenient_sink_a0c94ca338f718ba8f50af1335531a247}\label{class_convenient_sink_a0c94ca338f718ba8f50af1335531a247}} 
+void {\bfseries Output\+Connection\+Message} (\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$connection, \hyperlink{class_kernel_buffer_memory}{Kernel\+Buffer\+Memory} $\ast$message)
+\item 
+\mbox{\Hypertarget{class_convenient_sink_a2b9e5bc821687d662c5abc075b26370f}\label{class_convenient_sink_a2b9e5bc821687d662c5abc075b26370f}} 
+void {\bfseries Output\+Connection\+End} (\hyperlink{class_generic_provider_1_1_output_connection}{Output\+Connection} $\ast$old\+Connection)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_convenient_sink_aad6e8c2cb143aca7a193345c1ab6683f}\label{class_convenient_sink_aad6e8c2cb143aca7a193345c1ab6683f}} 
+\hyperlink{classbicycle_1_1function}{bicycle\+::function}$<$ void(\hyperlink{class_ipc_endpoint}{Ipc\+Endpoint} $\ast$source, Interface\+\_\+\+Response $\ast$response)$>$ {\bfseries unhandled\+Message\+Handler}
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_convenient_sink_a5e10483bed822b5150224609fe892fcb}\label{class_convenient_sink_a5e10483bed822b5150224609fe892fcb}} 
+\hyperlink{class_kernel_dictionary}{Kernel\+Dictionary} $\ast$ {\bfseries \+\_\+inputs}
+\item 
+\mbox{\Hypertarget{class_convenient_sink_a988fc174a2e5b55a944fe2bc74994e55}\label{class_convenient_sink_a988fc174a2e5b55a944fe2bc74994e55}} 
+\hyperlink{class_interface_helper}{Interface\+Helper} $\ast$ {\bfseries \+\_\+helper}
+\end{DoxyCompactItemize}
+\subsection*{Additional Inherited Members}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Convenient\+Sink.\+h\item 
+Convenient\+Sink.\+cpp\end{DoxyCompactItemize}

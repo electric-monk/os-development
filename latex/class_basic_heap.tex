@@ -1,0 +1,71 @@
+\hypertarget{class_basic_heap}{}\section{Basic\+Heap Class Reference}
+\label{class_basic_heap}\index{Basic\+Heap@{Basic\+Heap}}
+\subsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_basic_heap_ab373b139903271cba9a74038376746dc}\label{class_basic_heap_ab373b139903271cba9a74038376746dc}} 
+typedef unsigned long {\bfseries h\+\_\+size}
+\end{DoxyCompactItemize}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_basic_heap_a09729479676d8ccfb2fb59cb140a6aa9}\label{class_basic_heap_a09729479676d8ccfb2fb59cb140a6aa9}} 
+void {\bfseries Add\+Block} (void $\ast$offset, h\+\_\+size length)
+\item 
+\mbox{\Hypertarget{class_basic_heap_a6227b3a159cf1769e8c758ee7abe1991}\label{class_basic_heap_a6227b3a159cf1769e8c758ee7abe1991}} 
+void $\ast$ {\bfseries Alloc} (h\+\_\+size amount)
+\item 
+\mbox{\Hypertarget{class_basic_heap_a0ccbe7addeaf3f48971b810b595ac384}\label{class_basic_heap_a0ccbe7addeaf3f48971b810b595ac384}} 
+void {\bfseries Release} (void $\ast$buffer)
+\item 
+\mbox{\Hypertarget{class_basic_heap_a85cda28f3010ea9224126f3e067f7c3e}\label{class_basic_heap_a85cda28f3010ea9224126f3e067f7c3e}} 
+h\+\_\+size {\bfseries Total\+Memory} (void)
+\item 
+\mbox{\Hypertarget{class_basic_heap_a3fbb4aa5e17a3cdbeaff444b7022fd23}\label{class_basic_heap_a3fbb4aa5e17a3cdbeaff444b7022fd23}} 
+h\+\_\+size {\bfseries Used\+Memory} (void)
+\item 
+\mbox{\Hypertarget{class_basic_heap_a3cb545adb35965285f84f2081a8da796}\label{class_basic_heap_a3cb545adb35965285f84f2081a8da796}} 
+h\+\_\+size {\bfseries Free\+Memory} (void)
+\item 
+\mbox{\Hypertarget{class_basic_heap_aa4889e648609784e5dca60da308d50dd}\label{class_basic_heap_aa4889e648609784e5dca60da308d50dd}} 
+h\+\_\+size {\bfseries Allocation\+Count} (void)
+\item 
+\mbox{\Hypertarget{class_basic_heap_abbef5717b4fd5d3f366bf89725671abe}\label{class_basic_heap_abbef5717b4fd5d3f366bf89725671abe}} 
+void {\bfseries Test} (void)
+\item 
+\mbox{\Hypertarget{class_basic_heap_a1073a696e46034763b0c79306ba8b03d}\label{class_basic_heap_a1073a696e46034763b0c79306ba8b03d}} 
+void {\bfseries Check} (void $\ast$)
+\end{DoxyCompactItemize}
+\subsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_basic_heap_afe5c9a65bbcb44b616b8db3ec422931e}\label{class_basic_heap_afe5c9a65bbcb44b616b8db3ec422931e}} 
+\hyperlink{class_uninterruptable_spin_lock}{Uninterruptable\+Spin\+Lock} {\bfseries \+\_\+lock}
+\item 
+\mbox{\Hypertarget{class_basic_heap_a44e524a3f3699e0a323ff2d24a65cdf6}\label{class_basic_heap_a44e524a3f3699e0a323ff2d24a65cdf6}} 
+\hyperlink{class_internal_1_1_free_space}{Internal\+::\+Free\+Space} $\ast$ {\bfseries \+\_\+free\+Start}
+\item 
+\mbox{\Hypertarget{class_basic_heap_acdc247c3c9a6056b9592ca61860888a5}\label{class_basic_heap_acdc247c3c9a6056b9592ca61860888a5}} 
+\hyperlink{class_internal_1_1_free_space}{Internal\+::\+Free\+Space} $\ast$ {\bfseries \+\_\+free\+End}
+\item 
+\mbox{\Hypertarget{class_basic_heap_acbd2e99a996b5dc3bf52660545a93be1}\label{class_basic_heap_acbd2e99a996b5dc3bf52660545a93be1}} 
+h\+\_\+size {\bfseries \+\_\+total}
+\item 
+\mbox{\Hypertarget{class_basic_heap_a88ebb1670a21c2dc251995486da321f0}\label{class_basic_heap_a88ebb1670a21c2dc251995486da321f0}} 
+h\+\_\+size {\bfseries \+\_\+used}
+\item 
+\mbox{\Hypertarget{class_basic_heap_ae48f81b1c1d3e5d76441a6b3438c55de}\label{class_basic_heap_ae48f81b1c1d3e5d76441a6b3438c55de}} 
+h\+\_\+size {\bfseries \+\_\+count}
+\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_basic_heap_abcdce91148dce0245ab64ecb3763fccd}\label{class_basic_heap_abcdce91148dce0245ab64ecb3763fccd}} 
+class {\bfseries Internal\+::\+Free\+Space}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Basic\+Heap.\+h\item 
+Basic\+Heap.\+cpp\end{DoxyCompactItemize}
