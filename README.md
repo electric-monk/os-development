@@ -18,3 +18,8 @@ You'll need grub to generate the bootable ISO.
 ## Building
 
 `Kernel` and `Conductor` have makefiles. After building them, run `makeiso` to generate the output ISO which should then work in Bochs, VirtualBox and Qemu.
+
+## Documentation
+
+Doxygen output is at:
+https://electric-monk.github.io/os-development/html/index.html
