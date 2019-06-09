@@ -6,6 +6,7 @@ kernel.map
 .depend
 a.out*
 *.task
+os.iso
 
 # Ignore Xcode nonsense
 *.xcbkptlist

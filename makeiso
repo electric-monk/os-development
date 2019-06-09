@@ -1,4 +1,4 @@
 # This script expects grub to be in a directory called "grub"
 cp Kernel/Kernel/kernel.elf isofiles/boot
 cp User/Conductor/Conductor.task isofiles/boot
-grub/grub-mkrescue --directory=grub/grub-core/ -o os.iso --grub-mkimage=grub/grub-mkimage isofiles
+grub-mkrescue --directory=$(dirname $(which grub-mkrescue))/../lib/grub/i386-pc/ -o os.iso isofiles
