@@ -21,7 +21,7 @@ extern UInt32 kern_start, kern_end;
 extern UInt32 virt, phys;
 // System heap
 BasicHeap *s_coreHeap;
-static unsigned char s_coreMemory[65535*8*2];
+static unsigned char s_coreMemory[65535*8*2*2];
 // System data
 ElfSymbols *s_symbols;
 // Global root device driver
