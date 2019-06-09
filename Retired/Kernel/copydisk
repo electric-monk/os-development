@@ -1,5 +1,0 @@
-#!/bin/bash
-mount -t vfat -o loop,rw,noexec ../../grub_disk.img /mnt/tempto
-cp kernel.elf /mnt/tempto/kernel.elf
-umount /mnt/tempto
-

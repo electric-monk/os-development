@@ -1,6 +1,0 @@
-mkdir /tmp/floppy
-mount ~colin/Development/OSdevelopment/grub_disk.img /tmp/floppy -o loop
-cp Kernel/Kernel/kernel.elf /tmp/floppy
-umount /tmp/floppy
-rm -r /tmp/floppy
-

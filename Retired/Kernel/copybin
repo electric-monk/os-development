@@ -1,4 +1,0 @@
-mount /dev/fd0 /mnt/floppy
-cp kernel.elf /mnt/floppy/kernel.elf
-umount /mnt/floppy
-
