@@ -12,12 +12,85 @@ Further to this networking would be transparent, and instances running on distin
 
 ## Setup
 
-A gcc-based cross compiler for x86 is required. I decided to target x86 first as an easy architecture, but intend to add 64-bit, ARM, etc. later.
-You'll need grub to generate the bootable ISO.
+As per https://wiki.osdev.org/GCC_Cross-Compiler
+
+### Install via your package manager/ports/homebrew:
+mtools
+gmp
+mpfr
+libmpc
+
+### Downloads
+
+binutils: https://www.gnu.org/software/binutils/
+
+gcc: http://gcc.gnu.org/install/download.html
+
+grub (if necessary): https://www.gnu.org/software/grub/grub-download.html
+
+objconv (for grub): http://www.agner.org/optimize/objconv.zip
+
+unicode font (for grub): http://unifoundry.com/pub/unifont/unifont-12.1.02/
+
+### Set up
+
+```
+export PREFIX="$HOME/opt/cross"
+export TARGET=i686-elf
+export PATH="$PREFIX/bin:$PATH"
+```
+
+### binutils
+
+```
+mkdir build-binutils
+cd build-binutils
+../binutils-<ver>/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror
+make && make install
+```
+
+### gcc
+
+```
+which -- $TARGET-as || echo $TARGET-as is not in the PATH
+ 
+mkdir build-gcc
+cd build-gcc
+../gcc-<ver>/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --without-headers
+make all-gcc && all-target-libgcc && install-gcc && install-target-libgcc
+```
+
+### objconv
+
+```
+mkdir objconv_pack
+cd objconv_pack
+unzip ../objconv.zip
+cd ..
+mkdir objconv
+cd objconv
+unzip ../objconv_pack/source.zip
+g++ -o objconv -O2 *.cpp --prefix="$PREFIX"
+cp objconv "$PREFIX/bin"
+```
+
+### grub
+
+```
+../grub-2.02/configure --prefix="$PREFIX" --target=$TARGET
+make && make install
+```
+
+### Install a font for grub
+
+```
+tar xfz unifont-12.1.02.tar.gz
+grub-mkfont -o $PREFIX/share/grub/unicode.pf2 unifont-12.1.02/font/precompiled/unifont-12.1.02.ttf
+```
 
 ## Building
 
-`Kernel` and `Conductor` have makefiles. After building them, run `makeiso` to generate the output ISO which should then work in Bochs, VirtualBox and Qemu.
+`Kernel`, `Library` and `Conductor` have makefiles, and should be built in that order. After building them, run `makeiso` to generate the output ISO which should then work in Bochs, VirtualBox and Qemu.
 
 ## Documentation
 
