@@ -353,7 +353,7 @@ namespace StandardPC_Internal {
         
         bool Start(Driver *parent)
         {
-            int divisor = 1193180 / 1000/*Hz*/;
+            int divisor = 1193180 / 10000/*Hz*/;
             outb(0x43, 0x36);
             outb(0x40, divisor & 0xFF);
             outb(0x40, divisor >> 8);
@@ -372,7 +372,7 @@ namespace StandardPC_Internal {
         
         static bool InterruptCallback(void *context, void *state)
         {
-            ::Timer::TimerTick(MILLISECONDS(1));
+            ::Timer::TimerTick(MILLISECONDS(10));
             if (s_schedulerEnabled)
                 Scheduler::EnterFromInterrupt();
             return true;
@@ -988,7 +988,7 @@ static void PrintStack(void **stackBottom, void **stackTop)
         void *addr = *s;
         ElfSymbols::Symbol *sym = s_symbols->Find(addr);
         if (sym)
-            kprintf("\n %.8x %s+%i\n", addr, sym->Name()->CString(), (int)sym->Offset(addr));
+            kprintf("\n %.8x %s+%i", addr, sym->Name()->CString(), (int)sym->Offset(addr));
         else
             kprintf(" %.8x", addr);
     }
@@ -997,13 +997,13 @@ static void PrintStack(void **stackBottom, void **stackTop)
 
 static void PrintRegisters(TrapFrame *tf)
 {
+    void* esp = ((UInt32*)tf)+14;
     kprintf("EAX=%.8x EBX=%.8x ECX=%.8x EDX=%.8x\n", tf->EAX, tf->EBX, tf->ECX, tf->EDX);
     kprintf("EDI=%.8x ESI=%.8x EBP=%.8x EIP=%.8x\n", tf->EDI, tf->ESI, tf->EBP, tf->EIP);
-//    kprintf("Currently %s\n", Thread::Active ? (Thread::Active->IsCurrentlyUserspace() ? "userspace" : "kernel") : "threadless");
     ElfSymbols::Symbol *sym = s_symbols->Find((void*)tf->EIP);
     if (sym)
         kprintf("Crash in %s+%i\n", sym->Name()->CString(), (int)sym->Offset((void*)tf->EIP));
-    PrintStack((void**)tf->ESP, (Thread::Active ? (void**)Thread::Active->StackTop(Thread::Active->IsCurrentlyUserspace()) : (((void**)tf->ESP) + 24)));
+    PrintStack((void**)(Thread::Active->IsCurrentlyUserspace() ? (void*)tf->ESP : esp), (Thread::Active ? (void**)Thread::Active->StackTop(Thread::Active->IsCurrentlyUserspace()) : (((void**)esp) + 24)));
     kprintf("CPU %.8x Process %.8x Thread %.8x %s\n", CPU::Active, Process::Active, Thread::Active, Thread::Active ? (Thread::Active->IsUserspace() ? "[userspace]" : "[kernel]") : "");
 }
 
@@ -1023,47 +1023,45 @@ static void HandleUserspaceException(void *state, int number)
     Scheduler::EnterFromInterrupt();
 }
 
+static bool EndFailHandler(TrapFrame *tf)
+{
+    PrintRegisters(tf);
+    while(1) asm("hlt");
+    return true;
+}
+
 static bool GenericExceptionHandler(void *context, void *state)
 {
     CPU_Interrupt_Disable();
     TrapFrame *tf = (TrapFrame*)state;
     if ((tf->CS & DPL_USER) == DPL_USER) {
-        HandleUserspaceException(tf->TrapNumber);
+        HandleUserspaceException(state, tf->TrapNumber);
         return true;
     }
     Console_Panic();
     kprintf("\nPANIC! CPU exception %.2x: %s\n", tf->TrapNumber, StandardPC::NameForTrap(tf->TrapNumber));
     kprintf("Error %.8x; address %.4x:%.8x\n", tf->ERR, tf->CS, tf->EIP);
-    PrintStack((void**)tf->ESP);
-    kprintf("CPU %.8x Process %.8x Thread %.8x\n", CPU::Active, Process::Active, Thread::Active);
 #ifdef DUMP_THREADS
     Thread::DebugPrint();
 #endif
-    while(1) asm("hlt");
-    return true;
+    return EndFailHandler(tf);
 }
 
 static bool PageFaultExceptionHandler(void *context, void *state)
 {
     CPU_Interrupt_Disable();
     TrapFrame *tf = (TrapFrame*)state;
-    if ((tf->CS & DPL_USER) == DPL_USER) {
-        HandleUserspaceException(tf->TrapNumber);
-        return true;
-    }
     UInt32 faulting_address;
     asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
     Console_Panic();
     kprintf("\nPANIC! CPU exception %.2x: %s\n", tf->TrapNumber, StandardPC::NameForTrap(tf->TrapNumber));
     kprintf("Error %.8x; address %.4x:%.8x\n", tf->ERR, tf->CS, tf->EIP);
     kprintf("Attempting to access %.8x\n", faulting_address);
-    PrintStack((void**)tf->ESP);
-    kprintf("CPU %.8x Process %.8x Thread %.8x\n", CPU::Active, Process::Active, Thread::Active);
-#ifdef DUMP_THREADS
-    Thread::DebugPrint();
-#endif
-    while(1) asm("hlt");
-    return true;
+    if ((tf->CS & DPL_USER) == DPL_USER) {
+        HandleUserspaceException(state, tf->TrapNumber);
+        return true;
+    }
+    return EndFailHandler(tf);
 }
 
 StandardPC::StandardPC()
@@ -1175,7 +1173,7 @@ void StandardPC::ContextSwitching::ExitingThread(Thread *thread)
 void SystemService::Register(void)
 {
     int irq = Interrupt();
-    _handle = s_interrupts.RegisterHandler(irq, [this](void *state)->bool{
+    _handle = s_interrupts.RegisterHandler(irq, [=](void *state)->bool{
         AutoreleasePool pool;
         TrapFrame *frame = (TrapFrame*)state;
         UInt64 data[] = {frame->EAX, frame->EBX, frame->ECX, frame->EDX, frame->EDI, frame->ESI};

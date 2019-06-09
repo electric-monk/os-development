@@ -1,9 +1,9 @@
-CC = gcc
+CC = i686-elf-gcc
 AS = nasm
-LD = ld
+LD = i686-elf-ld
 
 #CFLAGS = -m32 -g -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
-CFLAGS = -I../../Interfaces -m32 -O3 -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
+CFLAGS = -fno-builtin -I../../Interfaces -m32 -O3 -fno-rtti -fno-exceptions -fno-stack-protector -std=c++11
 AFLAGS = -f elf
 LFLAGS = -melf_i386
 

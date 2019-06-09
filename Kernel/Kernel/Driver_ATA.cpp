@@ -22,6 +22,12 @@
 #define ATAPI_CMD_EJECT     0x1B
 #define ATAPI_CMD_READ      0xA8
 
+#ifdef DEBUG_ATA
+#define ATADBG  kprintf
+#else
+#define ATADBG(f, ...)
+#endif
+
 // Register numbers
 typedef enum {
     CB_DATA  = 0,   // data reg         in/out cmd_blk_base1+0
@@ -257,6 +263,7 @@ public:
 
     bool Start(Driver *parent)
     {
+        ATADBG("%.8x/%s\n", this, __PRETTY_FUNCTION__);
         PCI::Device *parentPCI = (PCI::Device*)parent;
         // Discover the configuration of the device
         UInt32 classInfo = parentPCI->ReadPCIRegister(0x08);
@@ -265,13 +272,12 @@ public:
         bool configurable = programmingInterface & (_primary ? 0x02 : 0x08);
         // Can it be set to PCI native mode?
         if (configurable && !nativeMode) {
+            ATADBG("%.8x/%s: Setting to PCI native mode\n", this, __PRETTY_FUNCTION__);
             nativeMode = true;
             classInfo |= _primary ? 0x01 : 0x04;
             parentPCI->WritePCIRegister(0x08, classInfo);
         }
         // Get the device I/O ports
-        int irq;
-        _bmPort = ((PCI::Device*)parent)->ReadBAR(4) + (_primary ? 0 : (8 * sizeof(UInt32)));
         int irq = -1;
         _bmPort = parentPCI->ReadBAR(4) + (_primary ? 0 : 8);
         if (!PCI::BAR::IsIOMapped(_bmPort))
@@ -619,6 +625,7 @@ public:
             case BlockRequest::Write:
             default:
                 // Default response is "unsupported"
+                kprintf("Unsupported ATA command %i\n", request->type);
                 break;
         }
     }
@@ -685,6 +692,7 @@ public:
                 break;
             }
             default:
+                kprintf("Unsupported ATAPI command %i\n", request->type);
                 // Default response is "unsupported"
                 break;
         }
@@ -744,8 +752,10 @@ static ATADriverDrive* Instantiate(ATADriver *driver, IpcServiceProxy *service, 
             result = new ATADriverDrive_ATAPI(driver, index, queue);
             break;
     }
-    if (result != NULL)
+    if (result != NULL) {
+        ATADBG("%.8x/%s: type %i: %.8x\n", driver, __PRETTY_FUNCTION__, type, result);
         service->AddOutput(result->_service);
+    }
     return result;
 }
 
@@ -868,6 +878,8 @@ void ATADriver::StartTimer(void)
 // Fills in _configInfo, returns devices found
 int ATADriver::Configure(void)
 {
+    ATADBG("%.8x/%s\n", this, __PRETTY_FUNCTION__);
+
     // Reset Bus Master Error bit
     IOPort()->writeBusMasterStatus(BM_SR_MASK_ERR);
     
@@ -909,7 +921,7 @@ int ATADriver::Configure(void)
     // BMIDE Error=1?
     if (IOPort()->readBusMasterStatus() & BM_SR_MASK_ERR)
         ;//
-        
+    ATADBG("%.8x/%s found %i devices\n", this, __PRETTY_FUNCTION__, count);
     return count;
 }
 
@@ -969,6 +981,7 @@ bool ATADriver::Reset(UInt32 deviceReturn)
     IOPort()->outByte(CB_DC, dc);
     ATA_IO_DELAY;
     
+    IOPort()->readBusMasterStatus();
     // If there is a device 0, wait for it
     if (_configInfo[0] != dcNone) {
         while (true) {
@@ -983,6 +996,7 @@ bool ATADriver::Reset(UInt32 deviceReturn)
         }
     }
     
+    IOPort()->readBusMasterStatus();
     // If there is a device 1, wait for it
     if (_configInfo[1] != dcNone) {
         while (true) {
@@ -1086,6 +1100,8 @@ bool ATADriver::_CompleteCommand(void)
     _regCommandInfo.regStatus.raw = IOPort()->inByte(CB_STAT);
     _regCommandInfo.regAltStatus.raw = IOPort()->inByte(CB_ASTAT);
     _regCommandInfo.regError.raw = IOPort()->inByte(CB_ERR);
+    if (_regCommandInfo.errorCode != 0)
+        kprintf("ATADriver::Generic command Error %i\n", _regCommandInfo.errorCode);
     return _regCommandInfo.errorCode == 0;
 }
 
@@ -1124,6 +1140,8 @@ bool ATADriver::_Select(UInt8 device)
             return false;
         }
     }
+    if (_regCommandInfo.errorCode != 0)
+        kprintf("ATADriver::Select(%i) Error %i\n", device, _regCommandInfo.errorCode);
     return _regCommandInfo.errorCode == 0;
 }
 
@@ -1291,6 +1309,8 @@ bool ATADriver::_ExecDataCommandIn(UInt32 device, UInt8 *buffer, UInt32 numSecto
     // BMIDE Error=1?
     if (IOPort()->readBusMasterStatus() & BM_SR_MASK_ERR)
         _regCommandInfo.errorCode = 78;
+    if (_regCommandInfo.errorCode != 0)
+        kprintf("ATADriver::_ExecDataCommandIn Error %i\n", _regCommandInfo.errorCode);
     return _regCommandInfo.errorCode == 0;
 }
 
@@ -1436,6 +1456,8 @@ bool ATADriver::_ExecDataCommandOut(UInt32 device, UInt8 *buffer, UInt32 numSect
     // BM_IDE Error=1?
     if (IOPort()->readBusMasterStatus() & BM_SR_MASK_ERR)
         _regCommandInfo.errorCode = 78;
+    if (_regCommandInfo.errorCode != 0)
+        kprintf("ATADriver::_ExecDataCommandOut Error %i\n", _regCommandInfo.errorCode);
     return _regCommandInfo.errorCode == 0;
 }
 
@@ -1609,6 +1631,8 @@ bool ATADriver::Packet(UInt8 device, char *controlBuffer, UInt32 controlBufferLe
     // BMIDE Error=1?
     if (IOPort()->readBusMasterStatus() & BM_SR_MASK_ERR)
         _regCommandInfo.errorCode = 78;
+    if (_regCommandInfo.errorCode != 0)
+        kprintf("ATADriver::Packet Error %i\n", _regCommandInfo.errorCode);
     return _regCommandInfo.errorCode == 0;
 }
 

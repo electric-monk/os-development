@@ -38,9 +38,11 @@
 /* Function: Get update
  * Parameter 0: Monitor handle
  * Result 0: Error
- * Result 1: Array handle containing dictionaries
- *      0x00 -> Provider handle
- *      0x01 -> 0x00=stop, 0x01=start, 0x02=new output, 0x03=
+ * Result 1: Array handle
+ *      Each entry: dictionary
+ *          "Update": integer <0 = start, 1 = start input, 2 = stop input, 3 = start output, 4 = stop output, 5 = connection start, 6 = connection stop>
+ *          "Provider": handle (for type 0, 1, 2, 3, 4)
+ *          "Service": handle (for type 3, 4)
  */
 
 /* Function: Connect two objects
