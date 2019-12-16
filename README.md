@@ -34,6 +34,8 @@ unicode font (for grub): http://unifoundry.com/pub/unifont/unifont-12.1.02/
 
 ### Set up
 
+These commands will also restore the build environment whenever necessary after tools are built.
+
 ```
 export PREFIX="$HOME/opt/cross"
 export TARGET=i686-elf
@@ -57,7 +59,7 @@ which -- $TARGET-as || echo $TARGET-as is not in the PATH
 mkdir build-gcc
 cd build-gcc
 ../gcc-<ver>/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --without-headers
-make all-gcc && all-target-libgcc && install-gcc && install-target-libgcc
+make all-gcc && make all-target-libgcc && make install-gcc && make install-target-libgcc
 ```
 
 ### objconv
