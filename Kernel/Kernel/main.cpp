@@ -106,7 +106,7 @@ extern "C" int k_main(multiboot_info_t* mbd, unsigned int magic)
     Init_Video_Multiboot(FixAddress((void*)mbd->vbe_control_info), FixAddress((void*)mbd->vbe_mode_info), mbd->vbe_mode);
 
     // Splash
-	kprintf("Munro Systems\nCopyright (C) 2008-2017 Colin Munro\n");
+	kprintf("Munro Systems\nCopyright (C) 2008-2020 Colin Munro\n");
     
     // Load kernel symbols
     s_symbols = new ElfSymbols();

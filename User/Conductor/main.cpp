@@ -444,7 +444,7 @@ extern "C" void sysmain(void)
                             // c
                             previousFrame = label->Frame();
                             label = new Controls::Label((Graphics::Frame2D){{10, previousFrame.origin.y + previousFrame.size.y}, {0, 0}});
-                            label->SetText("Copyright \xa9 2017 Colin Munro");
+                            label->SetText("Copyright \xa9 2020 Colin Munro");
                             label->AutoSize();
                             mainWindow->Content()->AddChild(label);
                             
