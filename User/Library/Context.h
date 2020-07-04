@@ -198,13 +198,13 @@ namespace Graphics {
         }
         
     public:
-        Library::Array<Entry>::ConstIterator Start(void) const
+        Library::Array<Entry>::ConstIterator begin(void) const
         {
-            return _entries.Start();
+            return _entries.begin();
         }
-        Library::Array<Entry>::ConstIterator End(void) const
+        Library::Array<Entry>::ConstIterator end(void) const
         {
-            return _entries.End();
+            return _entries.end();
         }
 
         Path(Point2D start, Matrix2D matrix = Matrix2D(true))
@@ -218,11 +218,8 @@ namespace Graphics {
         }
         void Add(const Path &otherPath)
         {
-            Library::ForEach(otherPath._entries, [=](const Entry &entry){
+            for (const auto& entry : otherPath)
                 _entries.Add(Entry(_matrix.Apply(entry._point)));
-                return true;
-            });
-            
         }
         static Path Rect(const Rect2D &rect)
         {
@@ -237,7 +234,7 @@ namespace Graphics {
             Rect2D result;
             
             result.topLeft = result.bottomRight = _entries[0]._point;
-            Library::ForEach(_entries, [&](const Entry &entry){
+            for (const auto& entry : _entries) {
                 if (entry._point.x < result.topLeft.x)
                     result.topLeft.x = entry._point.x;
                 if (entry._point.y < result.topLeft.y)
@@ -246,17 +243,14 @@ namespace Graphics {
                     result.bottomRight.x = entry._point.x;
                 if (entry._point.y > result.bottomRight.y)
                     result.bottomRight.y = entry._point.y;
-                return true;
-            });
+            }
             return result;
         }
         Path Apply(const Matrix2D &matrix) const
         {
             Path result(matrix);
-            Library::ForEach(_entries, [&](const Entry &entry){
+            for (const auto& entry : _entries)
                 result.Add(entry._point);
-                return true;
-            });
             return result;
         }
     };
@@ -309,10 +303,10 @@ namespace Graphics {
         Clipping(const Path &path, const Clipping *parent);
         Clipping(const Clipping &other);
         const Rect2D& Bounds(void) const { return _bounds; }
-        const Library::Array<Library::Array<int>>& Clippings(void) const { return _clippings; }
+        const Library::Array<Library::Array<int>>& Clippings(void) const { return *_clippings; }
     private:
         Rect2D _bounds;
-        Library::Array<Library::Array<int>> _clippings;
+        Library::SharedPointer<Library::Array<Library::Array<int>>> _clippings;
     };
     class State
     {
@@ -341,6 +335,15 @@ namespace Graphics {
         FrameBuffer &_target;
         const Context *_parent;
         
+        State& CurrentState(void)
+        {
+            return _states[_states.Count() - 1];
+        }
+        const State& CurrentState(void) const
+        {
+            return _states[_states.Count() - 1];
+        }
+
     public:
         Context(FrameBuffer &target)
         :_target(target), _parent(NULL)
@@ -350,26 +353,27 @@ namespace Graphics {
         Context(const Context &parent)
         :_target(parent._target), _parent(&parent)
         {
-            _states.Add(State((Rect2D){{0, 0}, {Unit(_target.Width()), Unit(_target.Height())}}, &_parent->_states[0]));
+            _states.Add(State((Rect2D){{0, 0}, {Unit(_target.Width()), Unit(_target.Height())}}, &_parent->CurrentState()));
         }
         
         // Management
         void Push(void)
         {
-            State state = _states[0];
-            _states.Insert(0, state);
+            _states.Add(CurrentState());
         }
         void Pop(void)
         {
-            if (_states.Count() == 1)
+            UInt32 count = _states.Count();
+            if (count == 1)
                 /* TODO: error */;
             else
-                _states.Remove(0);
+                _states.Remove(count - 1);
         }
         
         void SetClipping(const Path &path)
         {
-            _states[0].clipping = Clipping(path.Apply(_states[0].matrix), _parent ? &_parent->_states[0].clipping : NULL);
+            State &state = CurrentState();
+            state.clipping = Clipping(path.Apply(state.matrix), _parent ? &_parent->CurrentState().clipping : NULL);
         }
         
         // Matrix
@@ -380,7 +384,7 @@ namespace Graphics {
                 0, 1, y,
                 0, 0, 1
             };
-            _states[0].matrix *= Matrix2D(matrix);
+            CurrentState().matrix *= Matrix2D(matrix);
         }
         void Rotate(Unit angle)
         {
@@ -391,7 +395,7 @@ namespace Graphics {
                 -s, c,  0,
                 0,  0,  1
             };
-            _states[0].matrix *= Matrix2D(matrix);
+            CurrentState().matrix *= Matrix2D(matrix);
         }
         void Scale(Unit x, Unit y)
         {
@@ -400,16 +404,16 @@ namespace Graphics {
                 0, y, 0,
                 0, 0, 1
             };
-            _states[0].matrix *= Matrix2D(matrix);
+            CurrentState().matrix *= Matrix2D(matrix);
         }
         void Apply(Matrix2D transform)
         {
-            _states[0].matrix *= transform;
+            CurrentState().matrix *= transform;
         }
         
         const Matrix2D& CurrentTransform(void) const
         {
-            return _states[0].matrix;
+            return CurrentState().matrix;
         }
         
         void DrawPolygon(const Path &path, const Colour &colour);  // Solid fill

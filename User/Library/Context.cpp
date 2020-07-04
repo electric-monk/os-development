@@ -262,10 +262,12 @@ namespace Graphics {
         }
     };
     
-    static void ComputePolygonLine(Library::Array<int> &nodeX, const Path &path, Unit y)
+    template<typename ArrayType>
+    static void ComputePolygonLine(ArrayType &nodeX, const Path &path, Unit y)
     {
-        Path::Entry *previous = (Path::Entry*)&(*(path.End() - 1));
-        Library::ForEach(path, [&](const Path::Entry &entry){
+        Path::Entry *previous = (Path::Entry*)&(*(path.end() - 1));
+        nodeX.PrepareFor(path.end() - path.begin());
+        for (const auto& entry : path) {
             if (   (((entry._point.y <= y)
                     &&  (previous->_point.y >= y))
                 || ((previous->_point.y <= y)
@@ -274,42 +276,119 @@ namespace Graphics {
                     nodeX.Add(entry._point.x + (y - entry._point.y) / (previous->_point.y - entry._point.y) * (previous->_point.x - entry._point.x));
                 }
             previous = (Path::Entry*)&entry;
-            return true;
-        });
-        Library::Sort(nodeX.Start(), nodeX.End(), [](int &a, int &b){
+        }
+        Library::Sort(nodeX.begin(), nodeX.end(), [](int &a, int &b){
             return a < b;
         });
     }
     
-    static Library::Array<int> CombinePolygonLines(const Library::Array<int> &first, const Library::Array<int> &second)
+    template<typename Type>
+    class StaticArray
     {
-        Library::Array<int> result;
+    private:
+        Type *_array;
+        UInt32 _cursor;
+        UInt32 _length;
+    public:
+        StaticArray(Type *array, unsigned long size)
+        :_array(array), _length(UInt32(size) / sizeof(Type)), _cursor(0)
+        {}
         
-        for (auto it = first.Start(); it != first.End();) {
-            // Read values
-            int a1 = *it;
-            it++;
-            int a2 = *it;
-            it++;
-            // Search in second set
-            for (auto jt = second.Start(); jt != second.End();) {
-                // Read values
-                int b1 = *jt;
-                jt++;
-                int b2 = *jt;
-                jt++;
-                // See if we're out of range
-                if (b1 > a2)
-                    break;
-                if (b2 < a1)
-                    continue;
-                // Add it apparently
-                result.Add((a1 > b1) ? a1 : b1);
-                result.Add((a2 > b2) ? b2 : a2);
+        using Iterator = Type*;
+        using ConstIterator = const Type*;
+        
+        Iterator begin(void) { return _array; }
+        Iterator end(void) { return _array + _cursor; }
+        const Iterator begin(void) const { return _array; }
+        const Iterator end(void) const { return _array + _cursor; }
+        Type& operator[](int index) { return _array[index]; }
+        void PrepareFor(long) {}
+        void Add(const Type& v) { _array[_cursor++] = v; }
+    };
+    
+    template<typename ArrayTypeFirst, typename ArrayTypeSecond>
+    class PolygonLinesCombiner
+    {
+    private:
+        const ArrayTypeFirst &_first;
+        const ArrayTypeSecond &_second;
+    public:
+        struct Match {
+            int x1, x2;
+        };
+        class Iterator
+        {
+        private:
+            const PolygonLinesCombiner& _owner;
+            typename ArrayTypeFirst::ConstIterator _outer;
+            typename ArrayTypeSecond::ConstIterator _inner;
+            int _a1, _a2, _b1, _b2;
+            bool _done;
+            void Step(void)
+            {
+                while (true) {
+                    while (_inner != _owner._second.end()) {
+                        _b1 = *_inner;
+                        _inner++;
+                        _b2 = *_inner;
+                        _inner++;
+                        // See if we're out of range
+                        if (_b1 > _a2)
+                            break;
+                        if (_b2 < _a1)
+                            continue;
+                        // Add it apparently
+                        return;
+                    }
+                    if (_outer == _owner._first.end())
+                        break;
+                    _inner = _owner._second.begin();
+                    _a1 = *_outer;
+                    _outer++;
+                    _a2 = *_outer;
+                    _outer++;
+                }
+                _done = true;
             }
+        public:
+            Iterator(const PolygonLinesCombiner& owner, bool end)
+            :_owner(owner), _outer(end ? owner._first.end() : owner._first.begin()), _inner(owner._second.end()), _done(false)
+            {
+                Step();
+            }
+            
+            Match operator*() const
+            {
+                return {Library::Max(_a1, _b1), Library::Min(_a2, _b2)};
+            }
+            
+            Iterator& operator++()
+            {
+                Step();
+                return *this;
+            }
+            
+            bool operator!=(const Iterator& other)
+            {
+                return (_outer != other._outer) || (_inner != other._inner) || (_done != other._done);
+            }
+        };
+        
+        PolygonLinesCombiner(const ArrayTypeFirst &first, const ArrayTypeSecond &second)
+        :_first(first), _second(second)
+        {
         }
-        return result;
-    }
+        
+        Iterator begin() const
+        {
+            return Iterator(*this, false);
+        }
+        
+        Iterator end() const
+        {
+            return Iterator(*this, true);
+        }
+    };
     
     template<class Filler, class Source> void FillPolygon(Filler &output, Source &source, const State &state, const Path &path)
     {
@@ -318,23 +397,20 @@ namespace Graphics {
 //        int leftX = bounds.topLeft.x, rightX = bounds.bottomRight.x;
         int topY = bounds.topLeft.y, bottomY = bounds.bottomRight.y;
         for (int y = topY; y <= bottomY; y++) {
-            Library::Array<int> nodeX;
+            int nodeData[path.end() - path.begin()];
+            StaticArray<int> nodeX(nodeData, sizeof(nodeData));
             ComputePolygonLine(nodeX, path, y);
-            nodeX = CombinePolygonLines(nodeX, state.clipping.Clippings()[y - topY]);
-            for (auto it = nodeX.Start(); it != nodeX.End();) {
-                // Read values
-                int x1 = *it;
-                it++;
-                int x2 = *it;
-                it++;
+            PolygonLinesCombiner<StaticArray<int>, Library::Array<int>> combiner(nodeX, state.clipping.Clippings()[y - topY]);
+            for (auto chunk : combiner) {
                 // Draw line
-                for (int x = x1; x < x2; x++)
+                for (int x = chunk.x1; x < chunk.x2; x++)
                     output.Plot(x, y);
             }
         }
     }
     
     Clipping::Clipping(const Path &path, const Clipping *parent)
+    :_clippings(new Library::Array<Library::Array<int>>())
     {
         _bounds = path.Bounds();
         Rect2D otherBounds;
@@ -344,17 +420,27 @@ namespace Graphics {
         }
         int y0 = _bounds.topLeft.y;
         int y1 = _bounds.bottomRight.y;
+        _clippings->PrepareFor(1 + y1 - y0);
         for (int y = y0; y <= y1; y++) {
             Library::Array<int> nodeX;
             ComputePolygonLine(nodeX, path, y);
             if (parent) {
                 int offset = y - parent->_bounds.topLeft.y;
-                if ((offset >= 0) && (offset  < parent->_clippings.Count()))
-                    nodeX = CombinePolygonLines(nodeX, parent->_clippings[offset]);
-                else
-                    nodeX = Library::Array<int>();
+                if ((offset >= 0) && (offset < parent->_clippings->Count())) {
+                    Library::Array<int> replacement;
+                    replacement.PrepareFor(1 + y1 - y0);
+                    PolygonLinesCombiner<Library::Array<int>, Library::Array<int>> combiner(nodeX, (*parent->_clippings)[offset]);
+                    for (auto chunk : combiner) {
+                        replacement.Add(chunk.x1);
+                        replacement.Add(chunk.x2);
+                    }
+                    _clippings->Add(replacement);
+                } else {
+                    _clippings->Add(Library::Array<int>());
+                }
+            } else {
+                _clippings->Add(nodeX);
             }
-            _clippings.Add(nodeX);
         }
         _bounds.topLeft.y = y0;
         _bounds.bottomRight.y = y1;
@@ -476,7 +562,7 @@ namespace Graphics {
     void Context::DrawPolygon(const Path &path, const Colour &colour)
     {
         ConstantColour helper(colour);
-        DrawSomething(_target, _states[0], path, helper);
+        DrawSomething(_target, CurrentState(), path, helper);
     }
 
     template<class Source> class BitmapDrawer
@@ -507,41 +593,42 @@ namespace Graphics {
     };
     void Context::DrawBitmap(const Path &path, const FrameBuffer &bitmap)
     {
+        State &state = CurrentState();
         switch (bitmap.Type()) {
             case FrameBuffer::Format24RGB:
             {
                 BitmapDrawer<F24RGB> reader(bitmap);
-                DrawSomething(_target, _states[0], path, reader);
+                DrawSomething(_target, state, path, reader);
             }
                 break;
             case FrameBuffer::Format32RGBA:
             {
                 BitmapDrawer<F32RGBA> reader(bitmap);
-                DrawSomething(_target, _states[0], path, reader);
+                DrawSomething(_target, state, path, reader);
             }
                 break;
             case FrameBuffer::Format32RGBx:
             {
                 BitmapDrawer<F32RGBx> reader(bitmap);
-                DrawSomething(_target, _states[0], path, reader);
+                DrawSomething(_target, state, path, reader);
             }
                 break;
             case FrameBuffer::Format32BGRx:
             {
                 BitmapDrawer<F32BGRx> reader(bitmap);
-                DrawSomething(_target, _states[0], path, reader);
+                DrawSomething(_target, state, path, reader);
             }
                 break;
             case FrameBuffer::Format24BGR:
             {
                 BitmapDrawer<F24BGR> reader(bitmap);
-                DrawSomething(_target, _states[0], path, reader);
+                DrawSomething(_target, state, path, reader);
             }
                 break;
             case FrameBuffer::Format8GA:
             {
                 BitmapDrawer<F8GA> reader(bitmap);
-                DrawSomething(_target, _states[0], path, reader);
+                DrawSomething(_target, state, path, reader);
             }
                 break;
         }
@@ -577,41 +664,42 @@ namespace Graphics {
     };
     void Context::DrawBitmapTinted(const Path &path, const FrameBuffer &bitmap, const Colour &tint)
     {
+        State &state = CurrentState();
         switch (bitmap.Type()) {
             case FrameBuffer::Format24RGB:
             {
                 BitmapTinter<F24RGB> reader(bitmap, tint);
-                DrawSomething(_target, _states[0], path, reader);
+                DrawSomething(_target, state, path, reader);
             }
                 break;
             case FrameBuffer::Format32RGBA:
             {
                 BitmapTinter<F32RGBA> reader(bitmap, tint);
-                DrawSomething(_target, _states[0], path, reader);
+                DrawSomething(_target, state, path, reader);
             }
                 break;
             case FrameBuffer::Format32RGBx:
             {
                 BitmapTinter<F32RGBx> reader(bitmap, tint);
-                DrawSomething(_target, _states[0], path, reader);
+                DrawSomething(_target, state, path, reader);
             }
                 break;
             case FrameBuffer::Format32BGRx:
             {
                 BitmapTinter<F32BGRx> reader(bitmap, tint);
-                DrawSomething(_target, _states[0], path, reader);
+                DrawSomething(_target, state, path, reader);
             }
                 break;
             case FrameBuffer::Format24BGR:
             {
                 BitmapTinter<F24BGR> reader(bitmap, tint);
-                DrawSomething(_target, _states[0], path, reader);
+                DrawSomething(_target, state, path, reader);
             }
                 break;
             case FrameBuffer::Format8GA:
             {
                 BitmapTinter<F8GA> reader(bitmap, tint);
-                DrawSomething(_target, _states[0], path, reader);
+                DrawSomething(_target, state, path, reader);
             }
                 break;
         }
@@ -675,8 +763,8 @@ namespace Graphics {
     
     void Context::DrawLine(const Path &path, const Colour &colour, Unit width)
     {
-        auto start = path.Start();
-        auto end = path.End();
+        auto start = path.begin();
+        auto end = path.end();
         if (start == end)
             return;
         Path::Entry previous = *start;

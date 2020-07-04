@@ -159,43 +159,40 @@ namespace Window {
             this->HitTest(result, location);
             const Window *newTop = NULL;
             int rootCount = 0;
-            Library::ForEach(result, [&](const Window *window){
+            for (const Window* window : result) {
                 if (window == _mousePointer)
-                    return true;
+                    continue;
                 // Yuck - de-const :(
                 if (((Window*)window)->TouchDown(window->FullTransform().Invert().Apply(location), button)) {
                     _touches[button] = (Window*)window;
-                    return false;
+                    break;
                 }
                 if (window->Parent() == this) {
                     rootCount++;
                     if (rootCount == 1)
                         newTop = window;
                     else if (rootCount == 2)
-                        return false;
+                        break;
                 }
-                return true;
-            });
+            }
 #define LEVEL_MIN   0
 #define LEVEL_MAX   1000000
             if (newTop) {
                 SInt32 oldLevel = newTop->Level();
                 if ((oldLevel >= LEVEL_MIN) && (oldLevel <= LEVEL_MAX)) {
                     Library::Array<const Window*> adjustableChildren;
-                    Library::ForEach(this->Children(), [&](const Window *window){
+                    for (const Window* window : this->Children()) {
                         SInt32 level = window->Level();
                         if ((window != newTop) && ((level >= LEVEL_MIN) && (level <= LEVEL_MAX)))
                             adjustableChildren.Add(window);
-                        return true;
-                    });
+                    }
                     SInt32 levelGap = (LEVEL_MAX - LEVEL_MIN) / (adjustableChildren.Count() + 2);
                     SInt32 count = levelGap;
-                    Library::ForEach(adjustableChildren, [&](const Window *window){
+                    for (const Window* window : adjustableChildren) {
                         ((Window*)window)->SetFocused(false);
                         ((Window*)window)->SetLevelWithoutDirty(count);
                         count += levelGap;
-                        return true;
-                    });
+                    }
                     ((Window*)newTop)->SetLevel(count);
                     ((Window*)newTop)->SetFocused(true);
                 }

@@ -5,7 +5,15 @@
 #include "Function.h"
 
 namespace Library {
-    
+    template<class T> T Max(const T& a, const T& b)
+    {
+        return (a > b) ? a : b;
+    }
+    template<class T> T Min(const T& a, const T& b)
+    {
+        return (a < b) ? a : b;
+    }
+
     template<class T> void Swap(T &a, T &b)
     {
         UInt8 temp[sizeof(T)];
@@ -26,7 +34,7 @@ namespace Library {
         b = temp;
     }
     
-    template<class Iterator> UInt64 _QuickSortPartition(Iterator start, UInt64 lo, UInt64 hi, Function<bool(decltype(*start), decltype(*start))> comparator)
+    template<class Iterator, typename Sorter> UInt64 _QuickSortPartition(Iterator start, UInt64 lo, UInt64 hi, Sorter comparator)
     {
         decltype(*start) pivot = *(start + lo);
         UInt64 i = lo - 1;
@@ -44,7 +52,7 @@ namespace Library {
         }
     }
     
-    template<class Iterator> void _QuickSort(Iterator start, UInt64 lo, UInt64 hi, Function<bool(decltype(*start), decltype(*start))> comparator)
+    template<class Iterator, typename Sorter> void _QuickSort(Iterator start, UInt64 lo, UInt64 hi, Sorter comparator)
     {
         if (lo >= hi)
             return;
@@ -53,12 +61,10 @@ namespace Library {
         _QuickSort(start, p + 1, hi, comparator);
     }
     
-    template<class Iterator> void Sort(Iterator start, Iterator end, Function<bool(decltype(*start), decltype(*start))> comparator)
+    template<class Iterator, typename Sorter> void Sort(Iterator start, Iterator end, Sorter comparator)
     {
         // TODO: Measure sensibly?
-        UInt64 length = 0;
-        for (Iterator temp = start; temp != end; temp++)
-            length++;
+        UInt64 length = end - start;
         if (length == 0)
             return;
         // Quicksort
@@ -94,7 +100,7 @@ namespace Library {
         Array()
         {
             _count = 0;
-            _max = 512;
+            _max = 4;
             _index = new char[sizeof(ObjType) * _max];
         }
         Array(const Array &other)
@@ -102,13 +108,14 @@ namespace Library {
             _count = other._count;
             _max = other._max;
             _index = new char[sizeof(ObjType) * _max];
-            for (UInt32 i = 0; i < _count; i++)
-                new (_index + (sizeof(ObjType) * i)) ObjType(reinterpret_cast<ObjType*>(other._index)[i]);
+            ObjType *to = reinterpret_cast<ObjType*>(_index);
+            ObjType *from = reinterpret_cast<ObjType*>(other._index);
+            for (UInt32 i = _count; i; i--, to++, from++)
+                new (to) ObjType(*from);
         }
         ~Array()
         {
-            for (UInt32 i = 0; i < _count; i++)
-                reinterpret_cast<ObjType*>(_index)[i].~ObjType();
+            Clear();
             delete[] _index;
         }
         Array& operator=(const Array &other)
@@ -129,21 +136,29 @@ namespace Library {
             return *this;
         }
         
-        Iterator Start(void)
+        Iterator begin(void)
         {
             return reinterpret_cast<ObjType*>(_index);
         }
-        Iterator End(void)
+        Iterator end(void)
         {
             return reinterpret_cast<ObjType*>(_index) + _count;
         }
-        ConstIterator Start(void) const
+        ConstIterator begin(void) const
         {
             return reinterpret_cast<ObjType*>(_index);
         }
-        ConstIterator End(void) const
+        ConstIterator end(void) const
         {
             return reinterpret_cast<ObjType*>(_index) + _count;
+        }
+        
+        void Clear(void)
+        {
+            ObjType *objs = reinterpret_cast<ObjType*>(_index);
+            for (UInt32 i = _count; i; i--, objs++)
+                objs->~ObjType();
+            _count = 0;
         }
         
         Array Reverse(void) const
@@ -199,21 +214,23 @@ namespace Library {
             return _count;
         }
         
+        void PrepareFor(UInt32 maxAdditions)
+        {
+            CheckSize(maxAdditions);
+        }
+        
     private:
         char *_index;
         UInt32 _count, _max;
         
-        void CheckSize(void)
+        void CheckSize(UInt32 adding = 1)
         {
             UInt32 newMax = _max;
-            if (_count == _max)
-                newMax *= 2;
-            if (_count < (_max / 2))
-                newMax /= 2;
-            if (newMax < 8)
-                newMax = 8;
+            if ((_count + adding) >= _max)
+                newMax += Max(UInt32(512), adding);
             if (newMax != _max) {
                 char *newIndex = new char[sizeof(ObjType) * newMax];
+                // I don't think this is safe
                 CopyMemory(newIndex, _index, sizeof(ObjType) * _count);
                 delete[] _index;
                 _index = newIndex;
@@ -275,24 +292,24 @@ namespace Library {
                     _entries.Remove(0);
             }
             
-            typename Array<KeyValuePair>::Iterator Start(void)
+            typename Array<KeyValuePair>::Iterator begin(void)
             {
-                return _entries.Start();
+                return _entries.begin();
             }
 
-            typename Array<KeyValuePair>::Iterator End(void)
+            typename Array<KeyValuePair>::Iterator end(void)
             {
-                return _entries.End();
+                return _entries.end();
             }
 
-            typename Array<KeyValuePair>::ConstIterator Start(void) const
+            typename Array<KeyValuePair>::ConstIterator begin(void) const
             {
-                return _entries.Start();
+                return _entries.begin();
             }
             
-            typename Array<KeyValuePair>::ConstIterator End(void) const
+            typename Array<KeyValuePair>::ConstIterator end(void) const
             {
-                return _entries.End();
+                return _entries.end();
             }
 
         private:
@@ -320,13 +337,13 @@ namespace Library {
             typename Array<KeyValuePair>::ConstIterator _active;
         public:
             KvpIterator(const Dictionary &owner, bool end)
-            :_owner(owner), _current(end ? owner._slots.End() : owner._slots.Start())
+            :_owner(owner), _current(end ? owner._slots.end() : owner._slots.begin())
             {
                 if (!end) {
-                    _active = (*_current).Start();
-                    while ((_active == (*_current).End()) && (_current != _owner._slots.End())) {
+                    _active = (*_current).begin();
+                    while ((_active == (*_current).end()) && (_current != _owner._slots.end())) {
                         _current++;
-                        _active = (*_current).Start();
+                        _active = (*_current).begin();
                     }
                 }
             }
@@ -346,13 +363,13 @@ namespace Library {
             KvpIterator& operator++(void)
             {
                 _active++;
-                if (_active == (*_current).End()) {
-                    while (_current != _owner._slots.End()) {
+                if (_active == (*_current).end()) {
+                    while (_current != _owner._slots.end()) {
                         _current++;
-                        if (_current == _owner._slots.End())
+                        if (_current == _owner._slots.end())
                             break;
-                        _active = (*_current).Start();
-                        if (_active != (*_current).End())
+                        _active = (*_current).begin();
+                        if (_active != (*_current).end())
                             break;
                     }
                 }
@@ -374,7 +391,7 @@ namespace Library {
 //                    return false;
                 if (l._current != r._current)
                     return false;
-                if (l._current == l._owner._slots.End())
+                if (l._current == l._owner._slots.end())
                     return true;
                 return l._active == r._active;
             }
@@ -478,6 +495,85 @@ namespace Library {
         Updater operator[](KeyType key)
         {
             return Updater(*this, Get(key));
+        }
+    };
+    
+    template<typename C>
+    class SharedPointer
+    {
+    private:
+        class Reference
+        {
+        private:
+            UInt32 _refCount;
+            C *_pointer;
+        public:
+            Reference(C *pointer)
+            :_pointer(pointer), _refCount(0)
+            {
+            }
+            void AddRef(void)
+            {
+                _refCount++;
+            }
+            void Release(void)
+            {
+                _refCount--;
+                if (!_refCount)
+                    delete _pointer;
+            }
+            C* Pointer(void) const
+            {
+                return _pointer;
+            }
+        private:
+            ~Reference() {}
+        };
+        Reference *_reference;
+    public:
+        SharedPointer(C *newPointer)
+        :_reference(new Reference(newPointer))
+        {
+            _reference->AddRef();
+        }
+        
+        SharedPointer(const SharedPointer<C>& other)
+        :_reference(other._reference)
+        {
+            _reference->AddRef();
+        }
+        
+        ~SharedPointer()
+        {
+            _reference->Release();
+        }
+        
+        C& operator*()
+        {
+            return *_reference->Pointer();
+        }
+        C* operator->()
+        {
+            return _reference->Pointer();
+        }
+        const C& operator*() const
+        {
+            return *_reference->Pointer();
+        }
+        const C* operator->() const
+        {
+            return _reference->Pointer();
+        }
+
+        SharedPointer<C>& operator=(const SharedPointer<C>& other)
+        {
+            if (this != &other) {
+                Reference *old = _reference;
+                _reference = other._reference;
+                _reference->AddRef();
+                old->Release();
+            }
+            return *this;
         }
     };
 }

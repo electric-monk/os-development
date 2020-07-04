@@ -11,10 +11,8 @@
 namespace Window {
     Window::~Window()
     {
-        Library::ForEach(_children, [](Window *child){
+        for (Window* child : _children)
             delete child;
-            return true;
-        });
     }
     
     void Window::SetFrame(Graphics::Frame2D frame)
@@ -69,9 +67,9 @@ namespace Window {
         Graphics::Context subcontext(context);
         Draw(subcontext, projectedRegion);
         // TODO: Use opaque info to work out what to draw
-        Library::ForEach(_children, [&](Window *child){
+        for (Window* child : _children) {
             if (child->Hidden())
-                return true;
+                continue;
             subcontext.Push();
             Graphics::Frame2D frame = child->Frame();
             subcontext.Translate(frame.origin.x, frame.origin.y);
@@ -79,8 +77,7 @@ namespace Window {
             Graphics::Context subsubcontext(subcontext);
             child->DrawAll(subsubcontext, region);
             subcontext.Pop();
-            return true;
-        });
+        }
     }
 
     void Window::AddChild(Window *window)
@@ -129,7 +126,7 @@ namespace Window {
     
     void Window::UpdateLevels(void)
     {
-        Library::Sort(_children.Start(), _children.End(), [](Window *a, Window *b){
+        Library::Sort(_children.begin(), _children.end(), [](Window *a, Window *b){
             return a->_level < b->_level;
         });
     }
@@ -145,10 +142,8 @@ namespace Window {
         location.x -= _frame.origin.x;
         location.y -= _frame.origin.y;
         Graphics::Point2D transformed = _transform.Apply(location);
-        Library::ForEach(_children.Reverse(), [&](Window *window){
+        for (Window* window : _children)
             window->HitTest(result, transformed);
-            return true;
-        });
     }
     static void TransformSearch(Graphics::Matrix2D &result, const Window *entry)
     {
