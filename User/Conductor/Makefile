@@ -18,7 +18,7 @@ SRC = $(patsubst %.so,%.asm,$(patsubst %.o,%.cpp,$(OBJS)))
 	$(CC) $(CFLAGS) -c $< -o $@
 
 Conductor.task: $(OBJS)
-	$(LD) $(LFLAGS) -T User.ld -o $@ $^ -lsystem
+	$(LD) $(LFLAGS) -T User.ld -Map conductor.map -o $@ $^ -lsystem
 
 clean:
 	rm *.o *.so Conductor.task
