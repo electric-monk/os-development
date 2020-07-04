@@ -2,7 +2,8 @@
 kernel.elf
 *.so
 *.o
-kernel.map
+*.a
+*.map
 .depend
 a.out*
 *.task
